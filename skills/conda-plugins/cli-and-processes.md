@@ -2,38 +2,35 @@
 
 Read this guide when a plugin parses commands, launches programs, manages local state, adds request headers, or authenticates channels. Apply the target repository's conventions and supported conda versions.
 
-## Separate plugin arguments from child arguments
+## Follow standard argparse behavior
 
-Choose where plugin parsing stops. For a new command runner, put the executable and its arguments in one `argparse.REMAINDER` positional. Plugin options must precede that command:
+Define options, positionals, and subcommands through the parser supplied by conda. Let argparse handle option placement, types, choices, required arguments, help, and errors. Do not impose an options-first rule or stop recognizing options at the first positional argument.
+
+For example, with these argument definitions, both `conda example numpy -e dev` and `conda example -e dev numpy` select the same package and environment:
 
 ```python
-parser.add_argument("command", nargs=argparse.REMAINDER, metavar="COMMAND")
+parser.add_argument("package")
+parser.add_argument("-e", "--environment")
 ```
 
-Remove only a wrapper separator at the start of the entire command, before the executable. Preserve every argument after the executable:
+Preserve the [standard argparse meaning of `--`](https://docs.python.org/3/library/argparse.html#arguments-containing): following tokens are positional values, even if they begin with `-`. Unknown options should produce normal parser errors. Do not default to `argparse.REMAINDER` or partial parsing for ordinary plugin commands.
+
+A subcommand that launches another program needs documented forwarding syntax specific to that command. Test which arguments belong to the plugin and which belong to the child. Preserve an existing runner's documented behavior without making its parsing choices a rule for other plugins.
+
+Keep a standalone console script and the conda subcommand on the same parser and handler. Preserve established command naming. For new workspace-style management commands, use `-e` or `--environment` for the target and reserve the positional argument for the package or executable. Distinguish removing a dependency from deleting its entire environment.
+
+## Execute child programs
+
+Once parsing has identified the child's argument list, pass it unchanged to `subprocess.run` or `Popen`. Preserve spaces, empty arguments, literal quote characters, and any `--` belonging to the child. Shell syntax quotes have already been processed before Python receives the arguments. Do not join the list and parse it again with `shlex.split`. Do not enable `shell=True` to solve quoting problems.
 
 ```python
-command = list(args.command)
-if command[:1] == ["--"]:
-    command = command[1:]
-if not command:
-    raise CondaValueError("Provide an executable to run.")
-
-result = subprocess.run(command, env=child_env)
+result = subprocess.run(argv, env=child_env)
 if os.name == "posix" and result.returncode < 0:
     return 128 - result.returncode
 return result.returncode
 ```
 
-The handler uses `CondaValueError` from `conda.exceptions`. With this layout, both `conda example grep -- -pattern` and `conda example -- grep -- -pattern` forward `grep`, `--`, and `-pattern`. The child needs its separator to interpret `-pattern` as data.
-
-For `conda example -- ruff check --output-format json`, `--output-format` and `json` belong to Ruff. Preserve spaces, empty arguments, quotes, and later `--` arguments as individual strings. Do not join the list and parse it again with `shlex.split`. Do not enable `shell=True` to solve quoting problems.
-
-When maintaining an existing runner, preserve its documented separator syntax explicitly. A separate executable positional followed by a remainder can consume a child's leading `--` during parsing, so test the actual parser's forwarding behavior.
-
 Preserve ordinary child exit statuses. On POSIX, `subprocess` represents signal termination as a negative number. The example converts it to the conventional shell status `128 + signal` rather than passing a negative number to `sys.exit`. If the command promises conventional launcher errors, distinguish an executable that cannot be found from one that cannot be executed, commonly statuses 127 and 126.
-
-Keep a standalone console script and the conda subcommand on the same parser and handler. Preserve established command naming. For new workspace-style management commands, use `-e` or `--environment` for the target and reserve the positional argument for the package or executable. Distinguish removing a dependency from deleting its entire environment.
 
 ## Choose an activation level
 
@@ -226,7 +223,8 @@ Expose credential status through an allowlist of safe fields. Do not serialize t
 
 Use parametrized tests for these cases:
 
-- Plugin options before the executable, child options after it, a child-owned `--`, and arguments containing spaces or an empty string.
+- Option placement supported by the configured parser, including before and after a single positional, `--` handling, and unknown-option errors.
+- For command runners, the documented forwarding syntax, a child-owned `--`, and arguments containing spaces or an empty string.
 - Normal exit, nonzero exit, POSIX signal termination, missing executable, and permission failure.
 - Activation variables added and unset, with the parent environment unchanged.
 - JSON parsed from the complete stdout string while nested handlers emit progress.

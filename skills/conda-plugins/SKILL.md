@@ -21,7 +21,7 @@ For a new plugin, start with one installed entry point and one working hook. Add
 2. Give each operation a clear owner. Normalize format input once. Put behavior on the model or adapter that owns its inputs. Keep CLI parsing and rendering outside reusable operations.
 3. Reuse conda's environment, configuration, package, solver, activation, and plugin APIs. Use an existing schema's validator and serializer. Avoid a parallel configuration parser, dependency solver, or general framework.
 4. Keep data claims exact. Declared requirements, resolved records, requested roots, verified evidence, and authorization are different facts. Preserve that distinction in models and output.
-5. Give each command one output owner. JSON is one complete unstyled value on stdout. Composite commands collect child results and control their output. Process-launching commands preserve argument and exit-status semantics.
+5. Follow standard argparse behavior for options and positionals. Give each command one output owner. JSON is one complete unstyled value on stdout. Composite commands collect child results and control their output. Process-launching commands preserve argument and exit-status semantics.
 6. Verify observable behavior in the intended runtime. Cover installed discovery, errors, relevant platform behavior, and the target repository's full checks. Regenerate `pixi.lock` after Pixi metadata changes.
 
 ## Load the relevant pattern
