@@ -6,24 +6,35 @@ The [conda-plugins skill](skills/conda-plugins/SKILL.md) synthesizes the develop
 
 The skill uses the portable [Agent Skills format](https://agentskills.io/specification). It does not require a particular agent's tool names, shell-injection features, or lifecycle hooks.
 
-Install the three [required companion skills](#required-companion-skills) before using this skill for plugin work.
+The setup command below installs this skill and its three [required companions](#required-companion-skills) for Codex, Claude Code, and Kilo.
 
 ## Install with npx
 
 You need read access to this repository, Git, and Node.js 22.20 or later. Authenticate with `gh auth login` if needed, or use your existing Git credentials or SSH keys. The [Skills CLI](https://github.com/vercel-labs/skills/blob/main/docs/commands.md#private-repositories) supports private repositories through those credentials.
 
-The examples pin Skills CLI 1.7.4. List the available skills, then install `conda-plugins` for your clients:
+Paste this single setup command into Bash, Zsh, or Git Bash on Windows. It installs `conda-plugins`, the complete Superpowers and Ponytail skill collections, and Humanizer for all three clients:
 
 ```sh
-DISABLE_TELEMETRY=1 npx skills@1.7.4 add jezdez/conda-plugin-skills --list
-DISABLE_TELEMETRY=1 npx skills@1.7.4 add jezdez/conda-plugin-skills --skill conda-plugins --global --agent codex claude-code kilo --copy
+(
+  export DISABLE_TELEMETRY=1
+  install_skills() {
+    npx --yes skills@1.7.4 add "$@" \
+      --global --agent codex claude-code kilo --copy --yes --json
+  }
+  install_skills jezdez/conda-plugin-skills --skill conda-plugins &&
+    install_skills obra/superpowers/skills --skill '*' &&
+    install_skills blader/humanizer --skill humanizer &&
+    install_skills DietrichGebert/ponytail/skills --skill '*'
+)
 ```
 
-Keep only the client names you use after `--agent`. `--global` makes the skill available across your projects. `--copy` avoids symlink requirements. Review the installation prompt, especially if the skill is already installed.
+Keep only the client names you use after `--agent`. `--global` makes the skills available across your projects. `--copy` preserves complete skill directories without requiring symlinks. The command pins Skills CLI 1.7.4 and installs the current upstream skills. It reports each installation as JSON and stops if an installation fails.
+
+Both `--yes` flags accept installation prompts, including replacement of matching installed skills. Review existing copies first. To inspect a source before installing it, run `DISABLE_TELEMETRY=1 npx skills@1.7.4 add <source> --list` with one of the four source names above.
 
 `DISABLE_TELEMETRY=1` disables the CLI's telemetry and security-audit requests. npm still supplies the CLI, and GitHub serves the private repository. See the [upstream privacy details](https://github.com/vercel-labs/skills/blob/main/docs/troubleshooting.md#telemetry).
 
-The commands above use macOS/Linux shell syntax. In PowerShell, first run `$env:DISABLE_TELEMETRY = '1'`, then run the same `npx skills@1.7.4` commands without the environment-variable prefix.
+PowerShell users can run the setup command in Git Bash. For the individual `npx` commands elsewhere in this README, first run `$env:DISABLE_TELEMETRY = '1'`, then omit their `DISABLE_TELEMETRY=1` prefix.
 
 For SSH authentication, replace `jezdez/conda-plugin-skills` with `git@github.com:jezdez/conda-plugin-skills.git`. For a project installation, run the install command from that project's root and omit `--global`. Only commit these private skill files and the generated `skills-lock.json` where their intended audience has access.
 
@@ -75,7 +86,7 @@ DISABLE_TELEMETRY=1 npx skills@1.7.4 check
 DISABLE_TELEMETRY=1 npx skills@1.7.4 update conda-plugins --global
 ```
 
-`list` shows installed skills. `check` checks recorded installations for updates without reinstalling them. The last command updates only `conda-plugins` in user scope. For a project installation, run `list` without `--global` and use `update conda-plugins --project` from that project. Manual copies need to be refreshed manually.
+`list` shows installed skills. `check` checks recorded installations for updates without reinstalling them. The last command updates only `conda-plugins` in user scope. Rerun the setup command to refresh this skill and all three companions together. For a project installation, run `list` without `--global` and use `update conda-plugins --project` from that project. Manual copies need to be refreshed manually.
 
 ## Manual installation
 
@@ -92,9 +103,11 @@ cp -R skills/conda-plugins "$HOME/.claude/skills/"
 
 These are first-install commands. Compare or back up an existing skill before replacing it. The `.agents` copy serves Codex and current Kilo, and the `.claude` copy serves Claude Code. On Windows, copy the whole `skills/conda-plugins/` folder into those directories with Explorer or PowerShell. Keep its reference files together because their links are relative, and update each copy together.
 
+These manual commands copy only `conda-plugins`. Install the three required companions using their upstream instructions below before using the workflow.
+
 ## Required companion skills
 
-Superpowers, Humanizer, and Ponytail are prerequisites for this workflow in Codex, Kilo, and Claude Code. Install them separately using each upstream's instructions for your client. The `npx skills` command above installs this repository's conda skill only.
+Superpowers, Humanizer, and Ponytail are prerequisites for this workflow in Codex, Kilo, and Claude Code. The [setup command](#install-with-npx) installs all three alongside `conda-plugins`. It includes the complete Superpowers and Ponytail collections because their workflows refer to sibling skills and supporting files.
 
 The skill instructs the agent to confirm all three companions are available before plugin work. If one is missing or cannot be loaded, the agent must report it and stop, unless you explicitly waive that prerequisite for the task. This is an instruction-level check, not an installer-enforced dependency. The [Agent Skills format](https://agentskills.io/specification) has no standard field for automatically installing dependent skills.
 
@@ -104,7 +117,7 @@ The skill instructs the agent to confirm all three companions are available befo
 | Humanizer | Documentation, explanations, and review prose that preserve technical facts and read naturally | [blader/humanizer](https://github.com/blader/humanizer#readme) |
 | Ponytail | The smallest complete change, reuse of existing APIs, and removal of unnecessary machinery | [DietrichGebert/ponytail installation guide](https://github.com/DietrichGebert/ponytail/blob/main/INSTALL.md) |
 
-Use each upstream's current instructions for your client. For Claude Code, Superpowers documents `/plugin install superpowers@claude-plugins-official`. Codex users can install Superpowers through the app's Plugins interface or the CLI's `/plugins` interface. Humanizer and Ponytail document their own marketplace or skill-installation options.
+The setup command installs portable skills. For native plugin features such as lifecycle hooks, follow each upstream's current instructions for your client. For Claude Code, Superpowers documents `/plugin install superpowers@claude-plugins-official`. Codex users can install Superpowers through the app's Plugins interface or the CLI's `/plugins` interface. Humanizer and Ponytail document their own marketplace or skill-installation options. If you already use a native plugin, check its available skills before installing duplicate copies.
 
 For Kilo, standard skill folders can be placed in its supported skills directory. Preserve each skill's referenced files and confirm that the agent can load them. Copying a skill folder does not enable the source plugin's lifecycle hooks or client-specific tools. Ponytail also documents a native Kilo plugin installation. Superpowers' current README does not document equivalent Kilo lifecycle integration.
 
@@ -144,4 +157,4 @@ skills/conda-plugins/
     sources.md
 ```
 
-Commands and paths were checked on 23 October 2026. Skills CLI 1.7.4 copied the complete skill folder for the three agent targets in a temporary project using a local source. Actual client discovery and invocation, and installation from the private GitHub source, remain untested.
+Commands and paths were checked on 23 October 2026. The setup command's source selections and stop-on-failure behavior passed in Bash, Zsh, and a POSIX shell. Skills CLI 1.7.4 copied all 23 current skills and their supporting files for the three agent targets in a temporary project, using this checkout and downloaded public source snapshots. Global installation, actual client discovery and invocation, and installation from the private GitHub source remain untested.
