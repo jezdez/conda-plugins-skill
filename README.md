@@ -2,7 +2,9 @@
 
 A private collection of Agent Skills for colleagues developing conda plugins with Codex, Kilo, or Claude Code.
 
-The [conda-plugins skill](skills/conda-plugins/SKILL.md) synthesizes the development practices in recent conda plugins and their `AGENTS.md` files. It teaches cheap hook registration, code ownership, typed settings, CLI and process behavior, format adapters, exact package inventories, solver targets, and verification through bundled instructions and examples. Agents load the relevant guide as needed and apply the target repository's own rules. External source links are optional provenance.
+The [conda-plugins skill](skills/conda-plugins/SKILL.md) synthesizes the development practices in Jannis Leidel's recent conda plugins and their `AGENTS.md` files. It teaches cheap hook registration, code ownership, typed settings, CLI and process behavior, format adapters, exact package inventories, solver targets, and verification through bundled instructions and examples. Agents load all references relevant to the task and apply the target repository's own rules. External source links are optional provenance.
+
+The skill uses the portable [Agent Skills format](https://agentskills.io/specification). It does not require a particular agent's tool names, shell-injection features, or lifecycle hooks.
 
 ## Install with npx
 
@@ -25,7 +27,7 @@ For SSH authentication, replace `jezdez/conda-plugin-skills` with `git@github.co
 
 ## Where the skill goes
 
-Each directory contains `SKILL.md` and its reference files. These are the [Skills CLI's default destinations](https://github.com/vercel-labs/skills/blob/main/docs/agents.md):
+Each installation contains `SKILL.md` and the complete `references/` directory. These are the [Skills CLI's default destinations](https://github.com/vercel-labs/skills/blob/main/docs/agents.md):
 
 | Client | `--agent` value | User installation with `--global` | Project installation |
 | --- | --- | --- | --- |
@@ -33,7 +35,11 @@ Each directory contains `SKILL.md` and its reference files. These are the [Skill
 | Claude Code | `claude-code` | `~/.claude/skills/conda-plugins/` | `.claude/skills/conda-plugins/` |
 | Kilo Code and Kilo CLI | `kilo` | `~/.kilo/skills/conda-plugins/` | `.agents/skills/conda-plugins/` |
 
-Current Kilo also reads `~/.agents/skills/` directly. If you install for Codex, Kilo can use that shared copy without a separate `--agent kilo` installation. On Windows, `~` means your user profile directory. Custom client home settings can change their configured paths.
+Current Kilo also reads `~/.agents/skills/` directly. If you install for Codex, Kilo can use that shared copy without a separate `--agent kilo` installation. Claude Code needs its own copy or supported directory symlink under `.claude/skills`. If you keep multiple copies, update them together.
+
+On Windows, `~` means your user profile directory. Custom client home settings can change their configured paths. Current Kilo also supports `.kilo/skills`. Older Kilo extensions used `.kilocode/skills`, so check the documentation for an older installation.
+
+Current paths were checked on 23 October 2026 against [Codex skills](https://learn.chatgpt.com/docs/build-skills), [Kilo skills](https://kilo.ai/docs/customize/skills), and [Claude Code skills](https://code.claude.com/docs/en/skills).
 
 ## Use it
 
@@ -47,7 +53,17 @@ For any client:
 
 > Use the conda-plugins skill to add a conda subcommand in this repository. Read the applicable repository instructions first, identify the development environment and supported conda versions, then implement and test the smallest complete change.
 
-The skill works with the project's `AGENTS.md` and existing client instructions. Read the [instruction-loading details](skills/conda-plugins/README.md#repository-instructions-in-each-client) for Codex overrides, nested instructions, and Claude Code's `CLAUDE.md` compatibility.
+Check discovery by asking the client to identify the installed skill, then asking it to open the references needed for a sample task. The skill works with the project's `AGENTS.md` and existing client instructions.
+
+## Repository instructions in each client
+
+The skill tells the agent to read applicable instructions explicitly. That remains necessary when working below the directory where the session started.
+
+- Codex discovers instructions along the directory chain to its starting directory. `AGENTS.override.md` takes precedence over `AGENTS.md` at the same level. Read deeper instructions before editing their files. See [Codex AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md).
+- Kilo supports root `AGENTS.md` and loads nested guidance while reading files in those directories. See [Kilo AGENTS.md](https://kilo.ai/docs/customize/agents-md).
+- Claude Code 2.1.277 and later can load `AGENTS.md` automatically. By default, this applies when no `CLAUDE.md`, `.claude/CLAUDE.md`, or `CLAUDE.local.md` exists in the working directory or above. It does not recognize `AGENTS.override.md`. For older versions, or when a `CLAUDE.md` is already in use, add `@AGENTS.md` to that file with the correct relative path. Preserve its existing instructions. See [Claude Code AGENTS.md support](https://code.claude.com/docs/en/memory#agentsmd).
+
+Do not replace existing instruction files during skill installation. Root instructions should hold shared project rules. Put specialized instructions near their code, and link detailed guides from the relevant instruction file. Review referenced rules when the task reaches that area.
 
 ## Inspect and update
 
@@ -72,28 +88,50 @@ mkdir -p "$HOME/.claude/skills"
 cp -R skills/conda-plugins "$HOME/.claude/skills/"
 ```
 
-These are first-install commands. Compare or back up an existing skill before replacing it. The `.agents` copy serves Codex and current Kilo, and the `.claude` copy serves Claude Code. On Windows, copy the whole `skills/conda-plugins/` folder into those directories with Explorer or PowerShell. Keep its reference files together and update each copy together.
+These are first-install commands. Compare or back up an existing skill before replacing it. The `.agents` copy serves Codex and current Kilo, and the `.claude` copy serves Claude Code. On Windows, copy the whole `skills/conda-plugins/` folder into those directories with Explorer or PowerShell. Keep its reference files together because their links are relative, and update each copy together.
 
-## Recommended companions
+## Recommended companion skills
 
-- [Superpowers](https://github.com/obra/superpowers) for planning, debugging, meaningful tests, and evidence before completion claims.
-- [Humanizer](https://github.com/blader/humanizer) for clear technical prose that preserves the facts.
-- [Ponytail](https://github.com/DietrichGebert/ponytail/blob/main/INSTALL.md) for small, complete changes and reuse of existing APIs.
+Install these when they fit your team's workflow. The conda skill works independently, and recommending a companion does not authorize an agent to install it.
 
-Follow each upstream's instructions for your client. These are optional. Repository requirements still apply, including necessary checks. See the [companion guide](skills/conda-plugins/README.md#recommended-companion-skills) for installation options and client limitations.
+| Skill | Use it for | Authoritative installation source |
+| --- | --- | --- |
+| Superpowers | Planning substantial changes, reproducing bugs, useful tests, code review, and evidence before completion claims | [obra/superpowers](https://github.com/obra/superpowers#readme) |
+| Humanizer | Documentation, explanations, and review prose that preserve technical facts and read naturally | [blader/humanizer](https://github.com/blader/humanizer#readme) |
+| Ponytail | The smallest complete change, reuse of existing APIs, and removal of unnecessary machinery | [DietrichGebert/ponytail installation guide](https://github.com/DietrichGebert/ponytail/blob/main/INSTALL.md) |
+
+Use each upstream's current instructions for your client. For Claude Code, Superpowers documents `/plugin install superpowers@claude-plugins-official`. Codex users can install Superpowers through the app's Plugins interface or the CLI's `/plugins` interface. Humanizer and Ponytail document their own marketplace or skill-installation options.
+
+For Kilo, standard skill folders can be placed in its supported skills directory. Preserve each skill's referenced files. Copying a skill folder does not enable the source plugin's lifecycle hooks or client-specific tools. Ponytail also documents a native Kilo plugin installation. Superpowers' current README does not document equivalent Kilo lifecycle integration.
+
+Repository rules and the user's scope still apply. Ponytail is not a reason to omit necessary checks. Humanizer must not invent evidence or weaken technical precision. Use Superpowers workflows in proportion to the task and within the client's available capabilities.
+
+## Skill references
+
+Start with [SKILL.md](skills/conda-plugins/SKILL.md). It routes the agent to all references relevant to the task:
+
+- [Plugin guide](skills/conda-plugins/references/plugin-guide.md) for hook selection, registration, and a complete small plugin.
+- [Architecture](skills/conda-plugins/references/architecture.md) for import cost, code ownership, models, dependencies, and errors.
+- [CLI and processes](skills/conda-plugins/references/cli-and-processes.md) for arguments, activation, JSON, settings, state writes, and credentials.
+- [Formats and solvers](skills/conda-plugins/references/formats-and-solvers.md) for manifests, exporters, package graphs, schema reuse, and target solving.
+- [Verification](skills/conda-plugins/references/verification.md) for signed evidence, artifact binding, authorization, offline behavior, and verified caches.
+- [Testing](skills/conda-plugins/references/testing.md) for runnable discovery tests, regression cases, and startup checks.
+- [Sources](skills/conda-plugins/references/sources.md) for optional provenance and pinned source examples.
 
 ## Layout
 
 ```text
+README.md
 skills/conda-plugins/
   SKILL.md
-  README.md
-  plugin-guide.md
-  architecture.md
-  cli-and-processes.md
-  formats-and-solvers.md
-  testing.md
-  sources.md
+  references/
+    plugin-guide.md
+    architecture.md
+    cli-and-processes.md
+    formats-and-solvers.md
+    verification.md
+    testing.md
+    sources.md
 ```
 
 Commands and paths were checked on 23 October 2026. Skills CLI 1.7.4 copied the complete skill folder for the three agent targets in a temporary project using a local source. Actual client discovery and invocation, and installation from the private GitHub source, remain untested.

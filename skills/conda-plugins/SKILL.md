@@ -5,7 +5,7 @@ description: Use when creating, extending, debugging, or reviewing Python plugin
 
 # Develop conda plugins
 
-Use these synthesized development practices when building a plugin. The bundled guides contain the implementation decisions and examples. External repositories in [sources.md](sources.md) record where the practices came from and are optional reading.
+Use these synthesized development practices when building a plugin. The bundled guides contain the implementation decisions and examples. External repositories in [sources.md](references/sources.md) record where the practices came from and are optional reading.
 
 ## Establish the task
 
@@ -28,14 +28,15 @@ For a new plugin, start with one installed entry point and one working hook. Add
 
 | Current work | Bundled guide |
 | --- | --- |
-| First plugin, hook choice, entry point, or discovery failure | [plugin-guide.md](plugin-guide.md) |
-| Module ownership, helpers, imports, dependencies, or error handling | [architecture.md](architecture.md) |
-| CLI composition, settings, authentication, process execution, or caches | [cli-and-processes.md](cli-and-processes.md) |
-| Manifest parsing, exporters, package graphs, lockfiles, or solver targets | [formats-and-solvers.md](formats-and-solvers.md) |
-| Regression tests, startup checks, signed evidence, or completion claims | [testing.md](testing.md) |
-| Installing the skill or companions | [README.md](README.md) |
+| First plugin, hook choice, entry point, or discovery failure | [plugin-guide.md](references/plugin-guide.md) |
+| Module ownership, helpers, imports, dependencies, or error handling | [architecture.md](references/architecture.md) |
+| CLI composition, settings, authentication, process execution, or caches | [cli-and-processes.md](references/cli-and-processes.md) |
+| Manifest parsing, exporters, package graphs, lockfiles, or solver targets | [formats-and-solvers.md](references/formats-and-solvers.md) |
+| Signed evidence, artifact binding, authorization, or verification caches | [verification.md](references/verification.md) |
+| Regression tests, startup checks, or completion claims | [testing.md](references/testing.md) |
+| Installing the skill or companions | [Repository README](https://github.com/jezdez/conda-plugin-skills#readme) |
 
-Read only the guide needed for the current change. The target code and bundled patterns should be sufficient for ordinary work. Consult current upstream documentation when a supported API or standard needs verification.
+Read the sections relevant to the current change, including guidance from multiple references when needed. The target code and bundled patterns should be sufficient for ordinary work. Consult current upstream documentation when a supported API or standard needs verification.
 
 ## Working defaults
 
