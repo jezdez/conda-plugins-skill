@@ -1,6 +1,6 @@
 ---
 name: conda-plugins
-description: Use when creating, extending, debugging, or reviewing Python plugins for conda, including subcommands, settings, authentication, environment formats, solvers, and lifecycle hooks.
+description: Use when creating, extending, debugging, reviewing, or documenting Python plugins for conda, including subcommands, settings, authentication, environment formats, solvers, and lifecycle hooks.
 ---
 
 # Develop conda plugins
@@ -37,6 +37,7 @@ For a new plugin, start with one installed entry point and one working hook. Add
 4. Keep data claims exact. Declared requirements, resolved records, requested roots, verified evidence, and authorization are different facts. Preserve that distinction in models and output.
 5. Follow standard argparse behavior for options and positionals. Give each command one output owner. JSON is one complete unstyled value on stdout. Composite commands collect child results and control their output. Process-launching commands preserve argument and exit-status semantics.
 6. Verify observable behavior in the intended runtime. Cover installed discovery, errors, relevant platform behavior, and the target repository's full checks. Regenerate `pixi.lock` after Pixi metadata changes.
+7. Write substantial documentation for people learning and using the plugin. Follow Diátaxis, develop useful explanations and worked examples, and apply Humanizer. Keep the skill's compact instructions separate from the depth readers need.
 
 ## Load the relevant pattern
 
@@ -47,6 +48,7 @@ For a new plugin, start with one installed entry point and one working hook. Add
 | CLI composition, settings, authentication, process execution, or caches | [cli-and-processes.md](references/cli-and-processes.md) |
 | Manifest parsing, exporters, package graphs, lockfiles, or solver targets | [formats-and-solvers.md](references/formats-and-solvers.md) |
 | Signed evidence, artifact binding, authorization, or verification caches | [verification.md](references/verification.md) |
+| Human-facing docs, Diátaxis, Sphinx, MyST, sphinx-design, examples, or GIF demos | [documentation.md](references/documentation.md) |
 | Regression tests, startup checks, or completion claims | [testing.md](references/testing.md) |
 | Installing the skill or companions | [Repository README](https://github.com/jezdez/conda-plugin-skills#readme) |
 

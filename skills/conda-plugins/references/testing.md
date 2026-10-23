@@ -190,7 +190,7 @@ Codex Security is optional. If it is unavailable during an authorized security r
 
 ## Complete the required checks
 
-Run the full test suite, lint, formatting check, and type check required by the target repository. Run its documentation build where required. Report failed or blocked checks clearly.
+Run the full test suite, lint, formatting check, and type check required by the target repository. For documentation changes, follow the [docs and demo checks](documentation.md#validate-the-readers-experience), including the declared build and representative example execution. Report failed or blocked checks clearly.
 
 For conda-workspaces, the supplied project instructions require:
 

@@ -30,6 +30,35 @@ These public sources were checked on 23 October 2026. Each GitHub file link pins
 
 The inspected public trees for conda-lockfiles, conda-pycosat-solver, conda-auth and conda-spawn did not contain `AGENTS.md`. Their implementation, metadata and tests supplied the examples instead. Recommended test cases in the bundled guides are synthesis, not a claim that every source repository already implements every check.
 
+## Documentation and demos
+
+| Practice in [documentation.md](documentation.md) | Source of the synthesis |
+| --- | --- |
+| Substantial tutorials with prerequisites, concepts, commands, result inspection, cleanup, and onward navigation | The [SBOM getting-started tutorial][sbom-tutorial] and [first-workspace tutorial][ws-tutorial] develop complete reader journeys. Their depth informs the examples without imposing their product-specific commands on other plugins. |
+| Diátaxis navigation, Sphinx, conda-sphinx-theme, MyST, and sphinx-design | [SBOM's homepage][sbom-docs-index] and [small Sphinx configuration][sbom-docs-conf] combine the four documentation purposes with cards and toctrees. [Workspaces instructions][ws-rules] require short tab labels and restrained emphasis. Its [API index][ws-api-index] splits reference material by subject. |
+| Exact page references and generated help | [Spawn's quickstart][spawn-quickstart] uses Sphinx document and section references. Its [CLI reference][spawn-cli] generates help from the installed command. Static command examples elsewhere still need separate execution checks. |
+| Strict documentation builds | [SBOM project metadata][sbom-project] declares a warnings-as-errors Sphinx build with unresolved-reference checking. Other repositories use different tasks, so the guide asks agents to inspect the target's configuration. |
+| VHS settings, a short visible story, fixtures, and media policy | [Shared workspace settings][ws-demo-settings], [its quickstart tape][ws-demo-quickstart], and [Exec's recording guide][exec-demos] establish the font, colors, dimensions, timing, and regeneration pattern. [Workspaces' demo guide][ws-demos] discloses an omitted image-build wait. |
+| Disposable recording state and shell-specific demonstrations | [Completion's quickstart tape][completion-demo] and [demo tests][completion-demo-tests] cover temporary setup, cleanup, and unrelated files. Its [Fish recording][completion-fish-demo] adapts the shared style to another shell. |
+
+The demo style was present in Workspaces, Exec, Global, and Completion. The inspected SBOM, Auth, Spawn, and Sigstore trees contained no `.tape` or `.gif` demo assets. The guide's reader review, accessibility checks, and representative example execution are recommendations, not claims that every source repository already automates them.
+
+[sbom-tutorial]: https://github.com/conda-incubator/conda-sboms/blob/fbfadd580a9961f28fa144c954861f108ecd3918/docs/tutorials/getting-started.md
+[ws-tutorial]: https://github.com/conda-incubator/conda-workspaces/blob/1eaddb9e6a0c6a516a8600ab611be96f8d9853cf/docs/tutorials/first-workspace.md
+[sbom-docs-index]: https://github.com/conda-incubator/conda-sboms/blob/fbfadd580a9961f28fa144c954861f108ecd3918/docs/index.md
+[sbom-docs-conf]: https://github.com/conda-incubator/conda-sboms/blob/fbfadd580a9961f28fa144c954861f108ecd3918/docs/conf.py
+[ws-api-index]: https://github.com/conda-incubator/conda-workspaces/blob/1eaddb9e6a0c6a516a8600ab611be96f8d9853cf/docs/reference/api.md
+[spawn-quickstart]: https://github.com/conda/conda-spawn/blob/45f7b32c84079e709a5845fdf0cf982625d3b669/docs/quickstart.md
+[spawn-cli]: https://github.com/conda/conda-spawn/blob/45f7b32c84079e709a5845fdf0cf982625d3b669/docs/cli.md
+[sbom-project]: https://github.com/conda-incubator/conda-sboms/blob/fbfadd580a9961f28fa144c954861f108ecd3918/pyproject.toml
+[ws-demo-settings]: https://github.com/conda-incubator/conda-workspaces/blob/1eaddb9e6a0c6a516a8600ab611be96f8d9853cf/demos/_settings.tape
+[ws-demo-quickstart]: https://github.com/conda-incubator/conda-workspaces/blob/1eaddb9e6a0c6a516a8600ab611be96f8d9853cf/demos/quickstart.tape
+[exec-demos]: https://github.com/conda-incubator/conda-exec/blob/3346c772937ce2fcb9d1a5049ba67af5024d8db8/demos/README.md
+[ws-demos]: https://github.com/conda-incubator/conda-workspaces/blob/1eaddb9e6a0c6a516a8600ab611be96f8d9853cf/demos/README.md
+[completion-demo]: https://github.com/conda-incubator/conda-completion/blob/01cf070bf5919096c229da51fa1abc29a482905a/demos/quickstart.tape
+[completion-demo-tests]: https://github.com/conda-incubator/conda-completion/blob/01cf070bf5919096c229da51fa1abc29a482905a/tests/test_demos.py
+[completion-fish-demo]: https://github.com/conda-incubator/conda-completion/blob/01cf070bf5919096c229da51fa1abc29a482905a/demos/fish-completion.tape
+
 [ws-rules]: https://github.com/conda-incubator/conda-workspaces/blob/1eaddb9e6a0c6a516a8600ab611be96f8d9853cf/AGENTS.md
 [ws-export]: https://github.com/conda-incubator/conda-workspaces/blob/1eaddb9e6a0c6a516a8600ab611be96f8d9853cf/conda_workspaces/export.py
 [ws-lock]: https://github.com/conda-incubator/conda-workspaces/blob/1eaddb9e6a0c6a516a8600ab611be96f8d9853cf/conda_workspaces/lockfile.py

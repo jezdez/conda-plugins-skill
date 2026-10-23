@@ -70,4 +70,4 @@ Use `from __future__ import annotations`, modern annotations, and relative impor
 
 Comments explain a non-obvious constraint or tradeoff. Docstrings explain an operation's purpose and inputs. Avoid comments that narrate the next line or divide a large module into decorated sections. Split a module by responsibility when its structure becomes hard to follow.
 
-For user-facing documentation, distinguish a tutorial, a task guide, an API reference, and a design explanation. Document the exact flags, formats, supported versions, and failure behavior that exist. Do not imply that schema validation proves complete package coverage or that a successful verification authorizes a publisher.
+For user-facing documentation, follow [documentation.md](documentation.md). It covers substantial explanations and worked examples, Diátaxis, the Sphinx stack, and the shared demo style. Document the exact flags, formats, supported versions, and failure behavior that exist.

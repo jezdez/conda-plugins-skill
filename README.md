@@ -2,7 +2,7 @@
 
 A private collection of Agent Skills for colleagues developing conda plugins with Codex, Kilo, or Claude Code.
 
-The [conda-plugins skill](skills/conda-plugins/SKILL.md) synthesizes the development practices in Jannis Leidel's recent conda plugins and their `AGENTS.md` files. It teaches cheap hook registration, code ownership, typed settings, CLI and process behavior, format adapters, exact package inventories, solver targets, and verification through bundled instructions and examples. Agents load all references relevant to the task and apply the target repository's own rules. External source links are optional provenance.
+The [conda-plugins skill](skills/conda-plugins/SKILL.md) synthesizes the development practices in Jannis Leidel's recent conda plugins and their `AGENTS.md` files. It teaches cheap hook registration, code ownership, typed settings, CLI and process behavior, format adapters, exact package inventories, solver targets, and verification through bundled instructions and examples. Its documentation guidance covers expansive writing for human readers, Diátaxis, Sphinx with MyST and sphinx-design, and the shared VHS demo style. Agents load all references relevant to the task and apply the target repository's own rules. External source links are optional provenance.
 
 The skill uses the portable [Agent Skills format](https://agentskills.io/specification). It does not require a particular agent's tool names, shell-injection features, or lifecycle hooks.
 
@@ -138,6 +138,7 @@ Start with [SKILL.md](skills/conda-plugins/SKILL.md). It routes the agent to all
 - [CLI and processes](skills/conda-plugins/references/cli-and-processes.md) for arguments, activation, JSON, settings, state writes, and credentials.
 - [Formats and solvers](skills/conda-plugins/references/formats-and-solvers.md) for manifests, exporters, package graphs, schema reuse, and target solving.
 - [Verification](skills/conda-plugins/references/verification.md) for signed evidence, artifact binding, authorization, offline behavior, and verified caches.
+- [Documentation and demos](skills/conda-plugins/references/documentation.md) for human-focused writing with Humanizer, Diátaxis, Sphinx, MyST, sphinx-design, worked examples, and VHS GIFs.
 - [Testing](skills/conda-plugins/references/testing.md) for runnable discovery tests, regression cases, and startup checks.
 - [Sources](skills/conda-plugins/references/sources.md) for optional provenance and pinned source examples.
 
@@ -153,8 +154,9 @@ skills/conda-plugins/
     cli-and-processes.md
     formats-and-solvers.md
     verification.md
+    documentation.md
     testing.md
     sources.md
 ```
 
-Commands and paths were checked on 23 October 2026. The setup command's source selections and stop-on-failure behavior passed in Bash, Zsh, and a POSIX shell. Skills CLI 1.7.4 copied all 23 current skills and their supporting files for the three agent targets in a temporary project, using this checkout and downloaded public source snapshots. Global installation, actual client discovery and invocation, and installation from the private GitHub source remain untested.
+Commands and paths were checked on 23 October 2026. The setup command's source selections and stop-on-failure behavior passed in Bash, Zsh, and a POSIX shell. Skills CLI 1.7.4 copied all 23 current skills and their supporting files for the three agent targets in a temporary project, using this checkout and downloaded public source snapshots. The documentation examples passed a strict Sphinx build and a real VHS recording of the bundled greet plugin. Global installation, actual client discovery and invocation, and installation from the private GitHub source remain untested.
