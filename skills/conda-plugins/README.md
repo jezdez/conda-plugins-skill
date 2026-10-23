@@ -12,7 +12,16 @@ The entry point uses the portable [Agent Skills format](https://agentskills.io/s
 
 ## Install the whole folder
 
-Clone the private [conda-plugin-skills repository](https://github.com/jezdez/conda-plugin-skills), or download its ZIP from GitHub. Colleagues need read access to the repository. The skill is in `skills/conda-plugins/` and contains these five files:
+Colleagues need read access to the private [conda-plugin-skills repository](https://github.com/jezdez/conda-plugin-skills). With Git, Node.js 22.20 or later, and existing GitHub authentication, install through the Skills CLI:
+
+```sh
+DISABLE_TELEMETRY=1 npx skills@1.7.4 add jezdez/conda-plugin-skills --list
+DISABLE_TELEMETRY=1 npx skills@1.7.4 add jezdez/conda-plugin-skills --skill conda-plugins --global --agent codex claude-code kilo --copy
+```
+
+Keep only the clients you use after `--agent`. Omit `--global` to install in the current project. `--copy` avoids symlink requirements. `DISABLE_TELEMETRY=1` disables telemetry and remote security-audit requests. In PowerShell, set `$env:DISABLE_TELEMETRY = '1'` first and omit that prefix from the commands.
+
+See the [repository README](https://github.com/jezdez/conda-plugin-skills#readme) for authentication, SSH, inspecting and updating installed skills, and manual installation. To copy files yourself, clone the repository or download its ZIP. The skill is in `skills/conda-plugins/` and contains these five files:
 
 ```text
 conda-plugins/
@@ -27,13 +36,13 @@ Copy the whole `skills/conda-plugins` folder. Keep all five files together becau
 
 Choose a user installation for your own projects, or a repository installation to share it with a team:
 
-| Client | User installation | Repository installation |
-| --- | --- | --- |
-| Codex | `~/.agents/skills/conda-plugins/` | `.agents/skills/conda-plugins/` |
-| Current Kilo Code and Kilo CLI | `~/.agents/skills/conda-plugins/` | `.agents/skills/conda-plugins/` |
-| Claude Code | `~/.claude/skills/conda-plugins/` | `.claude/skills/conda-plugins/` |
+| Client | `--agent` value | User installation with `--global` | Repository installation |
+| --- | --- | --- | --- |
+| Codex | `codex` | `~/.agents/skills/conda-plugins/` | `.agents/skills/conda-plugins/` |
+| Current Kilo Code and Kilo CLI | `kilo` | `~/.kilo/skills/conda-plugins/` | `.agents/skills/conda-plugins/` |
+| Claude Code | `claude-code` | `~/.claude/skills/conda-plugins/` | `.claude/skills/conda-plugins/` |
 
-Codex and current Kilo can share the same `.agents` copy. Claude Code needs a copy or supported directory symlink under `.claude/skills`. Copying works on systems where symlinks are inconvenient. If you keep two copies, update them together.
+These are the [Skills CLI's default paths](https://github.com/vercel-labs/skills/blob/main/docs/agents.md). Codex and current Kilo can also share the same `~/.agents/skills` copy, so an installation for Codex is enough for Kilo too. Claude Code needs a copy or supported directory symlink under `.claude/skills`. If you keep multiple copies, update them together.
 
 For a user installation on macOS or Linux, run these commands from the repository root:
 
