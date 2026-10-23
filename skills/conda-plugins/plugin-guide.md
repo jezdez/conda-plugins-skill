@@ -2,23 +2,23 @@
 
 ## Check the installed API
 
-Start with the [conda plugin guide](https://docs.conda.io/projects/conda/en/stable/dev-guide/plugins/index.html) and the installed version in the repository's development environment. Match the implementation to every supported version. Current online documentation can describe fields that an older installation does not have.
+Use the hook choices and example below, then check the installed API in the repository's development environment. Match the implementation to every supported version. The [upstream plugin guide](https://docs.conda.io/projects/conda/en/stable/dev-guide/plugins/index.html) is a reference when an API needs clarification. Current online documentation can describe fields an older installation does not have.
 
 Inspect `conda.plugins.hookspec` and `conda.plugins.types` when a callback signature or field is unclear. Check the actual dependency revision for development builds. Avoid guessed version cutoffs and broad exception handling that conceals an unavailable hook.
 
-| Need | Public extension to investigate | Example |
+| Need | Public extension to investigate | Implementation guidance |
 | --- | --- | --- |
-| A new `conda <command>` | `conda_subcommands`, `CondaSubcommand` | conda-workspaces |
-| User configuration | `conda_settings`, `CondaSetting` | conda-dev-request-headers |
-| Channel authentication | `conda_auth_handlers`, `CondaAuthHandler` | conda-auth |
-| Scoped HTTP headers | `conda_session_headers`, `conda_request_headers` | conda-dev-request-headers |
-| Reading an environment format | `conda_environment_specifiers` | conda-lockfiles |
-| Writing an environment format | `conda_environment_exporters` | conda-sboms, conda-lockfiles |
-| A solver backend | `conda_solvers`, `CondaSolver` | conda-pycosat-solver |
-| Checks exposed through `conda doctor` | `conda_health_checks` | conda's doctor plugins |
-| Work around existing commands or transactions | The relevant pre/post command or transaction hook | conda-completion for command hooks |
+| A new `conda <command>` | `conda_subcommands`, `CondaSubcommand` | The complete example below |
+| User configuration | `conda_settings`, `CondaSetting` | [Typed settings](cli-and-processes.md#register-settings-through-conda) |
+| Channel authentication | `conda_auth_handlers`, `CondaAuthHandler` | [Credential scoping](cli-and-processes.md#scope-request-headers-and-credentials-precisely) |
+| Scoped HTTP headers | `conda_session_headers`, `conda_request_headers` | [Request scoping and validation](cli-and-processes.md#scope-request-headers-and-credentials-precisely) |
+| Reading an environment format | `conda_environment_specifiers` | [Schema adapters](formats-and-solvers.md#adapt-an-existing-schema-narrowly) |
+| Writing an environment format | `conda_environment_exporters` | [Format ownership](formats-and-solvers.md#give-each-format-one-owner) |
+| A solver backend | `conda_solvers`, `CondaSolver` | [Solver targets](formats-and-solvers.md#coordinate-target-subdirectories-and-virtual-packages) |
+| Checks exposed through `conda doctor` | `conda_health_checks` | Report the check result without adding an unrelated top-level command |
+| Work around existing commands or transactions | The relevant pre/post command or transaction hook | [Failure policies](cli-and-processes.md#match-failure-handling-to-the-operation) |
 
-See [repository-guidance.md](repository-guidance.md#choose-one-example) for source links. Choose the narrowest existing hook that owns the behavior. For an environment health check, consider `conda doctor` before adding a new top-level command. Verify availability instead of assuming every hook listed here exists in the project's minimum conda version.
+Choose the narrowest hook that owns the behavior. Verify availability instead of assuming every hook listed here exists in the project's minimum conda version.
 
 ## A complete small subcommand
 
@@ -139,14 +139,8 @@ In an existing Pixi project, use its declared conda dependency and editable inst
 
 If discovery fails, check the interpreter, installed distribution metadata, entry-point group, import target, disabled-plugin settings, and name conflicts. Reproduce through `python -m conda` in a fresh process before changing the implementation.
 
-## Keep feature ownership clear
+## Continue with the selected behavior
 
-Use conda's settings API and configuration objects instead of parsing `.condarc` independently. Use `MatchSpec`, `Channel`, `PrefixData`, and activation or solver APIs when they own the data or operation. Prefer a public plugin interface where available. If an internal conda API is unavoidable, record the supported versions and test that dependency.
+Use [architecture.md](architecture.md) when the plugin grows beyond this example. Use [cli-and-processes.md](cli-and-processes.md) for configuration, output, credentials, or command execution. Use [formats-and-solvers.md](formats-and-solvers.md) for serialization, schema adapters, and solving.
 
-An environment exporter should serialize the supplied environment and records. It should not solve an environment or silently fetch missing provenance during serialization. Reuse the format's official library and keep output deterministic where the format allows it.
-
-Keep authentication work in authentication or header hooks. Scope credentials to the intended host and path, and test that unrelated requests do not receive them.
-
-Keep lifecycle hooks narrowly tied to the command or transaction they observe. A failed optional maintenance action should not accidentally prevent unrelated conda commands. Required verification failures need an explicit error policy.
-
-Continue with [testing.md](testing.md) before claiming the plugin works.
+Run the executable discovery and CLI tests in [testing.md](testing.md#runnable-discovery-and-cli-tests), then adapt them to the actual behavior. Source repositories are recorded separately in [sources.md](sources.md) for provenance.

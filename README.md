@@ -2,7 +2,7 @@
 
 A private collection of Agent Skills for colleagues developing conda plugins with Codex, Kilo, or Claude Code.
 
-The [conda-plugins skill](skills/conda-plugins/SKILL.md) reads repository instructions as they become relevant, then uses focused guides for conda APIs, testing, and examples from recent plugins.
+The [conda-plugins skill](skills/conda-plugins/SKILL.md) synthesizes the development practices in recent conda plugins and their `AGENTS.md` files. It teaches cheap hook registration, code ownership, typed settings, CLI and process behavior, format adapters, exact package inventories, solver targets, and verification through bundled instructions and examples. Agents load the relevant guide as needed and apply the target repository's own rules. External source links are optional provenance.
 
 ## Install with npx
 
@@ -88,9 +88,12 @@ Follow each upstream's instructions for your client. These are optional. Reposit
 skills/conda-plugins/
   SKILL.md
   README.md
-  repository-guidance.md
   plugin-guide.md
+  architecture.md
+  cli-and-processes.md
+  formats-and-solvers.md
   testing.md
+  sources.md
 ```
 
-Commands and paths were checked on 23 October 2026. Skills CLI 1.7.4 copied all five skill files for the three agent targets in a temporary project using a local source. Actual client discovery and invocation, and installation from the private GitHub source, remain untested.
+Commands and paths were checked on 23 October 2026. Skills CLI 1.7.4 copied the complete skill folder for the three agent targets in a temporary project using a local source. Actual client discovery and invocation, and installation from the private GitHub source, remain untested.

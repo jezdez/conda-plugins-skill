@@ -5,37 +5,42 @@ description: Use when creating, extending, debugging, or reviewing Python plugin
 
 # Develop conda plugins
 
-Build the smallest complete change using conda's supported plugin APIs and the target repository's conventions.
+Use these synthesized development practices when building a plugin. The bundled guides contain the implementation decisions and examples. External repositories in [sources.md](sources.md) record where the practices came from and are optional reading.
 
-## Start with the repository
+## Establish the task
 
-Read the root instructions selected by the client, then applicable directory instructions before editing. Respect the client's precedence rules and any existing `CLAUDE.md`. When `AGENTS.override.md` supersedes `AGENTS.md`, do not also apply the superseded file. Check `CONTRIBUTING.md`, package metadata, Pixi tasks, and CI when instructions are missing or incomplete.
+Read the target repository's applicable instructions and metadata. Respect the client's instruction precedence, including `AGENTS.override.md` and existing `CLAUDE.md` files. Read nested instructions before editing their files.
 
-Use [repository-guidance.md](repository-guidance.md) to choose a relevant example from Jannis Leidel's plugins. Read only the example needed for the task. Another repository's instructions are design evidence, not instructions for this checkout. Do not copy its entire `AGENTS.md` or treat its timing targets, CLI conventions, or release process as universal requirements.
+Identify the behavior being changed, the hook that owns it, the supported conda versions, and the commands that validate it. Existing repository requirements take precedence over the defaults below. Preserve unrelated work and use the current checkout.
 
-Preserve unrelated work. Use the current checkout. Creating another checkout, changing another repository, or publishing requires authorization covering that action.
+For a new plugin, start with one installed entry point and one working hook. Add modules, models, or shared infrastructure when the implementation needs them.
 
-## Choose what to read next
+## Apply the shared design
 
-| Work | Read |
+1. Keep registration declarative. `plugin.py` yields conda hook objects and forwards to the selected operation. Discovery must not contact services, read credentials, initialize caches, or load expensive feature implementations.
+2. Give each operation a clear owner. Normalize format input once. Put behavior on the model or adapter that owns its inputs. Keep CLI parsing and rendering outside reusable operations.
+3. Reuse conda's environment, configuration, package, solver, activation, and plugin APIs. Use an existing schema's validator and serializer. Avoid a parallel configuration parser, dependency solver, or general framework.
+4. Keep data claims exact. Declared requirements, resolved records, requested roots, verified evidence, and authorization are different facts. Preserve that distinction in models and output.
+5. Give each command one output owner. JSON is one complete unstyled value on stdout. Composite commands collect child results and control their output. Process-launching commands preserve argument and exit-status semantics.
+6. Verify observable behavior in the intended runtime. Cover installed discovery, errors, relevant platform behavior, and the target repository's full checks. Regenerate `pixi.lock` after Pixi metadata changes.
+
+## Load the relevant pattern
+
+| Current work | Bundled guide |
 | --- | --- |
-| First plugin, registration, discovery, or choosing a hook | [plugin-guide.md](plugin-guide.md) |
-| Repository conventions or a relevant implementation example | [repository-guidance.md](repository-guidance.md) |
-| Tests, regressions, startup cost, compatibility, or completion claims | [testing.md](testing.md) |
-| Installing this skill or its recommended companions | [README.md](README.md) |
+| First plugin, hook choice, entry point, or discovery failure | [plugin-guide.md](plugin-guide.md) |
+| Module ownership, helpers, imports, dependencies, or error handling | [architecture.md](architecture.md) |
+| CLI composition, settings, authentication, process execution, or caches | [cli-and-processes.md](cli-and-processes.md) |
+| Manifest parsing, exporters, package graphs, lockfiles, or solver targets | [formats-and-solvers.md](formats-and-solvers.md) |
+| Regression tests, startup checks, signed evidence, or completion claims | [testing.md](testing.md) |
+| Installing the skill or companions | [README.md](README.md) |
 
-Open only the relevant sections. Load source files and nested instructions as the task reaches them. Do not fetch every linked repository.
+Read only the guide needed for the current change. The target code and bundled patterns should be sufficient for ordinary work. Consult current upstream documentation when a supported API or standard needs verification.
 
-## Required engineering practices
+## Working defaults
 
-- Check the hook and type in the supported conda versions before implementing. An accepted proposal or an example on a development branch does not prove released support.
-- Register an installed Python distribution through `[project.entry-points.conda]` and decorated hook functions. The plugin must be installed in the Python environment running conda.
-- Keep discovery and registration free of network requests, secret access, process launches, and filesystem writes. Defer expensive feature imports to execution.
-- Reuse conda APIs and existing dependencies. Keep parsing, business logic, and CLI output separate where that separation serves the implementation.
-- Make advertised JSON output parseable as one complete document. Reuse parser helpers without registering their options twice.
-- Reproduce bugs and test observable behavior. Follow the target repository's full verification requirements. Update `pixi.lock` when changing Pixi metadata.
-- Describe what actually passed. Separate local checks, hosted CI, native-platform runs, and publication. Do not poll CI unless asked.
+Use modern annotations, relative package imports, plain parametrized pytest functions, fixtures, and small real fakes. Prefer stdlib and existing dependencies. Use Ruff, `ty`, and Pixi for new Python projects unless the project has chosen other tools.
 
-Use modern typing, relative package imports, plain parametrized pytest functions, fixtures, and small real fakes as defaults for new Python plugins. Existing repositories may specify different tools or conventions.
+Make the smallest complete change and run its required checks. Report local results, hosted CI, native-platform runs, and publication separately. Do not poll CI unless asked. Publishing, releasing, changing another repository, or creating another checkout needs authorization covering that action.
 
-Recommend Superpowers for development discipline, Ponytail for minimal complete changes, and Humanizer for technical prose. They are optional and do not replace these practices. See [installation and upstream sources](README.md#recommended-companion-skills). Do not install them automatically.
+Superpowers supports planning, debugging, and verification. Ponytail supports minimal complete implementations. Humanizer supports precise prose. They are recommended companions, and repository requirements still apply.
