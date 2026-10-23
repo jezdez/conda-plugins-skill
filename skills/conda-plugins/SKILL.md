@@ -7,6 +7,20 @@ description: Use when creating, extending, debugging, or reviewing Python plugin
 
 Use these synthesized development practices when building a plugin. The bundled guides contain the implementation decisions and examples. External repositories in [sources.md](references/sources.md) record where the practices came from and are optional reading.
 
+## Check required companions
+
+Before starting plugin implementation, debugging, review, or documentation work, confirm that Superpowers, Humanizer, and Ponytail are available to the current agent. Use the client's skill discovery and read each companion's entry point. Check once per session and reuse that confirmation unless availability changes. Namespaced skill names are valid.
+
+If any companion is missing or cannot be loaded, identify it, link the [setup instructions](https://github.com/jezdez/conda-plugin-skills#required-companion-skills), and stop before starting the plugin work. Do not silently substitute general advice or install companions without authorization. The user may explicitly waive a prerequisite for the current task.
+
+Apply the companions where their workflows fit:
+
+- Superpowers: start with its `using-superpowers` entry point and load the relevant planning, debugging, testing, or review workflow.
+- Ponytail: use its development guidance to keep the implementation small and reuse existing APIs.
+- Humanizer: apply it to documentation, explanations, and review prose while preserving technical facts.
+
+Use native skill invocation when available, otherwise follow the installed `SKILL.md` instructions. Preserve the user's scope and applicable repository rules. Required availability does not mean every task needs every Superpowers workflow.
+
 ## Establish the task
 
 Read the target repository's applicable instructions and metadata. Respect the client's instruction precedence, including `AGENTS.override.md` and existing `CLAUDE.md` files. Read nested instructions before editing their files.
@@ -44,4 +58,4 @@ Use modern annotations, relative package imports, plain parametrized pytest func
 
 Make the smallest complete change and run its required checks. Report local results, hosted CI, native-platform runs, and publication separately. Do not poll CI unless asked. Publishing, releasing, changing another repository, or creating another checkout needs authorization covering that action.
 
-Superpowers supports planning, debugging, and verification. Ponytail supports minimal complete implementations. Humanizer supports precise prose. They are recommended companions, and repository requirements still apply.
+Codex Security is optional. For an authorized security review, follow the [security-review guidance](references/testing.md#optional-security-review) when the tool is available. Security analysis does not replace regression tests.

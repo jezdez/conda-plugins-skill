@@ -6,6 +6,8 @@ The [conda-plugins skill](skills/conda-plugins/SKILL.md) synthesizes the develop
 
 The skill uses the portable [Agent Skills format](https://agentskills.io/specification). It does not require a particular agent's tool names, shell-injection features, or lifecycle hooks.
 
+Install the three [required companion skills](#required-companion-skills) before using this skill for plugin work.
+
 ## Install with npx
 
 You need read access to this repository, Git, and Node.js 22.20 or later. Authenticate with `gh auth login` if needed, or use your existing Git credentials or SSH keys. The [Skills CLI](https://github.com/vercel-labs/skills/blob/main/docs/commands.md#private-repositories) supports private repositories through those credentials.
@@ -53,7 +55,7 @@ For any client:
 
 > Use the conda-plugins skill to add a conda subcommand in this repository. Read the applicable repository instructions first, identify the development environment and supported conda versions, then implement and test the smallest complete change.
 
-Check discovery by asking the client to identify the installed skill, then asking it to open the references needed for a sample task. The skill works with the project's `AGENTS.md` and existing client instructions.
+Check discovery by asking the client to identify the conda skill and all three required companions, then asking it to open the references needed for a sample task. The skill works with the project's `AGENTS.md` and existing client instructions.
 
 ## Repository instructions in each client
 
@@ -90,9 +92,11 @@ cp -R skills/conda-plugins "$HOME/.claude/skills/"
 
 These are first-install commands. Compare or back up an existing skill before replacing it. The `.agents` copy serves Codex and current Kilo, and the `.claude` copy serves Claude Code. On Windows, copy the whole `skills/conda-plugins/` folder into those directories with Explorer or PowerShell. Keep its reference files together because their links are relative, and update each copy together.
 
-## Recommended companion skills
+## Required companion skills
 
-Install these when they fit your team's workflow. The conda skill works independently, and recommending a companion does not authorize an agent to install it.
+Superpowers, Humanizer, and Ponytail are prerequisites for this workflow in Codex, Kilo, and Claude Code. Install them separately using each upstream's instructions for your client. The `npx skills` command above installs this repository's conda skill only.
+
+The skill instructs the agent to confirm all three companions are available before plugin work. If one is missing or cannot be loaded, the agent must report it and stop, unless you explicitly waive that prerequisite for the task. This is an instruction-level check, not an installer-enforced dependency. The [Agent Skills format](https://agentskills.io/specification) has no standard field for automatically installing dependent skills.
 
 | Skill | Use it for | Authoritative installation source |
 | --- | --- | --- |
@@ -102,9 +106,15 @@ Install these when they fit your team's workflow. The conda skill works independ
 
 Use each upstream's current instructions for your client. For Claude Code, Superpowers documents `/plugin install superpowers@claude-plugins-official`. Codex users can install Superpowers through the app's Plugins interface or the CLI's `/plugins` interface. Humanizer and Ponytail document their own marketplace or skill-installation options.
 
-For Kilo, standard skill folders can be placed in its supported skills directory. Preserve each skill's referenced files. Copying a skill folder does not enable the source plugin's lifecycle hooks or client-specific tools. Ponytail also documents a native Kilo plugin installation. Superpowers' current README does not document equivalent Kilo lifecycle integration.
+For Kilo, standard skill folders can be placed in its supported skills directory. Preserve each skill's referenced files and confirm that the agent can load them. Copying a skill folder does not enable the source plugin's lifecycle hooks or client-specific tools. Ponytail also documents a native Kilo plugin installation. Superpowers' current README does not document equivalent Kilo lifecycle integration.
 
 Repository rules and the user's scope still apply. Ponytail is not a reason to omit necessary checks. Humanizer must not invent evidence or weaken technical precision. Use Superpowers workflows in proportion to the task and within the client's available capabilities.
+
+## Optional Codex Security review
+
+[Codex Security](https://learn.chatgpt.com/docs/security/plugin) can supplement security tests with source review and finding validation. It is optional and does not affect the three companion prerequisites. Use it when available in Codex and a security review is in scope, especially for changes to credentials, request scoping, archive extraction, subprocess execution, or signed evidence.
+
+The [testing guide](skills/conda-plugins/references/testing.md#optional-security-review) explains which scan fits a change and how to report results. Kilo and Claude Code users can follow the same security test cases and review criteria without Codex Security.
 
 ## Skill references
 

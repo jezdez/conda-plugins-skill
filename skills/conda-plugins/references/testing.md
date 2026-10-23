@@ -172,6 +172,22 @@ Use module-load and side-effect assertions for correctness. Keep noisy timing be
 
 `CONDA_NO_PLUGINS=true` or `conda --no-plugins` can help diagnose external-plugin failures. Those modes remove other external plugins too, so they are not an exact measurement of this plugin's cost.
 
+## Optional security review
+
+Security tests should exercise the actual failure cases in credential handling, request scoping, archive extraction, subprocess execution, and evidence verification. Use deterministic local inputs and keep regression tests for confirmed bugs.
+
+When a security review is requested or otherwise in the authorized scope, Codex Security can provide additional analysis if available:
+
+- Use `security-diff-scan` for a pull request, commit, branch diff, or working-tree patch.
+- Use `security-scan` for an explicitly scoped repository or directory audit without a diff. Do not turn an ordinary change into a whole-repository audit.
+- Use `verify-fix` only when the user explicitly asks whether a reported security vulnerability has been fixed.
+
+Follow the installed workflow's setup, permission, and reporting requirements. Do not install or enable a service, upload source, or widen the review merely because this skill mentions it. See the [Codex Security plugin guide](https://learn.chatgpt.com/docs/security/plugin).
+
+Treat findings as claims to investigate. Record the affected code, reproducer or other evidence, validation result, and unresolved coverage. Passing functional tests does not disprove a vulnerability, and a scan with no findings does not establish that the code is secure. Keep scan results separate from tests actually run.
+
+Codex Security is optional. If it is unavailable during an authorized security review, carry out the requested local tests and code review and state that limitation in the review report. Its absence does not block ordinary plugin work or waive a required security check specified by the target repository.
+
 ## Complete the required checks
 
 Run the full test suite, lint, formatting check, and type check required by the target repository. Run its documentation build where required. Report failed or blocked checks clearly.
