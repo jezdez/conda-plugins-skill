@@ -59,9 +59,8 @@ def github(path: str, token: str) -> dict[str, Any]:
     headers = {
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
+        "Authorization": f"Bearer {token}",
     }
-    if path.startswith("jezdez/conda-plugin-skills/"):
-        headers["Authorization"] = f"Bearer {token}"
     request = Request(
         f"https://api.github.com/repos/{path}",
         headers=headers,
@@ -70,7 +69,12 @@ def github(path: str, token: str) -> dict[str, Any]:
         with build_opener(NoRedirect()).open(request, timeout=45) as response:
             return json.load(response)
     except HTTPError as error:
-        raise SetupFailure(f"GitHub API returned HTTP {error.code}") from None
+        repository = "/".join(path.split("/")[:2])
+        remaining = error.headers.get("X-RateLimit-Remaining", "unknown")
+        raise SetupFailure(
+            f"GitHub API returned HTTP {error.code} for {repository} "
+            f"(rate limit remaining: {remaining})"
+        ) from None
 
 
 def source_inventory(
