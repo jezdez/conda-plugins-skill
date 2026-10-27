@@ -1,1 +1,8 @@
-/conda-plugins.zip
+/dist/
+/.pixi/
+/.pytest_cache/
+/.ruff_cache/
+/.ty_cache/
+__pycache__/
+*.py[cod]
+.DS_Store

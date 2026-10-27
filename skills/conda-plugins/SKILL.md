@@ -1,6 +1,7 @@
 ---
 name: conda-plugins
 description: Use when creating, extending, debugging, reviewing, or documenting Python plugins for conda, including subcommands, settings, authentication, environment formats, solvers, and lifecycle hooks.
+license: Apache-2.0
 ---
 
 # Develop conda plugins

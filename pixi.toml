@@ -1,0 +1,24 @@
+[workspace]
+name = "conda-plugin-skills"
+description = "Portable agent skills for conda plugin development"
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
+
+[dependencies]
+python = ">=3.11"
+pyyaml = ">=6"
+pytest = ">=8"
+ruff = ">=0.14"
+ty = ">=0.0.1"
+pre-commit = ">=4"
+
+[tasks]
+validate = "python scripts/check.py"
+lint = "ruff check scripts tests"
+format = "ruff format scripts tests"
+format-check = "ruff format --check scripts tests"
+type-check = "ty check scripts tests"
+test = "pytest"
+check = { depends-on = ["validate", "lint", "format-check", "type-check", "test"] }
+build = "python scripts/package.py"
+pre-commit = "pre-commit run --all-files"

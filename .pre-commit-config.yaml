@@ -1,0 +1,29 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+        exclude: '(^|/)LICENSE$'
+      - id: trailing-whitespace
+        exclude: '(^|/)LICENSE$|THIRD_PARTY_NOTICES\.md$'
+  - repo: local
+    hooks:
+      - id: skill-check
+        name: Validate skill metadata and references
+        entry: python scripts/check.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: ruff-check
+        name: Ruff lint
+        entry: ruff check
+        language: system
+        types: [python]
+      - id: ruff-format
+        name: Ruff format
+        entry: ruff format --check
+        language: system
+        types: [python]

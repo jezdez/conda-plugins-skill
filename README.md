@@ -40,7 +40,7 @@ For SSH authentication, replace `jezdez/conda-plugin-skills` with `git@github.co
 
 ## Where the skill goes
 
-Each installation contains `SKILL.md` and the complete `references/` directory. These are the [Skills CLI's default destinations](https://github.com/vercel-labs/skills/blob/main/docs/agents.md):
+Each installation contains `SKILL.md`, the complete `references/` directory, `LICENSE`, and `THIRD_PARTY_NOTICES.md`. These are the [Skills CLI's default destinations](https://github.com/vercel-labs/skills/blob/main/docs/agents.md):
 
 | Client | `--agent` value | User installation with `--global` | Project installation |
 | --- | --- | --- | --- |
@@ -142,12 +142,35 @@ Start with [SKILL.md](skills/conda-plugins/SKILL.md). It routes the agent to all
 - [Testing](skills/conda-plugins/references/testing.md) for runnable discovery tests, regression cases, and startup checks.
 - [Sources](skills/conda-plugins/references/sources.md) for optional provenance and pinned source examples.
 
+## Contributing and building an archive
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) for the editing workflow and [AGENTS.md](AGENTS.md) for repository guidance. The repository uses Pixi for its locked development tools:
+
+```sh
+pixi install --locked
+pixi run --locked check
+pixi run --locked build
+```
+
+The build validates the skills and writes `dist/conda-plugins.zip`, including the references and license notices. Generated archives are ignored by Git and belong under `dist/`. Keep the ZIP out of the repository root. The archive installs this skill only, so its three companions still need the setup described above.
+
+See [CHANGELOG.md](CHANGELOG.md) for changes, [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for participation expectations, and [SECURITY.md](SECURITY.md) for private reporting.
+
 ## Layout
 
 ```text
 README.md
+AGENTS.md
+CONTRIBUTING.md
+LICENSE
+pixi.toml
+pixi.lock
+scripts/
+tests/
 skills/conda-plugins/
   SKILL.md
+  LICENSE
+  THIRD_PARTY_NOTICES.md
   references/
     plugin-guide.md
     architecture.md
@@ -157,6 +180,13 @@ skills/conda-plugins/
     documentation.md
     testing.md
     sources.md
+dist/                       # generated and ignored
 ```
+
+## License
+
+Copyright 2026 Jannis Leidel. Original material in this repository is licensed under [Apache License 2.0](LICENSE). Applicable upstream licenses and attribution for adapted material are preserved in [THIRD_PARTY_NOTICES.md](skills/conda-plugins/THIRD_PARTY_NOTICES.md) and included in standalone skill distributions.
+
+## Verification scope
 
 Commands and paths were checked on 23 October 2026. The setup command's source selections and stop-on-failure behavior passed in Bash, Zsh, and a POSIX shell. Skills CLI 1.7.4 copied all 23 current skills and their supporting files for the three agent targets in a temporary project, using this checkout and downloaded public source snapshots. The documentation examples passed a strict Sphinx build and a real VHS recording of the bundled greet plugin. Global installation, actual client discovery and invocation, and installation from the private GitHub source remain untested.
