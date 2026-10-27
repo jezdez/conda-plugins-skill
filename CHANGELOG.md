@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- Add a manual setup check on fresh macOS and Windows runners, covering installed files and native client discovery.
+- Preserve LF endings in companion Bash helpers when installing on Windows.
+- Add a manual setup check on fresh Linux, macOS, and Windows runners, covering installed files, Bash helper syntax, and native client discovery.
 - Correct Kilo's shared installation path and document a clean setup test with native discovery in Codex, Claude Code, and Kilo.
 - Add Apache License 2.0 for original material and preserve upstream notices in standalone skill distributions.
 - Add repository guidance, contribution and reporting instructions, locked development tools, validation, and CI.

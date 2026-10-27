@@ -17,6 +17,9 @@ Paste this single setup command into Bash, Zsh, or Git Bash on Windows. It insta
 ```sh
 (
   export DISABLE_TELEMETRY=1
+  export "GIT_CONFIG_KEY_${GIT_CONFIG_COUNT:-0}=core.autocrlf"
+  export "GIT_CONFIG_VALUE_${GIT_CONFIG_COUNT:-0}=false"
+  export GIT_CONFIG_COUNT="$(( ${GIT_CONFIG_COUNT:-0} + 1 ))"
   install_skills() {
     npx --yes skills@1.7.4 add "$@" \
       --global --agent codex claude-code kilo --copy --yes --json
@@ -29,6 +32,8 @@ Paste this single setup command into Bash, Zsh, or Git Bash on Windows. It insta
 ```
 
 Keep only the client names you use after `--agent`. `--global` makes the skills available across your projects. `--copy` preserves complete skill directories without requiring symlinks. The command pins Skills CLI 1.7.4 and installs the current upstream skills. It reports each installation as JSON and stops if an installation fails.
+
+The Git settings apply only while this command runs. They preserve LF line endings so companion shell scripts also work in Git Bash on Windows, and leave your existing Git configuration unchanged.
 
 Both `--yes` flags accept installation prompts, including replacement of matching installed skills. Review existing copies first. To inspect a source before installing it, run `DISABLE_TELEMETRY=1 npx skills@1.7.4 add <source> --list` with one of the four source names above.
 

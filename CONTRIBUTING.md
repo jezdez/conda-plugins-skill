@@ -33,9 +33,9 @@ The validator checks skill metadata, supported Markdown links and anchors, stand
 
 When changing `pixi.toml`, run `pixi lock` and include the updated lockfile. `pixi run --locked build` writes `dist/conda-plugins.zip`. Generated files stay untracked and out of the repository root. Inspect the ZIP before sharing it with the intended audience.
 
-## Test installation on macOS and Windows
+## Test installation on Linux, macOS, and Windows
 
-Run the [README setup workflow](https://github.com/jezdez/conda-plugin-skills/actions/workflows/setup.yml) from GitHub Actions when you need to verify the full installation command. It runs only on manual dispatch, using fresh macOS and Windows runners. Windows uses Git Bash. The check installs from the live GitHub sources into the runner's initially empty skill directories, compares the installed files with their source revisions, and asks each client to list its skills without sending a model prompt.
+Run the [README setup workflow](https://github.com/jezdez/conda-plugin-skills/actions/workflows/setup.yml) from GitHub Actions when you need to verify the full installation command. It runs only on manual dispatch, using fresh Linux, macOS, and Windows runners. Windows uses Git Bash. The check installs from the live GitHub sources into the runner's initially empty skill directories, compares the installed files with their source revisions, checks Bash helper syntax, and asks each client to list its skills without sending a model prompt.
 
 The workflow saves a verification summary as a private artifact for seven days. It records source revisions, file checks, and client discovery results. The test script requires a GitHub-hosted runner and empty client skill directories to guard against accidental local installations. Model behavior and native plugin hooks need separate checks.
 

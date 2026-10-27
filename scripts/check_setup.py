@@ -1,4 +1,4 @@
-"""Exercise the README setup on disposable GitHub-hosted macOS/Windows runners.
+"""Exercise the README setup on GitHub-hosted Linux, macOS, and Windows runners.
 
 This intentionally refuses local execution. Only summary.json is retained.
 Client discovery never submits a model prompt or enables plugin hooks.
@@ -155,6 +155,20 @@ def installer_results(stdout: bytes, expected: set[str]) -> list[dict[str, Any]]
     ]
 
 
+def check_bash_script(path: Path) -> None:
+    """Check line endings and Bash syntax without executing the helper."""
+    if b"\r\n" in path.read_bytes():
+        raise SetupFailure(f"Executable Bash helper contains CRLF: {path.name}")
+    bash = shutil.which("bash")
+    if not bash:
+        raise SetupFailure("Bash is required to check installed helper syntax")
+    result = subprocess.run(
+        [bash, "-n", path.as_posix()], capture_output=True, timeout=20
+    )
+    if result.returncode:
+        raise SetupFailure(f"Executable Bash helper has invalid syntax: {path.name}")
+
+
 def verify_files(
     home: Path, skills: dict[str, dict[str, tuple[str, str]]]
 ) -> list[dict[str, Any]]:
@@ -174,11 +188,17 @@ def verify_files(
         if actual.keys() != expected.keys():
             raise SetupFailure(f"Installed file inventory differs: {relative_root}")
         normalized = 0
+        bash_scripts_checked = 0
         for relative, path in actual.items():
             if path.is_symlink():
                 raise SetupFailure(f"Copy installation contains a symlink: {relative}")
             content = path.read_bytes()
             source_hash, mode = expected[relative]
+            if mode == "100755" and re.match(
+                rb"^#![^\r\n]*(?:/|\s)bash(?:\s|$)", content
+            ):
+                check_bash_script(path)
+                bash_scripts_checked += 1
             if git_blob_hash(content) != source_hash:
                 if (
                     os.name == "nt"
@@ -212,6 +232,7 @@ def verify_files(
                 "exactBytes": len(actual) - normalized,
                 "crlfNormalizedFiles": normalized,
                 "executableModesChecked": os.name != "nt",
+                "countBashScriptsChecked": bash_scripts_checked,
                 "siblingResourcesResolved": True,
             }
         )
