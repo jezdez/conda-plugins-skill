@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Correct Kilo's shared installation path and document a clean setup test with native discovery in Codex, Claude Code, and Kilo.
 - Add Apache License 2.0 for original material and preserve upstream notices in standalone skill distributions.
 - Add repository guidance, contribution and reporting instructions, locked development tools, validation, and CI.
 - Build skill archives under `dist/` and keep generated ZIPs out of the repository root.

@@ -40,19 +40,19 @@ For SSH authentication, replace `jezdez/conda-plugin-skills` with `git@github.co
 
 ## Where the skill goes
 
-Each installation contains `SKILL.md`, the complete `references/` directory, `LICENSE`, and `THIRD_PARTY_NOTICES.md`. These are the [Skills CLI's default destinations](https://github.com/vercel-labs/skills/blob/main/docs/agents.md):
+Each `conda-plugins` installation contains `SKILL.md`, the complete `references/` directory, `LICENSE`, and `THIRD_PARTY_NOTICES.md`. Skills CLI 1.7.4 uses the following destinations. Its [installer shares the `.agents/skills` directory](https://github.com/vercel-labs/skills/blob/v1.7.4/src/installer.ts#L156-L183) between Codex and Kilo:
 
 | Client | `--agent` value | User installation with `--global` | Project installation |
 | --- | --- | --- | --- |
 | Codex | `codex` | `~/.agents/skills/conda-plugins/` | `.agents/skills/conda-plugins/` |
 | Claude Code | `claude-code` | `~/.claude/skills/conda-plugins/` | `.claude/skills/conda-plugins/` |
-| Kilo Code and Kilo CLI | `kilo` | `~/.kilo/skills/conda-plugins/` | `.agents/skills/conda-plugins/` |
+| Kilo Code and Kilo CLI | `kilo` | `~/.agents/skills/conda-plugins/` | `.agents/skills/conda-plugins/` |
 
-Current Kilo also reads `~/.agents/skills/` directly. If you install for Codex, Kilo can use that shared copy without a separate `--agent kilo` installation. Claude Code needs its own copy or supported directory symlink under `.claude/skills`. If you keep multiple copies, update them together.
+The setup command creates two physical copies of each skill: one shared by Codex and Kilo under `.agents/skills`, and one for Claude Code under `.claude/skills`. Rerun the setup command to update both together. Installing for Codex alone also makes the shared copy available to current Kilo.
 
 On Windows, `~` means your user profile directory. Custom client home settings can change their configured paths. Current Kilo also supports `.kilo/skills`. Older Kilo extensions used `.kilocode/skills`, so check the documentation for an older installation.
 
-Current paths were checked on 23 October 2026 against [Codex skills](https://learn.chatgpt.com/docs/build-skills), [Kilo skills](https://kilo.ai/docs/customize/skills), and [Claude Code skills](https://code.claude.com/docs/en/skills).
+Global installation paths and client discovery were checked on 27 October 2026. See [Codex skills](https://learn.chatgpt.com/docs/build-skills), [Kilo skills](https://kilo.ai/docs/customize/skills), and [Claude Code skills](https://code.claude.com/docs/en/skills) for client-specific behavior.
 
 ## Use it
 
@@ -189,4 +189,8 @@ Copyright 2026 Jannis Leidel. Original material in this repository is licensed u
 
 ## Verification scope
 
-Commands and paths were checked on 23 October 2026. The setup command's source selections and stop-on-failure behavior passed in Bash, Zsh, and a POSIX shell. Skills CLI 1.7.4 copied all 23 current skills and their supporting files for the three agent targets in a temporary project, using this checkout and downloaded public source snapshots. The documentation examples passed a strict Sphinx build and a real VHS recording of the bundled greet plugin. Global installation, actual client discovery and invocation, and installation from the private GitHub source remain untested.
+On 27 October 2026, the exact setup command passed in Bash in a fresh Linux ARM64 container with Node.js 22.23.4, an empty user home, and no host directories mounted. It fetched this private repository through authenticated Git and the three public companion repositories. All 23 skills installed: `conda-plugins`, Humanizer, 15 Superpowers skills, and six Ponytail skills. Each of the two installation directories contained 115 files matching the source revisions byte for byte, with executable permissions preserved. Superpowers' references to sibling skills resolved.
+
+With container networking disconnected, Codex 0.165.0, Kilo CLI 7.8.18, and Claude Code through Agent SDK 0.3.312 each discovered all 23 installed skills. Codex lists Humanizer as `humanizer:humanizer`. The checks used Codex's `skills/list`, Kilo's `debug skill`, and Claude's `supportedCommands()` without submitting a prompt. They establish installation and native client discovery. Model invocation and native plugin hooks were not tested.
+
+Earlier checks on 23 October 2026 covered source selection and stop-on-failure behavior in Bash, Zsh, and a POSIX shell, plus project installation from local source snapshots. The documentation examples passed a strict Sphinx build and a real VHS recording of the bundled greet plugin. Clean global installation on macOS and Windows remains untested.
