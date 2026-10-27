@@ -12,6 +12,10 @@ ruff = ">=0.14"
 ty = ">=0.0.1"
 pre-commit = ">=4"
 
+[target.win-64.dependencies]
+# ty cannot discover conda-forge Python 3.15's lib/python/site-packages on Windows.
+python = ">=3.11,<3.15"
+
 [tasks]
 validate = "python scripts/check.py"
 lint = "ruff check scripts tests"
