@@ -4,6 +4,7 @@
 
 ## 26.11.0 (unreleased candidate)
 
+- Keep historical verification in the changelog instead of the README. The [old-name hosted run](https://github.com/jezdez/conda-plugin-skill/actions/runs/40590133508) found all 23 skills in Codex, Kilo, and Claude Code on Linux, macOS, and Windows. It did not test model invocation or the renamed skill.
 - Remove PyYAML and generic optional-metadata parsing. Prek checks YAML syntax and recipe fields, while the repository hook enforces its three-field skill header, links, and license identity.
 - Use prek for the existing repository hooks, replacing the pre-commit runner. Run them with `pixi run --locked prek`.
 - Centralize checks in Pixi tasks called by prek. Replace the custom conda build wrapper with recipe-native copying and tests, and replace the bespoke client installation harness with a documented manual smoke test.

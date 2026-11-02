@@ -33,7 +33,7 @@ Keep complete skill folders, including references and helper scripts. Superpower
 
 The skill was renamed from `conda-plugins` to `conda-plugin-skill`. Install the new name first and confirm that your client can load it and its references. Then remove the old `conda-plugins` installation in each scope you use to avoid duplicate guidance. Preserve any local edits before removing it. The GitHub repository is now `jezdez/conda-plugin-skill` too.
 
-The renamed skill has not yet been verified through native client discovery. The [recorded installation results](#verification-scope) below apply to the old name.
+The renamed skill has not yet been verified through native client discovery. Historical installation results in the [changelog](CHANGELOG.md) apply to the old name.
 
 ## Use it
 
@@ -189,19 +189,3 @@ dist/                       # generated and ignored
 ## License
 
 Copyright 2026 Jannis Leidel. Original material in this repository is licensed under [Apache License 2.0](LICENSE). Applicable upstream licenses and attribution for adapted material are preserved in [THIRD_PARTY_NOTICES.md](skills/conda-plugin-skill/THIRD_PARTY_NOTICES.md) and included in standalone skill distributions.
-
-## Verification scope
-
-The former README setup command, using Skills CLI 1.7.4 in copy mode and the old `conda-plugins` name, passed on [fresh GitHub-hosted runners](https://github.com/jezdez/conda-plugin-skill/actions/runs/40590133508) with Node.js 22.23.4 and initially absent client skill directories. Each run fetched this private repository through authenticated Git and the three public companion repositories. These results describe that tested configuration, not every version or installation method in the upstream docs. The procedure is retained as an internal test fixture in `scripts/check_setup.py`, now selecting `conda-plugin-skill`. The historical results do not verify that rename, conda packaging, or pixi-skills links.
-
-| Environment | Shell | Skills discovered by each of the three clients |
-| --- | --- | --- |
-| Linux x86_64 | Bash | 23 of 23 |
-| macOS 26.6.2 ARM64 | Bash | 23 of 23 |
-| Windows Server 2025 x86_64 | Git Bash | 23 of 23 |
-
-All 23 skills installed: `conda-plugins`, Humanizer, 15 Superpowers skills, and six Ponytail skills. Each of the two installation directories contained 115 files matching the source revisions byte for byte, without line-ending conversion. Eight executable Bash helpers in each copy passed `bash -n`, and Superpowers' references to sibling skills resolved. Executable permissions were also checked on Linux and macOS.
-
-Codex 0.165.0, Kilo CLI 7.8.18, and Claude Code through Agent SDK 0.3.312 each discovered all 23 installed skills. Codex lists Humanizer as `humanizer:humanizer`. The checks used Codex's `skills/list`, Kilo's `debug skill`, and Claude's `supportedCommands()` without submitting a prompt. They establish installation, helper syntax, and native client discovery under the old skill name. Model invocation and native plugin hooks were not tested. Follow the [contributor instructions](CONTRIBUTING.md#test-installation-on-linux-macos-and-windows) to run the updated check after the rename is available from the default branch.
-
-Earlier checks on 23 October 2026 covered source selection and stop-on-failure behavior in Bash, Zsh, and a POSIX shell, plus project installation from local source snapshots. The documentation examples passed a strict Sphinx build and a real VHS recording of the bundled greet plugin.
