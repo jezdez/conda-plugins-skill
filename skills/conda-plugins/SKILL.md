@@ -1,6 +1,6 @@
 ---
 name: conda-plugins
-description: Use when creating, extending, debugging, reviewing, or documenting Python plugins for conda, including subcommands, settings, authentication, environment formats, solvers, and lifecycle hooks.
+description: Use when creating, extending, debugging, reviewing, or documenting Python plugins for conda, including subcommands, settings, authentication, environment formats, solvers, and lifecycle hooks. Not for ordinary package installation or environment management unless the task concerns a plugin's implementation.
 license: Apache-2.0
 ---
 
@@ -25,6 +25,8 @@ Use native skill invocation when available, otherwise follow the installed `SKIL
 ## Establish the task
 
 Read the target repository's applicable instructions and metadata. Respect the client's instruction precedence, including `AGENTS.override.md` and existing `CLAUDE.md` files. Read nested instructions before editing their files.
+
+Determine whether the user wants implementation, a plan, an explanation, or review findings. A read-only request stays read-only. This skill and its companions do not authorize edits, installations, or publication beyond the user's request.
 
 Identify the behavior being changed, the hook that owns it, the supported conda versions, and the commands that validate it. Existing repository requirements take precedence over the defaults below. Preserve unrelated work and use the current checkout.
 

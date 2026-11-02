@@ -31,6 +31,8 @@ pixi run --locked pre-commit
 
 The validator checks skill metadata, supported Markdown links and anchors, standalone references, and distribution notices. It does not execute examples or prove that an agent follows the instructions. Execute changed examples and use a realistic application scenario for substantial instruction changes. Keep tests that exercise observable behavior, such as a broken link or an archive missing a notice.
 
+Metadata checks follow the [Agent Skills specification](https://agentskills.io/specification), including name and description limits and optional-field types. This repository additionally requires ASCII kebab-case names and Apache-2.0 with bundled notices. Keep client-specific extensions out of portable frontmatter. The recommended entry-point budget of 500 lines and 5,000 tokens is an editorial guideline, not a format error. Review depth and reference loading rather than applying that budget to human-facing guides.
+
 When changing `pixi.toml`, run `pixi lock` and include the updated lockfile. `pixi run --locked build` writes `dist/conda-plugins.zip`. Generated files stay untracked and out of the repository root. Inspect the ZIP before sharing it with the intended audience.
 
 ## Test installation on Linux, macOS, and Windows
@@ -40,6 +42,18 @@ Run the [installation check workflow](https://github.com/jezdez/conda-plugin-ski
 The fixture retains Skills CLI 1.7.4 and the former README setup command for repeatable installer behavior. It does not test all versions or installation methods described by the upstream docs. It fetches skills from the source repositories' default branches, so a successful run does not validate unpublished skill changes on your branch.
 
 The workflow saves a verification summary as a private artifact for seven days. It records source revisions, file checks, and client discovery results. The test script requires a GitHub-hosted runner and empty client skill directories to guard against accidental local installations. Model behavior and native plugin hooks need separate checks.
+
+## Evaluate skill behavior
+
+[tests/skill_evals.json](tests/skill_evals.json) contains a small set of trigger queries and task cases with observable assertions. Its deliberately flawed plugin snippets are text fixtures for review and planning, not an installable plugin. The pytest check only verifies that the cases and fixture paths are usable. It does not run an agent or grade its behavior.
+
+For a skill change, choose the relevant cases and start each run with clean context and disposable files. Follow each case's setup requirements. Never remove existing skills from a user's client to simulate a missing companion. If isolation or a real companion is unavailable, record that case as untested. A description-only classification is a useful preliminary check, but activation requires observing a real client load the skill.
+
+Compare runs with the skill against runs without it, or against the previous revision. Keep the model, prompt, fixtures, tool permissions, and companion availability unchanged. Give the runner the prompt and files without the expected output or grading assertions. Waivers belong only to cases that explicitly include them. Run each companion scenario separately so one case's waiver cannot leak into another.
+
+Grade the output and tool trace against each assertion, citing evidence for a pass. Check whether the agent respected read-only requests, retained project tools, loaded the relevant references, and stopped when required companions were missing. Record the skill revision or diff, client and model versions, companion sources and availability, commands actually run, and any unavailable timing or token measurements. Keep results outside distributed skills. Review prose with Humanizer and a human reader rather than a banned-word test.
+
+These cases cover instruction handling, not implementation quality. For changes to implementation guidance, also run a disposable installed-plugin task and its tests. Keep native discovery, trigger evaluations, instruction scenarios, and installed-plugin execution separate in reports. Start with a few cases and expand where observed failures justify it. The upstream guides explain [task evaluation](https://agentskills.io/skill-creation/evaluating-skills) and [trigger evaluation](https://agentskills.io/skill-creation/optimizing-descriptions).
 
 ## Propose the change
 

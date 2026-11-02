@@ -1,0 +1,65 @@
+{
+  "skill_name": "conda-plugins",
+  "trigger_queries": [
+    {"query": "Add an environment exporter to our conda plugin.", "should_trigger": true},
+    {"query": "Our conda subcommand vanished after an editable install. Diagnose discovery.", "should_trigger": true},
+    {"query": "Review src/conda_example/plugin.py for imports that slow conda startup.", "should_trigger": true},
+    {"query": "Write a tutorial for the authentication hook in our conda plugin.", "should_trigger": true},
+    {"query": "Install NumPy in my conda environment.", "should_trigger": false},
+    {"query": "Export my current conda environment to environment.yml.", "should_trigger": false},
+    {"query": "Review the README for our Python library, which uses conda for development.", "should_trigger": false},
+    {"query": "Add a pytest plugin that prints an environment summary.", "should_trigger": false}
+  ],
+  "evals": [
+    {
+      "id": "read-only-review",
+      "prompt": "Review the two supplied conda plugin files for registration cost and stdout correctness. Findings only, do not edit files. For this evaluation I explicitly waive all three companion prerequisites. Do not install anything.",
+      "files": ["fixtures/skill-evaluation/plugin.py.txt", "fixtures/skill-evaluation/cli.py.txt"],
+      "expected_output": "An evidence-based review that identifies eager implementation loading and the extra stdout line without overstating the tiny fixture's import cost.",
+      "assertions": [
+        "No files are edited and no packages or skills are installed.",
+        "The review identifies the module-level cli import during registration, without inventing network or cache side effects.",
+        "The review explains that the progress line prevents stdout from being one JSON document.",
+        "The skill-enabled run loads architecture and CLI guidance without loading unrelated solver, verification, or demo references.",
+        "The report distinguishes inspected code from tests actually executed."
+      ]
+    },
+    {
+      "id": "missing-companion",
+      "prompt": "Use conda-plugins to review the supplied plugin files. Do not install skills. I have not waived any required companion.",
+      "setup": "Use an isolated client configuration with Humanizer available and Superpowers and Ponytail absent. Do not hide or remove the user's real installations.",
+      "files": ["fixtures/skill-evaluation/plugin.py.txt", "fixtures/skill-evaluation/cli.py.txt"],
+      "expected_output": "The agent identifies unavailable companions, links the setup instructions, and stops before plugin review.",
+      "assertions": [
+        "The report identifies Superpowers and Ponytail as unavailable.",
+        "The report links the required-companion setup instructions.",
+        "The agent does not review or change plugin code and does not install companions."
+      ]
+    },
+    {
+      "id": "waiver-and-project-defaults",
+      "prompt": "Plan a regression test for JSON output in the supplied plugin. Do not implement it. For this evaluation I explicitly waive all three companion prerequisites. Our project uses tox and unittest, and its project rules require retaining those tools. Do not introduce Pixi or pytest. Explain how to run the test without pretending you know our tox environment names.",
+      "files": ["fixtures/skill-evaluation/plugin.py.txt", "fixtures/skill-evaluation/cli.py.txt"],
+      "expected_output": "A read-only plan using the existing toolchain, an installed conda runtime, and a whole-stdout JSON assertion.",
+      "assertions": [
+        "The agent proceeds under the explicit waiver without installing companions.",
+        "The plan retains tox and unittest rather than replacing them with skill defaults.",
+        "The plan checks complete stdout with a JSON parser and covers installed CLI behavior.",
+        "The plan requests inspection of actual task definitions instead of inventing tox environment names.",
+        "No files are changed and no test execution is claimed."
+      ]
+    },
+    {
+      "id": "namespaced-companions",
+      "prompt": "Use conda-plugins to explain how to keep this plugin's registration cheap. Do not change files or install anything.",
+      "setup": "In an isolated client, install real companion collections and expose their actual namespaced discovery names, including humanizer:humanizer. Record the client and names returned. Do not use placeholder companion instructions.",
+      "files": ["fixtures/skill-evaluation/plugin.py.txt", "fixtures/skill-evaluation/cli.py.txt"],
+      "expected_output": "The agent recognizes the namespaced companions, reads their real entry points, and gives a focused explanation.",
+      "assertions": [
+        "Namespaced discovery names are accepted without a false missing-companion report.",
+        "The agent reads each companion entry point and only the additional workflows relevant to the explanation.",
+        "The explanation addresses the fixture's eager import without editing files or claiming measured latency."
+      ]
+    }
+  ]
+}

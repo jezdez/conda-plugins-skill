@@ -5,6 +5,7 @@ import zipfile
 from pathlib import Path
 
 import pytest
+import yaml
 from check import check_repository
 from package import build_archives
 
@@ -101,6 +102,79 @@ def test_requires_valid_frontmatter(repository: Path, field: str) -> None:
         encoding="utf-8",
     )
     assert any(field in error for error in check_repository(repository))
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "expected"),
+    [
+        ("name", "a" * 65, "name must be at most 64 characters"),
+        ("description", "a" * 1025, "description must be at most 1024 characters"),
+        ("description", True, "description must be a nonempty string"),
+        ("description", " \t", "description must be a nonempty string"),
+        ("compatibility", "a" * 501, "compatibility must be at most 500 characters"),
+        ("compatibility", "", "compatibility must be a nonempty string"),
+        ("compatibility", None, "compatibility must be a nonempty string"),
+        ("compatibility", ["python"], "compatibility must be a nonempty string"),
+        ("metadata", {"version": 1}, "metadata must map strings to strings"),
+        ("metadata", {1: "version"}, "metadata must map strings to strings"),
+        ("metadata", ["author"], "metadata must map strings to strings"),
+        ("metadata", None, "metadata must map strings to strings"),
+        ("allowed-tools", ["Read"], "allowed-tools must be a string"),
+        ("allowed-tools", None, "allowed-tools must be a string"),
+        ("allowed_tools", "Read", "unsupported frontmatter field"),
+        (42, "value", "unsupported frontmatter field"),
+    ],
+    ids=[
+        "long-name",
+        "long-description",
+        "boolean-description",
+        "blank-description",
+        "long-compatibility",
+        "empty-compatibility",
+        "null-compatibility",
+        "list-compatibility",
+        "numeric-metadata-value",
+        "numeric-metadata-key",
+        "list-metadata",
+        "null-metadata",
+        "list-tools",
+        "null-tools",
+        "misspelled-field",
+        "numeric-field",
+    ],
+)
+def test_rejects_invalid_metadata(
+    repository: Path, field: str | int, value: object, expected: str
+) -> None:
+    path = repository / "skills/example/SKILL.md"
+    _, header, body = path.read_text(encoding="utf-8").split("---", 2)
+    metadata = yaml.safe_load(header)
+    metadata[field] = value
+    path.write_text(f"---\n{yaml.safe_dump(metadata)}---{body}", encoding="utf-8")
+    if field == "name":
+        assert isinstance(value, str)
+        path.parent.rename(path.parent.with_name(value))
+        (repository / "README.md").write_text("# Example\n", encoding="utf-8")
+    assert any(expected in error for error in check_repository(repository))
+
+
+def test_accepts_metadata_at_specification_limits(repository: Path) -> None:
+    skill = repository / "skills/example"
+    name = "a" * 64
+    metadata = {
+        "name": name,
+        "description": "a" * 1024,
+        "license": "Apache-2.0",
+        "compatibility": "a" * 500,
+        "metadata": {"author": "Example", "version": "1"},
+        "allowed-tools": "Read Bash(git:*)",
+    }
+    (skill / "SKILL.md").write_text(
+        f"---\n{yaml.safe_dump(metadata)}---\n# Example\n", encoding="utf-8"
+    )
+    skill.rename(skill.with_name(name))
+    (repository / "README.md").write_text("# Example\n", encoding="utf-8")
+    assert check_repository(repository) == []
 
 
 @pytest.mark.parametrize(

@@ -1,0 +1,8 @@
+from __future__ import annotations
+
+import json
+
+
+def execute(args):
+    print("Preparing greeting...")
+    print(json.dumps({"greeting": "Hello, Ada!"}))

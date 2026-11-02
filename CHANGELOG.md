@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Validate portable metadata limits and optional fields. Clarify read-only scope and add skill evaluation cases for activation, companion handling, and project defaults.
 - Link to upstream Skills CLI installation and update docs. Keep the previously tested installer command as an internal CI fixture.
 - Simplify the README introduction, put usage after installation, and clarify which sources the hosted setup check tests.
 - Preserve LF endings in companion Bash helpers when installing on Windows.
