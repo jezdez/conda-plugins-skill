@@ -149,7 +149,7 @@ pixi run --locked check
 pixi run --locked build
 ```
 
-The build validates the skill and writes `dist/conda-plugin-skill.zip`, including references and license notices. Keep generated archives under `dist/`, where Git ignores them. The archive contains only `conda-plugin-skill`. Install its companions separately using the setup above.
+The build validates the skill and writes `dist/conda-plugin-skill.zip`, including references and license notices. Release downloads include the version in the filename, such as `conda-plugin-skill-26.11.0.zip`, while the folder inside remains `conda-plugin-skill/`. Keep generated archives under `dist/`, where Git ignores them. The archive contains only `conda-plugin-skill`. Install its companions separately using the setup above.
 
 See [CHANGELOG.md](CHANGELOG.md) for changes, [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for participation expectations, and [SECURITY.md](SECURITY.md) for private reporting.
 

@@ -105,7 +105,8 @@ jobs:
           test -f conda-plugin-skill.zip
           test "$(find . -type f | wc -l)" -eq 2
           mkdir "$RUNNER_TEMP/release-assets"
-          cp conda-plugin-skill.zip "${packages[0]}" "$RUNNER_TEMP/release-assets/"
+          cp conda-plugin-skill.zip "$RUNNER_TEMP/release-assets/conda-plugin-skill-$VERSION.zip"
+          cp "${packages[0]}" "$RUNNER_TEMP/release-assets/"
           jq -n --arg repository "$GH_REPO" --arg tag "$TAG" \
             --arg commit "$COMMIT" --arg version "$VERSION" \
             --arg workflow_commit "$GITHUB_SHA" \
@@ -119,11 +120,21 @@ jobs:
         working-directory: ${{ runner.temp }}/release-assets
         run: |
           set -euo pipefail
-          sha256sum conda-plugin-skill.zip ./*.conda release-manifest.json > SHA256SUMS
+          sha256sum "conda-plugin-skill-$VERSION.zip" ./*.conda release-manifest.json > SHA256SUMS
           sha256sum --check SHA256SUMS
+          gh api "repos/$GH_REPO/contents/CHANGELOG.md?ref=$COMMIT" \
+            -H 'Accept: application/vnd.github.raw+json' > "$RUNNER_TEMP/CHANGELOG.md"
+          awk -v version="$VERSION" '
+            /^## / {
+              if (selected) exit
+              selected = ($0 == "## " version || index($0, "## " version " ") == 1)
+              next
+            }
+            selected { print; if ($0 ~ /[^[:space:]]/) nonempty = 1 }
+            END { if (!nonempty) exit 1 }
+          ' "$RUNNER_TEMP/CHANGELOG.md" > "$RUNNER_TEMP/release-notes.md"
           # Never use --clobber, implicit tags, or automatic publication.
           gh release create "$TAG" --verify-tag --draft --latest=false \
-            --title "$VERSION" --generate-notes \
-            --notes "Candidate from $COMMIT. Verify assets and enable release immutability before publishing. No conda channel upload has been performed." \
-            conda-plugin-skill.zip ./*.conda release-manifest.json SHA256SUMS
+            --title "$VERSION" --notes-file "$RUNNER_TEMP/release-notes.md" \
+            "conda-plugin-skill-$VERSION.zip" ./*.conda release-manifest.json SHA256SUMS
           gh release view "$TAG" --json url --jq .url >> "$GITHUB_STEP_SUMMARY"
