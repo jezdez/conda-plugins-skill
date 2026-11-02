@@ -1,5 +1,5 @@
 [workspace]
-name = "conda-plugin-skills"
+name = "conda-plugin-skill"
 description = "Portable agent skills for conda plugin development"
 channels = ["conda-forge"]
 platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]

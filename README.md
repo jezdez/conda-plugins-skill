@@ -1,8 +1,8 @@
-# Conda plugin skills
+# Conda plugin skill
 
 Agent instructions and worked examples for developing conda plugins with Codex, Kilo, or Claude Code. This repository is private and shared with colleagues.
 
-The [conda-plugins skill](skills/conda-plugins/SKILL.md) helps an agent work through decisions such as which hook to use, how to keep plugin discovery cheap, and how to test the installed plugin. It also covers documentation and terminal demos. The guidance comes from Jannis Leidel's recent conda plugins and their `AGENTS.md` files. Instructions and examples are included in the skill, with [source links](skills/conda-plugins/references/sources.md) for readers who want to trace a recommendation.
+The [conda-plugin-skill](skills/conda-plugin-skill/SKILL.md) helps an agent work through decisions such as which hook to use, how to keep plugin discovery cheap, and how to test the installed plugin. It also covers documentation and terminal demos. The guidance comes from Jannis Leidel's recent conda plugins and their `AGENTS.md` files. Instructions and examples are included in the skill, with [source links](skills/conda-plugin-skill/references/sources.md) for readers who want to trace a recommendation.
 
 The agent reads the references needed for your task and follows your repository's own rules. The skill uses the portable [Agent Skills format](https://agentskills.io/specification), without depending on client-specific tool names, shell-injection features, or lifecycle hooks.
 
@@ -10,11 +10,17 @@ Install it with the three [required companions](#required-companion-skills): Sup
 
 ## Install with npx
 
-Follow the [Skills CLI installation docs](https://github.com/vercel-labs/skills/blob/main/docs/commands.md#skills-add) for `npx skills add`, client selection, installation scope, and copy or symlink options. Install these sources for the clients you use:
+Install the skill and choose your client when prompted:
+
+```sh
+npx skills add jezdez/conda-plugin-skill
+```
+
+Install the required companions from the sources below. The [Skills CLI docs](https://github.com/vercel-labs/skills/blob/main/docs/commands.md#skills-add) cover client selection, project or global scope, and copy or symlink options.
 
 | Source | Skills to select |
 | --- | --- |
-| `jezdez/conda-plugin-skills` | `conda-plugins` |
+| `jezdez/conda-plugin-skill` | `conda-plugin-skill` |
 | `obra/superpowers/skills` | All skills |
 | `blader/humanizer` | `humanizer` |
 | `DietrichGebert/ponytail/skills` | All skills |
@@ -23,35 +29,41 @@ You need read access to this repository. Follow the CLI's [private-repository in
 
 Keep complete skill folders, including references and helper scripts. Superpowers and Ponytail refer to files in sibling skills, so install their full collections. On Windows, preserve LF line endings in companion Bash scripts. Review existing installations before replacing them, and only commit private skills and installation lockfiles where their intended audience has access.
 
+### Migrate from conda-plugins
+
+The skill was renamed from `conda-plugins` to `conda-plugin-skill`. Install the new name first and confirm that your client can load it and its references. Then remove the old `conda-plugins` installation in each scope you use to avoid duplicate guidance. Preserve any local edits before removing it. The GitHub repository is now `jezdez/conda-plugin-skill` too.
+
+The renamed skill has not yet been verified through native client discovery. The [recorded installation results](#verification-scope) below apply to the old name.
+
 ## Use it
 
 Start a new session in the conda plugin repository you want to work on.
 
-- Codex: enter `$conda-plugins`, followed by your task.
-- Claude Code: enter `/conda-plugins`, followed by your task.
-- Kilo: ask it to use the `conda-plugins` skill, or choose it from the `/` menu. Use `/reload` after adding or updating skills in an existing session.
+- Codex: enter `$conda-plugin-skill`, followed by your task.
+- Claude Code: enter `/conda-plugin-skill`, followed by your task.
+- Kilo: ask it to use the `conda-plugin-skill` skill, or choose it from the `/` menu. Use `/reload` after adding or updating skills in an existing session.
 
 For example, in any client:
 
-> Use the conda-plugins skill to add a conda subcommand in this repository. Read the applicable repository instructions first, identify the development environment and supported conda versions, then implement and test the smallest complete change.
+> Use the conda-plugin-skill to add a conda subcommand in this repository. Read the applicable repository instructions first, identify the development environment and supported conda versions, then implement and test the smallest complete change.
 
-To check that installation worked, ask the client to identify `conda-plugins` and all three required companions, then open the references needed for a sample task. The skill follows the project's `AGENTS.md` and existing client instructions.
+To check that installation worked, ask the client to identify `conda-plugin-skill` and all three required companions, then open the references needed for a sample task. The skill follows the project's `AGENTS.md` and existing client instructions.
 
 ## Where the skill goes
 
-Each `conda-plugins` installation contains `SKILL.md`, the complete `references/` directory, `LICENSE`, and `THIRD_PARTY_NOTICES.md`. The following destinations were checked with Skills CLI 1.7.4. Its [installer shares the `.agents/skills` directory](https://github.com/vercel-labs/skills/blob/v1.7.4/src/installer.ts#L156-L183) between Codex and Kilo. Consult the CLI's [supported-agent reference](https://github.com/vercel-labs/skills/blob/main/docs/agents.md#supported-agents) for current paths:
+Each `conda-plugin-skill` installation contains `SKILL.md`, the complete `references/` directory, `LICENSE`, and `THIRD_PARTY_NOTICES.md`. The parent directories below were checked with Skills CLI 1.7.4 under the old skill name. The renamed destinations still need verification. Its [installer shares the `.agents/skills` directory](https://github.com/vercel-labs/skills/blob/v1.7.4/src/installer.ts#L156-L183) between Codex and Kilo. Consult the CLI's [supported-agent reference](https://github.com/vercel-labs/skills/blob/main/docs/agents.md#supported-agents) for current paths:
 
 | Client | `--agent` value | User installation with `--global` | Project installation |
 | --- | --- | --- | --- |
-| Codex | `codex` | `~/.agents/skills/conda-plugins/` | `.agents/skills/conda-plugins/` |
-| Claude Code | `claude-code` | `~/.claude/skills/conda-plugins/` | `.claude/skills/conda-plugins/` |
-| Kilo Code and Kilo CLI | `kilo` | `~/.agents/skills/conda-plugins/` | `.agents/skills/conda-plugins/` |
+| Codex | `codex` | `~/.agents/skills/conda-plugin-skill/` | `.agents/skills/conda-plugin-skill/` |
+| Claude Code | `claude-code` | `~/.claude/skills/conda-plugin-skill/` | `.claude/skills/conda-plugin-skill/` |
+| Kilo Code and Kilo CLI | `kilo` | `~/.agents/skills/conda-plugin-skill/` | `.agents/skills/conda-plugin-skill/` |
 
 With copy installation, Codex and Kilo share one copy under `.agents/skills`, while Claude Code has another under `.claude/skills`. Keep both copies updated. Symlink installations share files instead, as described in the CLI's installation docs.
 
 On Windows, `~` means your user profile directory. Custom client home settings can change their configured paths. Current Kilo also supports `.kilo/skills`. Older Kilo extensions used `.kilocode/skills`, so check the documentation for an older installation.
 
-Global installation paths and client discovery were checked on 28 October 2026. See [Codex skills](https://learn.chatgpt.com/docs/build-skills), [Kilo skills](https://kilo.ai/docs/customize/skills), and [Claude Code skills](https://code.claude.com/docs/en/skills) for client-specific behavior.
+Global installation paths and client discovery were checked on 28 October 2026 with the old `conda-plugins` name. See [Codex skills](https://learn.chatgpt.com/docs/build-skills), [Kilo skills](https://kilo.ai/docs/customize/skills), and [Claude Code skills](https://code.claude.com/docs/en/skills) for client-specific behavior.
 
 ## Repository instructions in each client
 
@@ -72,17 +84,29 @@ Use the CLI's [list](https://github.com/vercel-labs/skills/blob/main/docs/comman
 If you prefer to copy files yourself, clone the repository or download its ZIP from GitHub:
 
 ```sh
-gh repo clone jezdez/conda-plugin-skills
-cd conda-plugin-skills
+gh repo clone jezdez/conda-plugin-skill
+cd conda-plugin-skill
 mkdir -p "$HOME/.agents/skills"
-cp -R skills/conda-plugins "$HOME/.agents/skills/"
+cp -R skills/conda-plugin-skill "$HOME/.agents/skills/"
 mkdir -p "$HOME/.claude/skills"
-cp -R skills/conda-plugins "$HOME/.claude/skills/"
+cp -R skills/conda-plugin-skill "$HOME/.claude/skills/"
 ```
 
-These are first-install commands. Compare or back up an existing skill before replacing it. The `.agents` copy serves Codex and current Kilo, and the `.claude` copy serves Claude Code. On Windows, copy the whole `skills/conda-plugins/` folder into those directories with Explorer or PowerShell. Keep its reference files together because their links are relative, and update each copy together.
+These are first-install commands. Compare or back up an existing skill before replacing it. The `.agents` copy serves Codex and current Kilo, and the `.claude` copy serves Claude Code. On Windows, copy the whole `skills/conda-plugin-skill/` folder into those directories with Explorer or PowerShell. Keep its reference files together because their links are relative, and update each copy together.
 
-These manual commands copy only `conda-plugins`. Install the three required companions using their upstream instructions below before using the workflow.
+These manual commands copy only `conda-plugin-skill`. Install the three required companions using their upstream instructions below before using the workflow.
+
+## Conda package
+
+The packaging follows [skill-forge](https://github.com/pavelzw/skill-forge): a text-only `noarch: generic` conda package named `agent-skill-conda-plugin-skill`. It installs the complete skill under `share/agent-skills/conda-plugin-skill` in the environment prefix, with no runtime dependencies or activation hooks.
+
+Build it with `pixi run --locked build-conda`, with output under `dist/conda/noarch/`. The ZIP build remains `pixi run --locked build`. Both distributions include the skill's references and license notices. Neither bundles Superpowers, Humanizer, or Ponytail. Install those required companions separately.
+
+[pixi-skills](https://github.com/pavelzw/pixi-skills) links packaged skills into client directories. Use its generic `agents` backend for `.agents/skills/` and its `claude` backend for `.claude/skills/`. With pixi-skills 0.1.7 and Pixi 0.83.0 on macOS arm64, a disposable installation discovered the renamed skill and both backend APIs created relative links exposing all 11 files byte for byte. CLI list/status and link removal also passed. Native Codex, Kilo, and Claude Code discovery through these links has not been tested.
+
+No package has been published, and the private channel is not yet specified. The skill-forge channel is an upstream example, not a publication destination for this repository. Package installation commands will be documented once an authorized channel and tested artifacts exist.
+
+The first release candidate is `26.11.0`, build number `0`, and is not released. The canonical version is `package.version` in `recipe/recipe.yaml`. Releases use UTC calendar versions and tags of the form `vYY.MM.P`. See the [release procedure](CONTRIBUTING.md#release-process) for version rules and the manual approval steps.
 
 ## Required companion skills
 
@@ -106,20 +130,20 @@ Keep companion workflows within your requested scope and repository rules. Small
 
 [Codex Security](https://learn.chatgpt.com/docs/security/plugin) can supplement security tests with source review and finding validation. It is optional and does not affect the three companion prerequisites. Use it when available in Codex and a security review is in scope, especially for changes to credentials, request scoping, archive extraction, subprocess execution, or signed evidence.
 
-The [testing guide](skills/conda-plugins/references/testing.md#optional-security-review) explains which scan fits a change and how to report results. Kilo and Claude Code users can follow the same security test cases and review criteria without Codex Security.
+The [testing guide](skills/conda-plugin-skill/references/testing.md#optional-security-review) explains which scan fits a change and how to report results. Kilo and Claude Code users can follow the same security test cases and review criteria without Codex Security.
 
 ## Skill references
 
-Start with [SKILL.md](skills/conda-plugins/SKILL.md), or open a guide for the topic you're working on:
+Start with [SKILL.md](skills/conda-plugin-skill/SKILL.md), or open a guide for the topic you're working on:
 
-- [Plugin guide](skills/conda-plugins/references/plugin-guide.md) for hook selection, registration, and a complete small plugin.
-- [Architecture](skills/conda-plugins/references/architecture.md) for import cost, code ownership, models, dependencies, and errors.
-- [CLI and processes](skills/conda-plugins/references/cli-and-processes.md) for arguments, activation, JSON, settings, state writes, and credentials.
-- [Formats and solvers](skills/conda-plugins/references/formats-and-solvers.md) for manifests, exporters, package graphs, schema reuse, and target solving.
-- [Verification](skills/conda-plugins/references/verification.md) for signed evidence, artifact binding, authorization, offline behavior, and verified caches.
-- [Documentation and demos](skills/conda-plugins/references/documentation.md) for worked examples, editing with Humanizer, organizing a site with Diátaxis, building it with Sphinx, MyST, and sphinx-design, and recording VHS GIFs.
-- [Testing](skills/conda-plugins/references/testing.md) for runnable discovery tests, regression cases, and startup checks.
-- [Sources](skills/conda-plugins/references/sources.md) for optional provenance and pinned source examples.
+- [Plugin guide](skills/conda-plugin-skill/references/plugin-guide.md) for hook selection, registration, and a complete small plugin.
+- [Architecture](skills/conda-plugin-skill/references/architecture.md) for import cost, code ownership, models, dependencies, and errors.
+- [CLI and processes](skills/conda-plugin-skill/references/cli-and-processes.md) for arguments, activation, JSON, settings, state writes, and credentials.
+- [Formats and solvers](skills/conda-plugin-skill/references/formats-and-solvers.md) for manifests, exporters, package graphs, schema reuse, and target solving.
+- [Verification](skills/conda-plugin-skill/references/verification.md) for signed evidence, artifact binding, authorization, offline behavior, and verified caches.
+- [Documentation and demos](skills/conda-plugin-skill/references/documentation.md) for worked examples, editing with Humanizer, organizing a site with Diátaxis, building it with Sphinx, MyST, and sphinx-design, and recording VHS GIFs.
+- [Testing](skills/conda-plugin-skill/references/testing.md) for runnable discovery tests, regression cases, and startup checks.
+- [Sources](skills/conda-plugin-skill/references/sources.md) for optional provenance and pinned source examples.
 
 ## Contributing and building an archive
 
@@ -131,7 +155,7 @@ pixi run --locked check
 pixi run --locked build
 ```
 
-The build validates the skills and writes `dist/conda-plugins.zip`, including references and license notices. Keep generated archives under `dist/`, where Git ignores them. The archive contains only `conda-plugins`. Install its companions separately using the setup above.
+The build validates the skill and writes `dist/conda-plugin-skill.zip`, including references and license notices. Keep generated archives under `dist/`, where Git ignores them. The archive contains only `conda-plugin-skill`. Install its companions separately using the setup above.
 
 See [CHANGELOG.md](CHANGELOG.md) for changes, [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for participation expectations, and [SECURITY.md](SECURITY.md) for private reporting.
 
@@ -146,7 +170,7 @@ pixi.toml
 pixi.lock
 scripts/
 tests/
-skills/conda-plugins/
+skills/conda-plugin-skill/
   SKILL.md
   LICENSE
   THIRD_PARTY_NOTICES.md
@@ -164,11 +188,11 @@ dist/                       # generated and ignored
 
 ## License
 
-Copyright 2026 Jannis Leidel. Original material in this repository is licensed under [Apache License 2.0](LICENSE). Applicable upstream licenses and attribution for adapted material are preserved in [THIRD_PARTY_NOTICES.md](skills/conda-plugins/THIRD_PARTY_NOTICES.md) and included in standalone skill distributions.
+Copyright 2026 Jannis Leidel. Original material in this repository is licensed under [Apache License 2.0](LICENSE). Applicable upstream licenses and attribution for adapted material are preserved in [THIRD_PARTY_NOTICES.md](skills/conda-plugin-skill/THIRD_PARTY_NOTICES.md) and included in standalone skill distributions.
 
 ## Verification scope
 
-The former README setup command, using Skills CLI 1.7.4 in copy mode, passed on [fresh GitHub-hosted runners](https://github.com/jezdez/conda-plugin-skills/actions/runs/40590133508) with Node.js 22.23.4 and initially absent client skill directories. Each run fetched this private repository through authenticated Git and the three public companion repositories. These results describe that tested configuration, not every version or installation method in the upstream docs. The command is retained as an internal test fixture in `scripts/check_setup.py`.
+The former README setup command, using Skills CLI 1.7.4 in copy mode and the old `conda-plugins` name, passed on [fresh GitHub-hosted runners](https://github.com/jezdez/conda-plugin-skill/actions/runs/40590133508) with Node.js 22.23.4 and initially absent client skill directories. Each run fetched this private repository through authenticated Git and the three public companion repositories. These results describe that tested configuration, not every version or installation method in the upstream docs. The procedure is retained as an internal test fixture in `scripts/check_setup.py`, now selecting `conda-plugin-skill`. The historical results do not verify that rename, conda packaging, or pixi-skills links.
 
 | Environment | Shell | Skills discovered by each of the three clients |
 | --- | --- | --- |
@@ -178,6 +202,6 @@ The former README setup command, using Skills CLI 1.7.4 in copy mode, passed on 
 
 All 23 skills installed: `conda-plugins`, Humanizer, 15 Superpowers skills, and six Ponytail skills. Each of the two installation directories contained 115 files matching the source revisions byte for byte, without line-ending conversion. Eight executable Bash helpers in each copy passed `bash -n`, and Superpowers' references to sibling skills resolved. Executable permissions were also checked on Linux and macOS.
 
-Codex 0.165.0, Kilo CLI 7.8.18, and Claude Code through Agent SDK 0.3.312 each discovered all 23 installed skills. Codex lists Humanizer as `humanizer:humanizer`. The checks used Codex's `skills/list`, Kilo's `debug skill`, and Claude's `supportedCommands()` without submitting a prompt. They establish installation, helper syntax, and native client discovery. Model invocation and native plugin hooks were not tested. Follow the [contributor instructions](CONTRIBUTING.md#test-installation-on-linux-macos-and-windows) to repeat the check.
+Codex 0.165.0, Kilo CLI 7.8.18, and Claude Code through Agent SDK 0.3.312 each discovered all 23 installed skills. Codex lists Humanizer as `humanizer:humanizer`. The checks used Codex's `skills/list`, Kilo's `debug skill`, and Claude's `supportedCommands()` without submitting a prompt. They establish installation, helper syntax, and native client discovery under the old skill name. Model invocation and native plugin hooks were not tested. Follow the [contributor instructions](CONTRIBUTING.md#test-installation-on-linux-macos-and-windows) to run the updated check after the rename is available from the default branch.
 
 Earlier checks on 23 October 2026 covered source selection and stop-on-failure behavior in Bash, Zsh, and a POSIX shell, plus project installation from local source snapshots. The documentation examples passed a strict Sphinx build and a real VHS recording of the bundled greet plugin.

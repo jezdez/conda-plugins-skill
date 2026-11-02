@@ -1,6 +1,6 @@
 # Repository guidance
 
-This repository maintains portable Agent Skills for people developing conda plugins. Its deliverable is the content under `skills/`. It is not a conda plugin or an installable Python package. Python scripts validate and package that content.
+This repository maintains the portable `conda-plugin-skill` for people developing conda plugins. Its deliverable is the content under `skills/conda-plugin-skill/`, distributed as a ZIP and a text-only conda package. It is not a conda plugin or an installable Python package. Python scripts validate and package that content.
 
 ## Structure and scope
 
@@ -9,7 +9,9 @@ This repository maintains portable Agent Skills for people developing conda plug
 - Maintain original instructions, concrete examples, and optional pinned provenance. A source link must not substitute for the guidance a colleague needs.
 - `scripts/` contains repository checks and archive building. Tests belong in `tests/`.
 - Generated archives belong in ignored `dist/`. Never place or commit a ZIP in the repository root.
+- The conda package is `agent-skill-conda-plugin-skill`, uses `noarch: generic`, and installs the complete skill under `share/agent-skills/conda-plugin-skill`. Keep package output under `dist/conda/noarch/` and companions separate.
 - Use this checkout and preserve unrelated changes. Do not create another checkout, edit source plugin repositories, or change publication destinations without authorization.
+- The GitHub repository is `jezdez/conda-plugin-skill`. Keep repository URLs consistent with that name.
 
 ## Skill content
 
@@ -35,9 +37,17 @@ pixi run --locked pre-commit
 
 `check` runs skill validation, Ruff linting and formatting checks, ty, and the full pytest suite. `build` validates and writes reproducible ZIPs under `dist/`. Use plain parametrized pytest functions, native fixtures, and real temporary files. Do not use mock libraries. Python code uses modern annotations and `from __future__ import annotations`.
 
+The conda build command is `pixi run --locked build-conda`. Keep it separate from the existing ZIP `build` task. Verify conda payloads and pixi-skills links through the generic `agents` and `claude` backends in disposable environments before claiming client support. Historical `conda-plugins` installation results do not verify the renamed skill.
+
 For changed code examples or behavior claims, execute the affected examples in a disposable environment. Check documentation markup and recordings when those examples change. Prose-only corrections do not require unrelated conda, Sphinx, or platform runs. For changes to instructions, use a realistic independent application scenario when it would reveal a gap that static validation cannot find.
 
 Do not install skills into the user's global client directories during verification. Keep temporary installation checks isolated. Report local checks, actual client invocation, hosted CI, and publication separately. After a push, take at most one CI snapshot unless asked to monitor it.
+
+## Releases
+
+Follow the manual release procedure in `CONTRIBUTING.md`. The canonical version is `recipe/recipe.yaml`'s `package.version`, initially `'26.11.0'`, with `build.number: 0`. That candidate is not released. Use UTC `YY.MM.P` versions with a zero-padded month, `P` starting at `0` each month, and `vYY.MM.P` tags. Content changes require a new version. Packaging-only rebuilds increment the build number separately.
+
+Require a clean reviewed commit, passing CI, both distributions, and SHA-256 checksums before a release tag. Tagging and pushing are manual opt-in actions requiring authorization. Create a GitHub release draft only when explicitly authorized. No private channel is specified, and publication is neither automated nor performed. Do not invent available package installation commands or treat a draft as permission to publish.
 
 ## Contributions
 

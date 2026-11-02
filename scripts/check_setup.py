@@ -23,7 +23,7 @@ from urllib.error import HTTPError
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 SOURCES = {
-    "jezdez/conda-plugin-skills": "skills",
+    "jezdez/conda-plugin-skill": "skills",
     "obra/superpowers": "skills",
     "blader/humanizer": "",
     "DietrichGebert/ponytail": "skills",
@@ -34,7 +34,7 @@ CLIENT_PACKAGES = (
     "@anthropic-ai/claude-agent-sdk@0.3.312",
 )
 IGNORED_DIRS = {".git", "__pycache__", "__pypackages__"}
-# Retain the previously verified copy installation independently of README prose.
+# Keep the copy-installation fixture independent of README prose.
 SETUP_SCRIPT = b"""(
   export DISABLE_TELEMETRY=1
   export "GIT_CONFIG_KEY_${GIT_CONFIG_COUNT:-0}=core.autocrlf"
@@ -44,7 +44,7 @@ SETUP_SCRIPT = b"""(
     npx --yes skills@1.7.4 add "$@" \\
       --global --agent codex claude-code kilo --copy --yes --json
   }
-  install_skills jezdez/conda-plugin-skills --skill conda-plugins &&
+  install_skills jezdez/conda-plugin-skill --skill conda-plugin-skill &&
     install_skills obra/superpowers/skills --skill '*' &&
     install_skills blader/humanizer --skill humanizer &&
     install_skills DietrichGebert/ponytail/skills --skill '*'
@@ -540,7 +540,7 @@ def main() -> int:
                     "GIT_CONFIG_VALUE_0": "",
                     "GIT_CONFIG_KEY_1": (
                         "credential.https://github.com/jezdez/"
-                        "conda-plugin-skills.git.helper"
+                        "conda-plugin-skill.git.helper"
                     ),
                     "GIT_CONFIG_VALUE_1": (
                         '!f() { if [ "$1" = get ]; then '

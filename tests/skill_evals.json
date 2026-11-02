@@ -1,5 +1,5 @@
 {
-  "skill_name": "conda-plugins",
+  "skill_name": "conda-plugin-skill",
   "trigger_queries": [
     {"query": "Add an environment exporter to our conda plugin.", "should_trigger": true},
     {"query": "Our conda subcommand vanished after an editable install. Diagnose discovery.", "should_trigger": true},
@@ -26,7 +26,7 @@
     },
     {
       "id": "missing-companion",
-      "prompt": "Use conda-plugins to review the supplied plugin files. Do not install skills. I have not waived any required companion.",
+      "prompt": "Use conda-plugin-skill to review the supplied plugin files. Do not install skills. I have not waived any required companion.",
       "setup": "Use an isolated client configuration with Humanizer available and Superpowers and Ponytail absent. Do not hide or remove the user's real installations.",
       "files": ["fixtures/skill-evaluation/plugin.py.txt", "fixtures/skill-evaluation/cli.py.txt"],
       "expected_output": "The agent identifies unavailable companions, links the setup instructions, and stops before plugin review.",
@@ -51,7 +51,7 @@
     },
     {
       "id": "namespaced-companions",
-      "prompt": "Use conda-plugins to explain how to keep this plugin's registration cheap. Do not change files or install anything.",
+      "prompt": "Use conda-plugin-skill to explain how to keep this plugin's registration cheap. Do not change files or install anything.",
       "setup": "In an isolated client, install real companion collections and expose their actual namespaced discovery names, including humanizer:humanizer. Record the client and names returned. Do not use placeholder companion instructions.",
       "files": ["fixtures/skill-evaluation/plugin.py.txt", "fixtures/skill-evaluation/cli.py.txt"],
       "expected_output": "The agent recognizes the namespaced companions, reads their real entry points, and gives a focused explanation.",
