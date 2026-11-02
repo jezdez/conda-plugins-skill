@@ -11,6 +11,7 @@ pytest = ">=8"
 ruff = ">=0.14"
 ty = ">=0.0.1"
 pre-commit = ">=4"
+rattler-build = ">=0.67"
 
 [target.win-64.dependencies]
 # ty cannot discover conda-forge Python 3.15's lib/python/site-packages on Windows.
@@ -25,4 +26,5 @@ type-check = "ty check scripts tests"
 test = "pytest"
 check = { depends-on = ["validate", "lint", "format-check", "type-check", "test"] }
 build = "python scripts/package.py"
+build-conda = { cmd = "python scripts/conda_package.py build", depends-on = ["validate"] }
 pre-commit = "pre-commit run --all-files"

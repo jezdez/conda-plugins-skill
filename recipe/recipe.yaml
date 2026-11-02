@@ -1,0 +1,60 @@
+schema_version: 1
+
+package:
+  name: agent-skill-conda-plugin-skill
+  version: "26.11.0"
+
+source:
+  path: ..
+  filter:
+    - skills/conda-plugin-skill/**
+    - scripts/check.py
+    - scripts/conda_package.py
+    - LICENSE
+
+build:
+  number: 0
+  noarch: generic
+  script: python scripts/conda_package.py install
+
+requirements:
+  build:
+    - python >=3.11,<3.15
+    - pyyaml >=6
+
+tests:
+  - package_contents:
+      strict: true
+      files:
+        - share/agent-skills/conda-plugin-skill/SKILL.md
+        - share/agent-skills/conda-plugin-skill/LICENSE
+        - share/agent-skills/conda-plugin-skill/THIRD_PARTY_NOTICES.md
+        - share/agent-skills/conda-plugin-skill/references/*.md
+  - script:
+      interpreter: python
+      content: |
+        import os
+        from pathlib import Path
+        import yaml
+
+        skill = Path(os.environ["CONDA_PREFIX"]) / "share/agent-skills/conda-plugin-skill"
+        text = (skill / "SKILL.md").read_text(encoding="utf-8")
+        metadata = yaml.safe_load(text.split("---", 2)[1])
+        assert metadata["name"] == skill.name
+        assert metadata["license"] == "Apache-2.0"
+        assert (skill / "LICENSE").stat().st_size > 0
+        assert (skill / "THIRD_PARTY_NOTICES.md").stat().st_size > 0
+        assert len(list((skill / "references").glob("*.md"))) == 8
+    requirements:
+      run:
+        - python >=3.11,<3.15
+        - pyyaml >=6
+
+about:
+  summary: Agent guidance for developing and maintaining conda plugins
+  license: Apache-2.0
+  license_file:
+    - LICENSE
+    - skills/conda-plugin-skill/THIRD_PARTY_NOTICES.md
+  homepage: https://github.com/jezdez/conda-plugin-skill
+  repository: https://github.com/jezdez/conda-plugin-skill
