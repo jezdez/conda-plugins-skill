@@ -1,4 +1,4 @@
-"""Exercise the README setup on GitHub-hosted Linux, macOS, and Windows runners.
+"""Check a pinned installation fixture on GitHub-hosted runners.
 
 This intentionally refuses local execution. Only summary.json is retained.
 Client discovery never submits a model prompt or enables plugin hooks.
@@ -34,6 +34,22 @@ CLIENT_PACKAGES = (
     "@anthropic-ai/claude-agent-sdk@0.3.312",
 )
 IGNORED_DIRS = {".git", "__pycache__", "__pypackages__"}
+# Retain the previously verified copy installation independently of README prose.
+SETUP_SCRIPT = b"""(
+  export DISABLE_TELEMETRY=1
+  export "GIT_CONFIG_KEY_${GIT_CONFIG_COUNT:-0}=core.autocrlf"
+  export "GIT_CONFIG_VALUE_${GIT_CONFIG_COUNT:-0}=false"
+  export GIT_CONFIG_COUNT="$(( ${GIT_CONFIG_COUNT:-0} + 1 ))"
+  install_skills() {
+    npx --yes skills@1.7.4 add "$@" \\
+      --global --agent codex claude-code kilo --copy --yes --json
+  }
+  install_skills jezdez/conda-plugin-skills --skill conda-plugins &&
+    install_skills obra/superpowers/skills --skill '*' &&
+    install_skills blader/humanizer --skill humanizer &&
+    install_skills DietrichGebert/ponytail/skills --skill '*'
+)
+"""
 
 
 class SetupFailure(Exception):
@@ -486,10 +502,10 @@ def main() -> int:
             raise SetupFailure("SKILLS_TEST_GITHUB_TOKEN is required")
         bash = shutil.which("bash")
         if not bash:
-            raise SetupFailure("Bash is required for the README setup command")
+            raise SetupFailure("Bash is required for the installation fixture")
         node = shutil.which("node")
         if not node:
-            raise SetupFailure("Node.js is required for the README setup command")
+            raise SetupFailure("Node.js is required for the installation fixture")
         node_info = json.loads(
             command(
                 [
@@ -506,12 +522,7 @@ def main() -> int:
             raise SetupFailure("Node.js and Python resolve different user homes")
         summary["nodeVersion"] = node_info["version"]
         summary["nodeAndPythonHomesMatch"] = True
-        readme = (Path(__file__).resolve().parents[1] / "README.md").read_bytes()
-        block = re.search(rb"(?ms)^```sh\r?\n(.*?)^```\r?$", readme)
-        if not block:
-            raise SetupFailure("README does not contain its setup shell block")
-        setup = block[1]
-        summary["setupSha256"] = hashlib.sha256(setup).hexdigest()
+        summary["setupSha256"] = hashlib.sha256(SETUP_SCRIPT).hexdigest()
         summary["initialSkillDirectoriesAbsent"] = True
         stage = "source inventories"
         heads, skills = source_inventory(token)
@@ -541,10 +552,10 @@ def main() -> int:
                     "GIT_CONFIG_VALUE_2": "true",
                 }
             )
-            stage = "README setup"
+            stage = "installation fixture"
             installed = subprocess.run(
                 [bash, "--noprofile", "--norc"],
-                input=setup,
+                input=SETUP_SCRIPT,
                 cwd=workspace,
                 env=env,
                 capture_output=True,
@@ -558,7 +569,7 @@ def main() -> int:
                 installed.stderr
             ).hexdigest()
             if installed.returncode:
-                raise SetupFailure("README setup command failed")
+                raise SetupFailure("Installation fixture failed")
             summary["installerResults"] = installer_results(
                 installed.stdout, set(skills)
             )

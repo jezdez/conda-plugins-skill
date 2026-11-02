@@ -6,11 +6,11 @@ Use this guide when writing or reviewing a plugin's README, documentation site, 
 
 Write for the person installing, using, or maintaining the plugin. Establish what they want to accomplish, what they already know, and what they need explained. Keep agent procedures in `AGENTS.md` and skill instructions. User documentation should explain the product through the reader's tasks.
 
-Documentation should be expansive enough to teach. Develop the explanation, supply complete worked examples, and give readers ways to explore related topics. The skill's compact routing and the preference for small implementations do not impose a length limit on user documentation. Let the reader's needs determine the depth.
+Give explanations enough room to teach, with complete worked examples and links to related topics. A short skill entry point or a small implementation can still need substantial user documentation. Let the reader's needs determine the depth.
 
 Introduce unfamiliar terms before using them in instructions. For example, explain the difference between a requested package specification and a resolved package record before asking someone to choose an export format. Explain what a command changes, where its result goes, and how the reader can recognize success. Show realistic configuration and output, with commentary on the parts that matter.
 
-For a substantial feature, consider the whole learning journey: a first successful use, guides for recurring tasks, exact reference material, and an explanation of the design and its limits. Include troubleshooting for likely mistakes and useful variations such as another shell, manifest format, or platform. Add these where they help the audience, without forcing every variation into the introductory tutorial.
+For a substantial feature, help readers get through their first use and return for recurring tasks. Provide exact reference material and explain the design and its limits. Include troubleshooting for likely mistakes and useful variations such as another shell, manifest format, or platform. Put those variations where readers need them, without crowding the introductory tutorial.
 
 Apply the required Humanizer skill while drafting and before delivery. Keep useful detail, examples, caveats, and precise terminology. Remove repetitive framing and inflated claims. Read the result as a colleague trying to learn the plugin, and repair places where a list of commands needs an explanation. Avoid excessive emphasis, unexplained jargon, and prose that addresses an agent instead of the reader.
 

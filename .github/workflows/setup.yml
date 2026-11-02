@@ -1,4 +1,4 @@
-name: README setup
+name: Installation check
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   setup:
-    name: README setup (${{ matrix.os }})
+    name: Installation check (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     strategy:
@@ -29,7 +29,7 @@ jobs:
       - uses: prefix-dev/setup-pixi@ad1da6449d9e506fd127fd67ab2d054a769f6a94 # v0.11.2
         with:
           locked: true
-      - name: Install the README skills and check client discovery
+      - name: Run pinned installation fixture and check client discovery
         run: pixi run --locked python scripts/check_setup.py
         env:
           SKILLS_TEST_OUTPUT: ${{ runner.temp }}/readme-setup

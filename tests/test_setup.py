@@ -3,7 +3,13 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from check_setup import SetupFailure, check_bash_script
+from check_setup import SETUP_SCRIPT, SetupFailure, check_bash_script
+
+
+def test_installation_fixture_has_valid_bash_syntax(tmp_path: Path) -> None:
+    script = tmp_path / "setup.sh"
+    script.write_bytes(SETUP_SCRIPT)
+    check_bash_script(script)
 
 
 @pytest.mark.parametrize(

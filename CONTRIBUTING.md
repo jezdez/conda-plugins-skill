@@ -1,6 +1,6 @@
 # Contributing
 
-This repository collects practices that help colleagues develop conda plugins with Codex, Claude Code, and Kilo. Contributions should make a decision easier, supply a useful example, or correct guidance against the supported APIs.
+This repository collects practices for colleagues developing conda plugins with Codex, Claude Code, and Kilo. Useful contributions explain a development decision, provide a worked example, or correct guidance that no longer matches the supported APIs.
 
 Read [AGENTS.md](AGENTS.md) for repository rules and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for participation expectations. If the question concerns a particular plugin's implementation, use this repository to improve the general guidance and keep implementation changes in that plugin's own project.
 
@@ -35,7 +35,9 @@ When changing `pixi.toml`, run `pixi lock` and include the updated lockfile. `pi
 
 ## Test installation on Linux, macOS, and Windows
 
-Run the [README setup workflow](https://github.com/jezdez/conda-plugin-skills/actions/workflows/setup.yml) from GitHub Actions when you need to verify the full installation command. It runs only on manual dispatch, using fresh Linux, macOS, and Windows runners. Windows uses Git Bash. The check installs from the live GitHub sources into the runner's initially empty skill directories, compares the installed files with their source revisions, checks Bash helper syntax, and asks each client to list its skills without sending a model prompt.
+Run the [installation check workflow](https://github.com/jezdez/conda-plugin-skills/actions/workflows/setup.yml) from GitHub Actions to test the pinned copy-installation fixture in `scripts/check_setup.py`. It runs only on manual dispatch, using fresh Linux, macOS, and Windows runners. Windows uses Git Bash. The check installs from the live GitHub sources into the runner's initially empty skill directories, compares the installed files with their source revisions, checks Bash helper syntax, and asks each client to list its skills without sending a model prompt.
+
+The fixture retains Skills CLI 1.7.4 and the former README setup command for repeatable installer behavior. It does not test all versions or installation methods described by the upstream docs. It fetches skills from the source repositories' default branches, so a successful run does not validate unpublished skill changes on your branch.
 
 The workflow saves a verification summary as a private artifact for seven days. It records source revisions, file checks, and client discovery results. The test script requires a GitHub-hosted runner and empty client skill directories to guard against accidental local installations. Model behavior and native plugin hooks need separate checks.
 

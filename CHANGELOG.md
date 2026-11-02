@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Link to upstream Skills CLI installation and update docs. Keep the previously tested installer command as an internal CI fixture.
+- Simplify the README introduction, put usage after installation, and clarify which sources the hosted setup check tests.
 - Preserve LF endings in companion Bash helpers when installing on Windows.
 - Add a manual setup check on fresh Linux, macOS, and Windows runners, covering installed files, Bash helper syntax, and native client discovery.
 - Correct Kilo's shared installation path and document a clean setup test with native discovery in Codex, Claude Code, and Kilo.
