@@ -13,7 +13,9 @@ pixi install --locked
 pixi run --locked check
 ```
 
-The environment contains Python, PyYAML, pytest, Ruff, ty, and pre-commit. It does not install the skill or its companions into your agent clients. Follow the [README setup instructions](README.md#install-with-npx) when you want to use them.
+The environment contains Python, pytest, Ruff, ty, rattler-build, and [prek](https://prek.j178.dev/). Prek runs `.pre-commit-config.yaml`, using its built-in YAML and text checks with the existing license-text exclusions. It does not install the skill or its companions into your agent clients. Follow the [README setup instructions](README.md#install-with-npx) when you want to use them.
+
+`pixi run --locked check` runs prek, whose hooks call the named Pixi validation, lint, formatting, type-check, and test tasks. CI uses the same entry point. Run an individual task when working on a failure, or `pixi run --locked format` to apply Python formatting. To opt into automatic Git hooks, run `pixi run --locked install-hooks`. Hook installation is not part of environment setup.
 
 ## Change a skill
 
@@ -26,37 +28,35 @@ Run the checks and rebuild the distribution:
 ```sh
 pixi run --locked check
 pixi run --locked build
-pixi run --locked pre-commit
+pixi run --locked build-conda
 ```
 
 The validator checks skill metadata, supported Markdown links and anchors, standalone references, and distribution notices. It does not execute examples or prove that an agent follows the instructions. Execute changed examples and use a realistic application scenario for substantial instruction changes. Keep tests that exercise observable behavior, such as a broken link or an archive missing a notice.
 
-Metadata checks follow the [Agent Skills specification](https://agentskills.io/specification), including name and description limits and optional-field types. This repository additionally requires ASCII kebab-case names and Apache-2.0 with bundled notices. Keep client-specific extensions out of portable frontmatter. The recommended entry-point budget of 500 lines and 5,000 tokens is an editorial guideline, not a format error. Review depth and reference loading rather than applying that budget to human-facing guides.
+The skill uses a deliberately small frontmatter format: `name`, `description`, and `license`, in that order, each on one unquoted line. Descriptions start with a letter and contain no colons or hash characters. The checker enforces directory/name agreement, the specification's name and description limits, and Apache-2.0 with bundled notices. It is not a general YAML or Agent Skills schema validator. Optional fields and other YAML spellings need an explicit tooling change. Prek checks YAML file syntax and the recipe's package name, calendar version, and build fields. The recommended entry-point budget of 500 lines and 5,000 tokens remains an editorial guideline, not a format error.
 
 When changing `pixi.toml`, run `pixi lock` and include the updated lockfile. `pixi run --locked build` writes `dist/conda-plugin-skill.zip`. Generated files stay untracked and out of the repository root. Inspect the ZIP before sharing it with the intended audience.
 
 ## Test installation on Linux, macOS, and Windows
 
-Run the [installation check workflow](https://github.com/jezdez/conda-plugin-skill/actions/workflows/setup.yml) from GitHub Actions to test the pinned copy-installation fixture in `scripts/check_setup.py`. It runs only on manual dispatch, using fresh Linux, macOS, and Windows runners. Windows uses Git Bash. The check installs from the live GitHub sources into the runner's initially empty skill directories, compares the installed files with their source revisions, checks Bash helper syntax, and asks each client to list its skills without sending a model prompt.
+Installation is a manual smoke test using upstream tools, separate from repository CI. Use a disposable project and isolated client homes, with no existing user installations. Record the OS, client and installer versions, source revision, and package checksum. Install the skill and companions using the [README instructions](README.md#install-with-npx). When testing unpublished changes, select the local source folder instead of the default branch.
 
-The fixture retains Skills CLI 1.7.4 and the former README setup procedure, with the renamed `conda-plugin-skill` selection. It does not test all versions or installation methods described by the upstream docs. It fetches skills from the source repositories' default branches, so the rename must be published there before the hosted check can pass. A successful run does not validate unpublished skill changes on your branch.
+Compare the installed file inventory and bytes with the source, check relative reference links and companion helper scripts, then ask each intended client to list and load the skill. On Windows, preserve LF endings for Bash helpers. Do not claim model execution or native plugin hooks were tested unless you actually exercised them. Keep results in ignored `dist/` or another private, disposable location.
 
-The workflow saves a verification summary as a private artifact for seven days. It records source revisions, file checks, and client discovery results. The test script requires a GitHub-hosted runner and empty client skill directories to guard against accidental local installations. Model behavior and native plugin hooks need separate checks.
-
-The README's recorded hosted results used the old `conda-plugins` name. They do not verify native discovery of `conda-plugin-skill`. For conda packages, test pixi-skills links through its generic `agents` and `claude` backends in disposable project directories. Check the selected version's backend support, the complete installed skill, relative references, and discovery in each intended client. Keep these results separate from Skills CLI copy-installation results. Do not install into a user's global client directories for verification. Required companions must be installed separately in the isolated setup.
+The changelog's recorded hosted results used the old `conda-plugins` name. They do not verify native discovery of `conda-plugin-skill`. For conda packages, test pixi-skills links through its generic `agents` and `claude` backends in disposable project directories. Check the selected version's backend support, the complete installed skill, relative references, and discovery in each intended client. Keep these results separate from Skills CLI copy-installation results. Do not install into a user's global client directories for verification. Required companions must be installed separately in the isolated setup.
 
 ## Release process
 
 Releases are manual and opt-in. The conda packaging design follows [skill-forge](https://github.com/pavelzw/skill-forge), but this private repository has no selected publication channel. No publication has been automated or performed. Adding packaging or merging a change does not authorize a tag, upload, or GitHub release.
 
-The canonical release version is `package.version` in `recipe/recipe.yaml`, initially the quoted string `'26.11.0'`, with `build.number: 0`. This is an unreleased candidate, not an available release. The `build-conda` task runs the recipe's installed-package tests, then extracts the archive and compares the complete skill payload with the source before retaining the artifact.
+The canonical release version is `package.version` in `recipe/recipe.yaml`, initially the quoted string `'26.11.0'`, with `build.number: 0`. This is an unreleased candidate, not an available release. The `build-conda` task calls rattler-build directly. The recipe compares copied files with the source during the build, enforces a strict package inventory, and checks installed files and reference counts using only Python's standard library. YAML metadata is validated by the repository checks before building. A failed build may leave an artifact under `dist/`. Only use artifacts from successful builds.
 
 Versions use `YY.MM.P`, based on the release date in UTC. `YY` is the two-digit year, `MM` is the zero-padded month, and `P` starts at `0` each month and increases for each content release that month. For example, November 2026 starts at `26.11.0`, then `26.11.1`. December starts at `26.12.0`. Tags use the exact version prefixed with `v`, such as `v26.11.0`. If the candidate is released in a later month, update its version before tagging.
 
 Changes to distributed skill content require a new version. A packaging-only rebuild of unchanged content increments `build.number` separately and keeps `package.version` unchanged. Reset the build number to `0` for a new content version. Do not move or reuse a content release tag for a rebuild. Record the rebuild's commit, build number, and checksums separately.
 
 1. Obtain explicit authorization to prepare the release. Review the content, recipe, and changelog, choose the version, and keep the release entry marked unreleased until publication. Use a clean, reviewed commit with no uncommitted changes.
-2. Run `pixi run --locked check` and `pixi run --locked pre-commit`. CI must pass for the exact reviewed commit before tagging. Local checks do not substitute for hosted CI.
+2. Run `pixi run --locked check`, which includes all prek hooks. CI must pass for the exact reviewed commit before tagging. Local checks do not substitute for hosted CI.
 3. Build both artifacts from that commit with `pixi run --locked build` and `pixi run --locked build-conda`. The ZIP belongs at `dist/conda-plugin-skill.zip`. The text-only `noarch: generic` package is named `agent-skill-conda-plugin-skill` and belongs under `dist/conda/noarch/`. Inspect both for the complete skill, references, and license notices. Check the package version, build number, and `share/agent-skills/conda-plugin-skill` payload path.
 4. Verify installation in disposable environments and client directories. Generate SHA-256 checksums for both final artifacts and retain them with the artifacts under ignored `dist/`. Record the source commit and actual verification scope. Do not claim that archive inspection proves native client discovery.
 5. With explicit tag authorization, create the matching `vYY.MM.P` tag on the reviewed commit. Pushing that tag also requires authorization. Never retag a published version.

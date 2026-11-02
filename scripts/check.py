@@ -14,8 +14,6 @@ import sys
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
-import yaml
-
 IGNORED = {
     ".git",
     ".DS_Store",
@@ -180,61 +178,35 @@ def check_repository(root: Path) -> list[str]:
             continue
         text = entrypoint.read_text(encoding="utf-8")
         frontmatter = re.match(r"\A---\n(.*?)\n---(?:\n|\Z)", text, re.DOTALL)
-        try:
-            metadata = yaml.safe_load(frontmatter[1]) if frontmatter else None
-        except yaml.YAMLError:
-            metadata = None
-        if not isinstance(metadata, dict):
-            errors.append(f"{label}: missing or invalid YAML frontmatter")
+        # Enforce this repository's small header format, not general YAML syntax.
+        header = re.fullmatch(
+            r"name: ([a-z0-9]+(?:-[a-z0-9]+)*)\n"
+            r"description: ([A-Za-z][^\n:#]*)\n"
+            r"license: Apache-2\.0",
+            frontmatter[1] if frontmatter else "",
+        )
+        if not header:
+            errors.append(
+                f"{label}: expected name, description, license in that order, "
+                "with a single-line plain-text description and Apache-2.0 license"
+            )
         else:
-            allowed_fields = {
-                "name",
-                "description",
-                "license",
-                "compatibility",
-                "metadata",
-                "allowed-tools",
-            }
-            for field in metadata:
-                if field not in allowed_fields:
-                    errors.append(f"{label}: unsupported frontmatter field {field!r}")
-            for field in ("name", "description", "license"):
-                value = metadata.get(field)
-                if not isinstance(value, str) or not value.strip():
-                    errors.append(f"{label}: {field} must be a nonempty string")
-            for field, limit in (
-                ("name", 64),
-                ("description", 1024),
-                ("compatibility", 500),
-            ):
-                value = metadata.get(field)
-                if isinstance(value, str) and len(value) > limit:
-                    errors.append(
-                        f"{label}: {field} must be at most {limit} characters"
-                    )
-            if "compatibility" in metadata:
-                value = metadata["compatibility"]
-                if not isinstance(value, str) or not value.strip():
-                    errors.append(f"{label}: compatibility must be a nonempty string")
-            if "metadata" in metadata:
-                value = metadata["metadata"]
-                if not isinstance(value, dict) or any(
-                    not isinstance(key, str) or not isinstance(item, str)
-                    for key, item in value.items()
-                ):
-                    errors.append(f"{label}: metadata must map strings to strings")
-            if "allowed-tools" in metadata and not isinstance(
-                metadata["allowed-tools"], str
-            ):
-                errors.append(f"{label}: allowed-tools must be a string")
-            if metadata.get("name") != skill.name or not re.fullmatch(
-                r"[a-z0-9]+(?:-[a-z0-9]+)*", skill.name
-            ):
+            if header[1] != skill.name or len(header[1]) > 64:
                 errors.append(
-                    f"{label}: name must match its lowercase kebab-case directory"
+                    f"{label}: name must match its directory and be at most 64 characters"
                 )
-            if metadata.get("license") != "Apache-2.0":
-                errors.append(f"{label}: license must be Apache-2.0")
+            if len(header[2]) > 1024 or header[2].lower() in {
+                "true",
+                "false",
+                "null",
+                "yes",
+                "no",
+                "on",
+                "off",
+            }:
+                errors.append(
+                    f"{label}: description must be plain text of at most 1024 characters"
+                )
         bundled_license = skill / "LICENSE"
         if (
             not bundled_license.is_file()

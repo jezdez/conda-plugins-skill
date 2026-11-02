@@ -4,6 +4,9 @@
 
 ## 26.11.0 (unreleased candidate)
 
+- Remove PyYAML and generic optional-metadata parsing. Prek checks YAML syntax and recipe fields, while the repository hook enforces its three-field skill header, links, and license identity.
+- Use prek for the existing repository hooks, replacing the pre-commit runner. Run them with `pixi run --locked prek`.
+- Centralize checks in Pixi tasks called by prek. Replace the custom conda build wrapper with recipe-native copying and tests, and replace the bespoke client installation harness with a documented manual smoke test.
 - Rename the installed skill and archive from `conda-plugins` to `conda-plugin-skill`, and the repository to `jezdez/conda-plugin-skill`. Install and verify the new skill before removing the old installation. Historical client verification used the old skill name and does not verify the rename.
 - Add `agent-skill-conda-plugin-skill`, a text-only `noarch: generic` conda package installing under `share/agent-skills/conda-plugin-skill`. Build and test it with `pixi run --locked build-conda` while retaining `pixi run --locked build` for ZIPs.
 - Adopt a manual `YY.MM.P` release process with UTC dates, a zero-padded month, and `P` starting at `0` each month. The canonical `recipe/recipe.yaml` version is `'26.11.0'`, build number `0`, an unreleased candidate. Content changes require new versions. Packaging-only rebuilds use separate build numbers.

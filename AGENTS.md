@@ -32,12 +32,12 @@ Use the locked Pixi environment. After changing dependencies, tasks, or platform
 ```sh
 pixi run --locked check
 pixi run --locked build
-pixi run --locked pre-commit
+pixi run --locked prek
 ```
 
-`check` runs skill validation, Ruff linting and formatting checks, ty, and the full pytest suite. `build` validates and writes reproducible ZIPs under `dist/`. Use plain parametrized pytest functions, native fixtures, and real temporary files. Do not use mock libraries. Python code uses modern annotations and `from __future__ import annotations`.
+`check` runs prek, whose hooks invoke named Pixi tasks for skill validation, Ruff linting and formatting checks, ty, and the full pytest suite. Keep task commands in `pixi.toml` and avoid recursive hooks that invoke `check` or `prek`. `build` validates and writes reproducible ZIPs under `dist/`. Use plain parametrized pytest functions, native fixtures, and real temporary files. Do not use mock libraries. Python code uses modern annotations and `from __future__ import annotations`.
 
-The conda build command is `pixi run --locked build-conda`. Keep it separate from the existing ZIP `build` task. Verify conda payloads and pixi-skills links through the generic `agents` and `claude` backends in disposable environments before claiming client support. Historical `conda-plugins` installation results do not verify the renamed skill.
+The conda build command is `pixi run --locked build-conda`, calling rattler-build directly with recipe-native copying and tests. Keep it separate from the existing ZIP `build` task. Verify conda payloads and pixi-skills links through the generic `agents` and `claude` backends in disposable environments before claiming client support. Historical `conda-plugins` installation results do not verify the renamed skill.
 
 For changed code examples or behavior claims, execute the affected examples in a disposable environment. Check documentation markup and recordings when those examples change. Prose-only corrections do not require unrelated conda, Sphinx, or platform runs. For changes to instructions, use a realistic independent application scenario when it would reveal a gap that static validation cannot find.
 

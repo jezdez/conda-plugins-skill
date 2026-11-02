@@ -34,5 +34,3 @@ jobs:
         run: pixi run --locked build
       - name: Build and test conda package
         run: pixi run --locked build-conda
-      - name: Check repository formatting
-        run: pixi run --locked pre-commit

@@ -6,11 +6,10 @@ platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
 
 [dependencies]
 python = ">=3.11"
-pyyaml = ">=6"
 pytest = ">=8"
 ruff = ">=0.14"
 ty = ">=0.0.1"
-pre-commit = ">=4"
+prek = ">=0.5.9"
 rattler-build = ">=0.67"
 
 [target.win-64.dependencies]
@@ -24,7 +23,8 @@ format = "ruff format scripts tests"
 format-check = "ruff format --check scripts tests"
 type-check = "ty check scripts tests"
 test = "pytest"
-check = { depends-on = ["validate", "lint", "format-check", "type-check", "test"] }
+check = { depends-on = ["prek"] }
 build = "python scripts/package.py"
-build-conda = { cmd = "python scripts/conda_package.py build", depends-on = ["validate"] }
-pre-commit = "pre-commit run --all-files"
+build-conda = { cmd = "rattler-build build --recipe recipe/recipe.yaml --output-dir dist/conda --no-config", depends-on = ["validate"] }
+prek = "prek run --all-files"
+install-hooks = "prek install"
