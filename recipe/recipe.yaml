@@ -21,6 +21,7 @@ build:
       from pathlib import Path
 
       source = Path("skills/conda-plugin-skill")
+      assert (source / "LICENSE").read_bytes() == Path("LICENSE").read_bytes()
       target = Path(os.environ["PREFIX"]) / "share/agent-skills/conda-plugin-skill"
       shutil.copytree(source, target)
       files = [path for path in source.rglob("*") if path.is_file()]
@@ -49,6 +50,10 @@ tests:
         from pathlib import Path
 
         skill = Path(os.environ["CONDA_PREFIX"]) / "share/agent-skills/conda-plugin-skill"
+        assert not skill.is_symlink()
+        for path in skill.rglob("*"):
+            assert not path.is_symlink()
+            assert path.is_dir() or path.name == "LICENSE" or path.suffix == ".md"
         assert (skill / "SKILL.md").stat().st_size > 0
         assert (skill / "LICENSE").stat().st_size > 0
         assert (skill / "THIRD_PARTY_NOTICES.md").stat().st_size > 0
