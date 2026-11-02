@@ -106,7 +106,7 @@ Build it with `pixi run --locked build-conda`, with output under `dist/conda/noa
 
 No package has been published, and the private channel is not yet specified. The skill-forge channel is an upstream example, not a publication destination for this repository. Package installation commands will be documented once an authorized channel and tested artifacts exist.
 
-The first release candidate is `26.11.0`, build number `0`, and is not released. The canonical version is `package.version` in `recipe/recipe.yaml`. Releases use UTC calendar versions and tags of the form `vYY.MM.P`. See the [release procedure](CONTRIBUTING.md#release-process) for version rules and the manual approval steps.
+The first release candidate is `26.11.0`, build number `0`, and is not released. The canonical version is `package.version` in `recipe/recipe.yaml`. Releases use UTC calendar versions and tags of the form `vYY.M.P`, with no leading zero on the month. See the [release procedure](CONTRIBUTING.md#release-process) for version rules and the manual approval steps.
 
 ## Required companion skills
 
@@ -168,8 +168,8 @@ CONTRIBUTING.md
 LICENSE
 pixi.toml
 pixi.lock
-scripts/
-tests/
+recipe/recipe.yaml
+evals/evals.json             # maintainer evaluation prompts, not packaged
 skills/conda-plugin-skill/
   SKILL.md
   LICENSE

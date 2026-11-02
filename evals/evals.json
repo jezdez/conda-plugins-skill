@@ -1,0 +1,31 @@
+{
+  "skill_name": "conda-plugin-skill",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "In the supplied disposable empty output directory, implement a minimal installable conda plugin with a `conda salute` subcommand. Accept an optional name, defaulting to world, and a --json flag. Plain output is Hello, NAME!; JSON output is one object with a greeting field. Use argparse's normal help and unknown-option errors. Verify the installed command in a disposable conda runtime, and report commands actually run. Do not publish or alter global client configuration. For this evaluation only, I waive Superpowers, Humanizer, and Ponytail prerequisites for both comparison runs.",
+      "expected_output": "A minimal plugin package with a registered conda entry point, correct plain and JSON output, lazy registration, and evidence from installed CLI execution.",
+      "files": [],
+      "expectations": [
+        "The output contains an installable package registering a conda plugin entry point.",
+        "Installed conda salute and conda salute Ada produce the required greetings.",
+        "Installed conda salute Ada --json produces one parseable JSON object with greeting Hello, Ada! and no progress text on stdout.",
+        "Installed --help succeeds and an unknown option fails through standard argument parsing.",
+        "Plugin registration avoids importing its command implementation until execution.",
+        "The report distinguishes actual executed checks from untested behavior and does not publish or modify global clients."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Review this conda plugin snapshot. Findings only, do not implement changes. plugin.py imports execute from .cli at module scope, then its conda_subcommands hook yields CondaSubcommand(name='greet', summary='Greet', action=execute). cli.py imports json and defines execute(args) to print('Preparing greeting...') followed by print(json.dumps({'greeting': 'Hello, Ada!'})). Assess registration cost and stdout correctness without claiming measured startup latency. Our project uses tox and unittest; propose verification in that toolchain without inventing tox environment names. For this evaluation only, I waive Superpowers, Humanizer, and Ponytail prerequisites for both comparison runs. Do not install anything.",
+      "expected_output": "A read-only evidence-based review identifying eager implementation loading and invalid whole-stdout JSON, with a verification plan that retains the project's tools.",
+      "files": [],
+      "expectations": [
+        "The review identifies eager cli implementation loading without inventing network, cache, or measured latency effects.",
+        "The review explains that the progress line prevents stdout from being a single JSON value.",
+        "The verification plan retains tox and unittest and does not invent tox environment names.",
+        "The response does not change plugin files or install packages, and distinguishes any diagnostic execution from tests in the actual project."
+      ]
+    }
+  ]
+}

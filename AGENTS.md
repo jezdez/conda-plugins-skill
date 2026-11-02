@@ -1,13 +1,14 @@
 # Repository guidance
 
-This repository maintains the portable `conda-plugin-skill` for people developing conda plugins. Its deliverable is the content under `skills/conda-plugin-skill/`, distributed as a ZIP and a text-only conda package. It is not a conda plugin or an installable Python package. Python scripts validate and package that content.
+This repository maintains the portable `conda-plugin-skill` for people developing conda plugins. Its deliverable is the content under `skills/conda-plugin-skill/`, distributed as a ZIP and a text-only conda package. It is not a conda plugin or an installable Python package. Pixi tasks invoke maintained tools to validate and package that content.
 
 ## Structure and scope
 
 - Keep installation and client setup in the root `README.md`.
 - Keep each `skills/<name>/SKILL.md` short and route substantial guidance to its `references/` directory. Installed skill folders must work on their own.
 - Maintain original instructions, concrete examples, and optional pinned provenance. A source link must not substitute for the guidance a colleague needs.
-- `scripts/` contains repository checks and archive building. Tests belong in `tests/`.
+- Keep tool commands in `pixi.toml` and hook rules in `.pre-commit-config.yaml`. Package checks belong in the conda recipe. Do not add a tests directory or custom check or packaging scripts when maintained tools suffice.
+- Maintain behavioral prompts in root `evals/evals.json` using upstream skill-creator's schema. Use its grading and human-review tools in disposable workspaces. Keep evals and generated results outside distributed skill folders.
 - Generated archives belong in ignored `dist/`. Never place or commit a ZIP in the repository root.
 - The conda package is `agent-skill-conda-plugin-skill`, uses `noarch: generic`, and installs the complete skill under `share/agent-skills/conda-plugin-skill`. Keep package output under `dist/conda/noarch/` and companions separate.
 - Use this checkout and preserve unrelated changes. Do not create another checkout, edit source plugin repositories, or change publication destinations without authorization.
@@ -35,7 +36,7 @@ pixi run --locked build
 pixi run --locked prek
 ```
 
-`check` runs prek, whose hooks invoke named Pixi tasks for skill validation, Ruff linting and formatting checks, ty, and the full pytest suite. Keep task commands in `pixi.toml` and avoid recursive hooks that invoke `check` or `prek`. `build` validates and writes reproducible ZIPs under `dist/`. Use plain parametrized pytest functions, native fixtures, and real temporary files. Do not use mock libraries. Python code uses modern annotations and `from __future__ import annotations`.
+`check` runs prek with built-in metadata checks and a named Pixi task for Lychee local links and anchors. Avoid recursive hooks that invoke `check` or `prek`. `build` runs checks, writes a ZIP under `dist/`, and checks its integrity using Python's standard archive CLI. ZIP bytes are not promised reproducible across builds. The conda recipe checks its copied payload and installed files. Verify standalone references and ZIP inventory manually before release. There is no repository Python test suite.
 
 The conda build command is `pixi run --locked build-conda`, calling rattler-build directly with recipe-native copying and tests. Keep it separate from the existing ZIP `build` task. Verify conda payloads and pixi-skills links through the generic `agents` and `claude` backends in disposable environments before claiming client support. Historical `conda-plugins` installation results do not verify the renamed skill.
 
@@ -45,7 +46,7 @@ Do not install skills into the user's global client directories during verificat
 
 ## Releases
 
-Follow the manual release procedure in `CONTRIBUTING.md`. The canonical version is `recipe/recipe.yaml`'s `package.version`, initially `'26.11.0'`, with `build.number: 0`. That candidate is not released. Use UTC `YY.MM.P` versions with a zero-padded month, `P` starting at `0` each month, and `vYY.MM.P` tags. Content changes require a new version. Packaging-only rebuilds increment the build number separately.
+Follow the manual release procedure in `CONTRIBUTING.md`. The canonical version is `recipe/recipe.yaml`'s `package.version`, initially `'26.11.0'`, with `build.number: 0`. That candidate is not released. Use UTC `YY.M.P` versions with an unpadded month, `P` starting at `0` each month, and `vYY.M.P` tags. Content changes require a new version. Packaging-only rebuilds increment the build number separately.
 
 Require a clean reviewed commit, passing CI, both distributions, and SHA-256 checksums before a release tag. Tagging and pushing are manual opt-in actions requiring authorization. Create a GitHub release draft only when explicitly authorized. No private channel is specified, and publication is neither automated nor performed. Do not invent available package installation commands or treat a draft as permission to publish.
 
