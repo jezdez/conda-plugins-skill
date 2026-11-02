@@ -5,15 +5,41 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      commit:
+        description: Exact commit to validate and package
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: checks-${{ github.workflow }}-${{ github.ref }}
+  group: checks-${{ github.workflow }}-${{ github.ref }}-${{ inputs.commit || 'branch' }}
   cancel-in-progress: true
 
 jobs:
+  security:
+    name: Audit GitHub Actions security
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout workflow source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ inputs.commit || github.sha }}
+      - name: Audit with zizmor's highest-sensitivity persona
+        uses: zizmorcore/zizmor-action@53290badfa369cb0bf7ad16342cb62c2fa47ac7b # v0.8.0
+        with:
+          inputs: .github/workflows
+          persona: auditor
+          online-audits: true
+          advanced-security: false
+          fail-on-no-inputs: true
+          version: v1.31.1
   check:
     name: Check and package (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -25,6 +51,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          ref: ${{ inputs.commit || github.sha }}
       - uses: prefix-dev/setup-pixi@ad1da6449d9e506fd127fd67ab2d054a769f6a94 # v0.11.2
         with:
           locked: true
@@ -33,4 +60,16 @@ jobs:
       - name: Package
         run: pixi run --locked build
       - name: Build and test conda package
+        env:
+          RATTLER_CACHE_DIR: ${{ runner.temp }}/release-rattler-cache
         run: pixi run --locked build-conda
+      - name: Retain canonical Linux release artifacts
+        if: inputs.commit != '' && matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            dist/conda-plugin-skill.zip
+            dist/conda/noarch/*.conda
+          if-no-files-found: error
+          retention-days: 7

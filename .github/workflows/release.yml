@@ -1,0 +1,129 @@
+name: Prepare release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing reviewed release tag (vYY.M.P)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Validate release tag
+    runs-on: ubuntu-latest
+    outputs:
+      commit: ${{ steps.candidate.outputs.commit }}
+      tag-object: ${{ steps.candidate.outputs.tag-object }}
+      version: ${{ steps.candidate.outputs.version }}
+    steps:
+      - name: Require dispatch from main
+        env:
+          REF: ${{ github.ref }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          test "$REF" = refs/heads/main
+          [[ "$TAG" =~ ^v[0-9]{2}\.([1-9]|1[0-2])\.(0|[1-9][0-9]*)$ ]]
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Resolve and validate release candidate
+        id: candidate
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          commit=$(git rev-parse --verify "refs/tags/$TAG^{commit}")
+          tag_object=$(git rev-parse --verify "refs/tags/$TAG")
+          git merge-base --is-ancestor "$commit" origin/main
+          git checkout --detach "$commit"
+          version=${TAG#v}
+          # Match the repository's deliberately fixed recipe fields.
+          grep -Fx "  version: \"$version\"" recipe/recipe.yaml
+          grep -Fx '  name: agent-skill-conda-plugin-skill' recipe/recipe.yaml
+          grep -Fx '  number: 0' recipe/recipe.yaml
+          grep -F "## $version" CHANGELOG.md
+          test "${version%.*}" = "$(date -u +%y.%-m)"
+          printf 'commit=%s\ntag-object=%s\nversion=%s\n' \
+            "$commit" "$tag_object" "$version" >> "$GITHUB_OUTPUT"
+
+  checks:
+    name: Validate release candidate
+    needs: prepare
+    uses: $/.github/workflows/checks.yml
+    with:
+      commit: ${{ needs.prepare.outputs.commit }}
+    permissions:
+      contents: read
+
+  draft:
+    name: Prepare reviewed release draft
+    needs: [prepare, checks]
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      actions: read # Download artifacts from this workflow run.
+      contents: write # Create a draft and upload its assets, never publish.
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ inputs.tag }}
+      COMMIT: ${{ needs.prepare.outputs.commit }}
+      TAG_OBJECT: ${{ needs.prepare.outputs.tag-object }}
+      VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      # No checkout or execution of candidate code in the write-enabled job.
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: candidate
+      - name: Verify identity and assemble release assets
+        working-directory: candidate
+        run: |
+          set -euo pipefail
+          test "$(gh api "repos/$GH_REPO/git/ref/tags/$TAG" --jq .object.sha)" = "$TAG_OBJECT"
+          test "${VERSION%.*}" = "$(date -u +%y.%-m)"
+          # Fail closed on API errors and on any existing draft or published release.
+          gh api --paginate "repos/$GH_REPO/releases" --jq '.[].tag_name' > "$RUNNER_TEMP/release-tags"
+          if grep -Fxq "$TAG" "$RUNNER_TEMP/release-tags"; then
+            printf 'Release already exists; inspect it rather than replacing assets.\n' >&2
+            exit 1
+          fi
+          shopt -s nullglob
+          packages=(conda/noarch/*.conda)
+          test "${#packages[@]}" -eq 1
+          [[ "${packages[0]}" == conda/noarch/agent-skill-conda-plugin-skill-"$VERSION"-*_0.conda ]]
+          test -f conda-plugin-skill.zip
+          test "$(find . -type f | wc -l)" -eq 2
+          mkdir "$RUNNER_TEMP/release-assets"
+          cp conda-plugin-skill.zip "${packages[0]}" "$RUNNER_TEMP/release-assets/"
+          jq -n --arg repository "$GH_REPO" --arg tag "$TAG" \
+            --arg commit "$COMMIT" --arg version "$VERSION" \
+            --arg workflow_commit "$GITHUB_SHA" \
+            --arg run "$GITHUB_SERVER_URL/$GH_REPO/actions/runs/$GITHUB_RUN_ID" \
+            --arg attempt "$GITHUB_RUN_ATTEMPT" \
+            '{repository: $repository, tag: $tag, commit: $commit, version: $version,
+              build_number: 0, workflow_commit: $workflow_commit, workflow_run: $run,
+              run_attempt: $attempt, canonical_platform: "linux-64"}' \
+            > "$RUNNER_TEMP/release-assets/release-manifest.json"
+      - name: Checksum and create draft only
+        working-directory: ${{ runner.temp }}/release-assets
+        run: |
+          set -euo pipefail
+          sha256sum conda-plugin-skill.zip ./*.conda release-manifest.json > SHA256SUMS
+          sha256sum --check SHA256SUMS
+          # Never use --clobber, implicit tags, or automatic publication.
+          gh release create "$TAG" --verify-tag --draft --latest=false \
+            --title "$VERSION" --generate-notes \
+            --notes "Candidate from $COMMIT. Verify assets and enable release immutability before publishing. No conda channel upload has been performed." \
+            conda-plugin-skill.zip ./*.conda release-manifest.json SHA256SUMS
+          gh release view "$TAG" --json url --jq .url >> "$GITHUB_STEP_SUMMARY"

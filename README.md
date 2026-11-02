@@ -29,12 +29,6 @@ You need read access to this repository. Follow the CLI's [private-repository in
 
 Keep complete skill folders, including references and helper scripts. Superpowers and Ponytail refer to files in sibling skills, so install their full collections. On Windows, preserve LF line endings in companion Bash scripts. Review existing installations before replacing them, and only commit private skills and installation lockfiles where their intended audience has access.
 
-### Migrate from conda-plugins
-
-The skill was renamed from `conda-plugins` to `conda-plugin-skill`. Install the new name first and confirm that your client can load it and its references. Then remove the old `conda-plugins` installation in each scope you use to avoid duplicate guidance. Preserve any local edits before removing it. The GitHub repository is now `jezdez/conda-plugin-skill` too.
-
-The renamed skill has not yet been verified through native client discovery. Historical installation results in the [changelog](CHANGELOG.md) apply to the old name.
-
 ## Use it
 
 Start a new session in the conda plugin repository you want to work on.
@@ -106,7 +100,7 @@ Build it with `pixi run --locked build-conda`, with output under `dist/conda/noa
 
 No package has been published, and the private channel is not yet specified. The skill-forge channel is an upstream example, not a publication destination for this repository. Package installation commands will be documented once an authorized channel and tested artifacts exist.
 
-The first release candidate is `26.11.0`, build number `0`, and is not released. The canonical version is `package.version` in `recipe/recipe.yaml`. Releases use UTC calendar versions and tags of the form `vYY.M.P`, with no leading zero on the month. See the [release procedure](CONTRIBUTING.md#release-process) for version rules and the manual approval steps.
+The first release candidate is `26.11.0`, build number `0`, and is not released. The canonical version is `package.version` in `recipe/recipe.yaml`. Releases use UTC calendar versions and tags of the form `vYY.M.P`, with no leading zero on the month. A manually triggered workflow prepares a draft and checksums; maintainers review the files before immutable publication. See the [release procedure](CONTRIBUTING.md#release-process) for setup and approval steps.
 
 ## Required companion skills
 

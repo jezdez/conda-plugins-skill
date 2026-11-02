@@ -4,6 +4,7 @@
 
 ## 26.11.0 (unreleased candidate)
 
+- Add a manually dispatched release workflow for existing tags. Reuse cross-platform checks, prepare canonical Linux assets with a manifest and checksums, and leave publication manual with GitHub release immutability. Validate workflows with actionlint and the upstream zizmor action in auditor mode with online checks.
 - Add maintainer evaluation prompts in skill-creator's `evals/evals.json` format, separate from the distributed skill. Use paired skill/baseline runs and upstream grading and human-review tools without a repository Python test suite.
 - Remove the repository tests directory, evaluation fixtures, pytest, Ruff, and ty. Use the upstream skill-creator workflow for behavioral evaluations in disposable workspaces, separate from package validation.
 - Keep conda payload and license-identity checks in the recipe. The ZIP build checks the integrity of its actual output using Python's standard archive CLI.

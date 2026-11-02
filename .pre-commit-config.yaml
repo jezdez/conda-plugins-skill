@@ -30,6 +30,12 @@ repos:
           - '\A---\nname: conda-plugin-skill\ndescription: [A-Za-z][^\n:#]{0,1023}\nlicense: Apache-2\.0\n---\n'
   - repo: local
     hooks:
+      - id: workflows
+        name: GitHub Actions workflow validation
+        entry: pixi run --locked workflows
+        language: system
+        pass_filenames: false
+        always_run: true
       - id: links
         name: Local Markdown links and anchors
         entry: pixi run --locked links

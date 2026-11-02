@@ -9,9 +9,12 @@ python = ">=3.11"
 prek = ">=0.5.9"
 rattler-build = ">=0.67"
 lychee = ">=0.20"
+actionlint = ">=1.7"
 
 [tasks]
 links = "lychee --offline --include-fragments '*.md' 'skills/**/*.md'"
+# actionlint 1.7.12 does not yet recognize GitHub's self-repository syntax.
+workflows = "actionlint -ignore '^reusable workflow call \"\\$/\\.github/workflows/checks\\.yml\" at \"uses\" is not following the format'"
 check = { depends-on = ["prek"] }
 build = { cmd = "mkdir -p ../dist && python -m zipfile --create ../dist/conda-plugin-skill.zip conda-plugin-skill && python -m zipfile --test ../dist/conda-plugin-skill.zip", cwd = "skills", depends-on = ["check"] }
 build-conda = { cmd = "rattler-build build --recipe recipe/recipe.yaml --output-dir dist/conda --no-config", depends-on = ["check"] }
