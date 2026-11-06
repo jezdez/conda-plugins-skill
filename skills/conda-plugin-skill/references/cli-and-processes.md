@@ -103,7 +103,7 @@ from rich.markup import escape
 console.print(f"[bold red]Error:[/bold red] {escape(message)}")
 ```
 
-For an unformatted message, `console.print(message, markup=False)` is simpler. Rich escaping protects markup interpretation. It is not shell quoting or a terminal-control-character filter.
+For an unformatted message, `console.print(message, markup=False)` is simpler. Rich escaping protects markup interpretation. It is not shell quoting or a terminal-control-character filter. Render control characters in externally supplied names, descriptions, paths, and errors visibly before human output, including ESC, carriage return, and C1 controls. Use literal Rich `Text` cells or disable markup as well. Keep JSON values in the structured serializer rather than applying human-display escaping to the data.
 
 Accept an optional `console` argument in reusable CLI handlers so callers can capture output without patching globals. Use words such as "Installed" and "Removed" to distinguish status, with color as additional information.
 
@@ -144,6 +144,16 @@ Do not separately parse `.condarc` or guess conda's configuration precedence. If
 Keep transient process markers separate from public configuration. Put secrets in an appropriate credential backend or explicitly supplied environment variables, rather than ordinary status files.
 
 ## Make writes recoverable
+
+For authoring commands, serialize user values through the existing YAML or TOML library rather than interpolating strings into a template. Test colons, quotes, newlines, and values that resemble booleans. Creating an authoring skeleton does not establish that its generated recipe builds or its installed payload is discoverable.
+
+When linking package-owned folders, validate the resolved source root before checking children, then validate destination parent components before writing. A header that resolves inside the prefix does not prove the directory being linked is contained there. Treat broken symlinks as existing entries. Reuse only links with the intended target, and unlink the link rather than its contents. Decide how removal behaves after the source package disappears; an explicit unsupported case can be safer than inventing ownership state.
+
+Test cyclic links separately from dangling targets. Path resolution can fail differently across supported Python versions. Handle that failure at the filesystem operation: an inspection command should retain the broken entry and its unresolved target, while an operation requiring a valid source should fail with the plugin's normal validation error. Catching every exception at CLI dispatch would hide unrelated programming errors.
+
+Separate environment selection from destination authorization. If home-directory writes require an explicit global flag, running from home or selecting home in an interactive prompt must not bypass it. Read-only named-environment lookup must fail without creating an environment directory. Check the selected conda helper's behavior on a missing name, not just its signature. Relative symlink targets cannot span Windows drives; handle that case explicitly and test natively before claiming support.
+
+Interactive guides should reject unsupported JSON and non-interactive input before prompting, show the intended operation, and require confirmation before writes. Confirmation for creating local files does not authorize package installation, network access, or global changes.
 
 For a state file, serialize and validate the complete replacement first. Create the temporary file in the destination directory, close it, then replace the destination:
 

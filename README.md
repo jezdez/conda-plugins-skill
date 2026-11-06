@@ -98,9 +98,9 @@ Build it with `pixi run --locked build-conda`, with output under `dist/conda/noa
 
 [pixi-skills](https://github.com/pavelzw/pixi-skills) links packaged skills into client directories. Use its generic `agents` backend for `.agents/skills/` and its `claude` backend for `.claude/skills/`. With pixi-skills 0.1.7 and Pixi 0.83.0 on macOS arm64, a disposable installation discovered the renamed skill and both backend APIs created relative links exposing all 11 files byte for byte. CLI list/status and link removal also passed. Native Codex, Kilo, and Claude Code discovery through these links has not been tested.
 
-No package has been published, and the private channel is not yet specified. The skill-forge channel is an upstream example, not a publication destination for this repository. Package installation commands will be documented once an authorized channel and tested artifacts exist.
+No conda channel has been selected or received an upload. The conda package is available as a GitHub Release asset. The skill-forge channel is an upstream example, not a publication destination for this repository. Channel installation commands will be documented once an authorized channel exists.
 
-The first release candidate is `26.11.0`, build number `0`, and is not released. The canonical version is `package.version` in `recipe/recipe.yaml`. Releases use UTC calendar versions and tags of the form `vYY.M.P`, with no leading zero on the month. A manually triggered workflow prepares a draft and checksums; maintainers review the files before immutable publication. See the [release procedure](CONTRIBUTING.md#release-process) for setup and approval steps.
+Version [26.11.0](https://github.com/jezdez/conda-plugin-skill/releases/tag/v26.11.0) is released. This checkout prepares `26.11.1`, build number `0`, which is not released. The canonical version is `package.version` in `recipe/recipe.yaml`. Releases use UTC calendar versions and tags of the form `vYY.M.P`, with no leading zero on the month. A manually triggered workflow prepares a draft and checksums; maintainers review the files before immutable publication. See the [release procedure](CONTRIBUTING.md#release-process) for setup and approval steps.
 
 ## Required companion skills
 

@@ -39,6 +39,8 @@ Use these roles as the implementation grows. A small plugin may need only `plugi
 
 A parser converts its format into models once. Downstream operations consume those models instead of repeatedly checking which manifest syntax produced them. Use conda's `Environment`, `PackageRecord`, `MatchSpec`, and `Channel` where those types already express the data.
 
+Keep authoring inputs separate from installed state. A skeleton writer can validate input and return a path without constructing a model that promises package ownership or an installed environment. Reuse field validation when both flows need it, but check installation-specific invariants only when loading the installed object. Interactive guides should call the same domain operations as explicit commands, not reimplement discovery, writing, or linking.
+
 Keep reusable operations independent of `argparse.Namespace`, terminal colors, output paths selected by the CLI, and a particular caller's workspace discovery. Return data or raise a meaningful domain error. Let the command choose presentation and process status. Call `sys.exit` only at a real entry point when required by that entry point.
 
 ## Decide where a helper belongs

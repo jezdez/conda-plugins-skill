@@ -4,6 +4,10 @@ The original guidance and tooling in this repository are licensed under Apache L
 
 Superpowers, Humanizer, and Ponytail are installed separately. This repository does not redistribute their skill collections.
 
+## jezdez/conda-skills
+
+The isolated CLI fixture and file-based discovery example in `references/testing.md` adapt patterns from [conda-skills at 68665e9](https://github.com/jezdez/conda-skills/tree/68665e9b71d0f287da71f5ec123ad76fcf8318de). That project is licensed under [Apache License 2.0](https://github.com/jezdez/conda-skills/blob/68665e9b71d0f287da71f5ec123ad76fcf8318de/LICENSE), whose full text is included in this skill's [LICENSE](LICENSE). The example was adapted for `conda-greet` and adds bounded subprocess waits.
+
 ## conda-incubator/conda-auth
 
 [Upstream license](https://github.com/conda-incubator/conda-auth/blob/37742f3cec8a2a3a6c2945bcea451e204bbe9d32/LICENSE)

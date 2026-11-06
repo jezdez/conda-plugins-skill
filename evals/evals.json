@@ -26,6 +26,21 @@
         "The verification plan retains tox and unittest and does not invent tox environment names.",
         "The response does not change plugin files or install packages, and distinguishes any diagnostic execution from tests in the actual project."
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "Plan verification for a new conda plugin command that creates YAML authoring files and links installed package folders. Existing repo uses conda.toml/conda.lock with default, docs, build environments and tasks check/docs/build. Global clients must not change. Describe environment tooling, a fresh-process lazy-import test and subprocess isolation, safe generated metadata and difference between authoring and installed objects, terminal output behavior for metadata from packages, root/home and broken-link boundaries. No execution/edit/install. All companions explicitly waived for this synthetic evaluation only.",
+      "expected_output": "A read-only verification plan preserving conda-workspaces, with executable-file discovery tests, isolated subprocess configuration, and distinct authoring, installed-state, output, and filesystem checks.",
+      "files": [],
+      "expectations": [
+        "The plan retains conda-workspaces, separates locked environment installation from named task execution, and does not add Pixi.",
+        "Fresh-process discovery runs outside the checkout without inherited PYTHONPATH; subprocess homes and conda overrides are isolated without altering global clients.",
+        "Generated metadata uses a serializer and round-trip tests; a skeleton is not treated as an installed package-owned object.",
+        "Human output treats markup literally and separately neutralizes terminal controls, while JSON is one unstyled structured value.",
+        "Filesystem cases include source-root and destination-parent redirection, broken-link conflicts, and explicit authorization for home writes.",
+        "The plan distinguishes dangling targets from symlink cycles and checks resolution failures on minimum and current supported Python versions.",
+        "The plan does not claim that planned checks, locked platforms, or coverage percentages prove execution or native client support."
+      ]
     }
   ]
 }

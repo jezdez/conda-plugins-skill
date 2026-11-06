@@ -2,7 +2,11 @@
 
 ## Unreleased
 
-## 26.11.0 (unreleased candidate)
+## 26.11.1 (unreleased candidate)
+
+- Add lessons from reviewing conda-skills: isolated file-based discovery tests, conda-workspaces task usage, authoring versus installed state, and filesystem and terminal-output boundaries. Add pinned provenance and a maintainer evaluation scenario.
+
+## 26.11.0 (2026-11-02)
 
 - Add a manually dispatched release workflow for existing tags. Reuse cross-platform checks, prepare canonical Linux assets with a manifest and checksums, and leave publication manual with GitHub release immutability. Validate workflows with actionlint and the upstream zizmor action in auditor mode with online checks.
 - Add maintainer evaluation prompts in skill-creator's `evals/evals.json` format, separate from the distributed skill. Use paired skill/baseline runs and upstream grading and human-review tools without a repository Python test suite.

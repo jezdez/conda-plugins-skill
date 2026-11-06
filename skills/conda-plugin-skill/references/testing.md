@@ -37,64 +37,84 @@ import os
 import subprocess
 import sys
 from collections.abc import Callable
+from importlib.metadata import distribution
 from pathlib import Path
 
 import pytest
 
 
-def test_installed_discovery_keeps_command_unloaded(tmp_path: Path) -> None:
-    script = """
-import argparse
-import sys
-from importlib.metadata import distribution
+def check_installed_discovery() -> None:
+    import argparse
 
-from conda.plugins.hookspec import CondaSpecs
-from conda.plugins.manager import CondaPluginManager
+    from conda.plugins.hookspec import CondaSpecs
+    from conda.plugins.manager import CondaPluginManager
 
-entry_points = [
-    entry
-    for entry in distribution("conda-greet").entry_points
-    if entry.group == "conda"
-]
-assert [(entry.name, entry.value) for entry in entry_points] == [
-    ("conda-greet", "conda_greet.plugin")
-]
+    entry_points = [
+        entry
+        for entry in distribution("conda-greet").entry_points
+        if entry.group == "conda"
+    ]
+    assert [(entry.name, entry.value) for entry in entry_points] == [
+        ("conda-greet", "conda_greet.plugin")
+    ]
+    manager = CondaPluginManager()
+    manager.add_hookspecs(CondaSpecs)
+    assert manager.load_entrypoints("conda", name="conda-greet") == 1
+    commands = manager.get_hook_results("subcommands")
+    assert [command.name for command in commands] == ["greet"]
+    commands[0].configure_parser(argparse.ArgumentParser())
+    assert "conda_greet.cli" not in sys.modules
 
-manager = CondaPluginManager()
-manager.add_hookspecs(CondaSpecs)
-assert manager.load_entrypoints("conda", name="conda-greet") == 1
-commands = manager.get_hook_results("subcommands")
-assert [command.name for command in commands] == ["greet"]
-commands[0].configure_parser(argparse.ArgumentParser())
-assert "conda_greet.cli" not in sys.modules
-"""
+
+@pytest.fixture
+def cli_environment(tmp_path: Path) -> dict[str, str]:
+    home = tmp_path / "home"
+    home.mkdir()
+    condarc = tmp_path / "condarc"
+    condarc.write_text("{}\n", encoding="utf-8")
+    environment = {
+        key: value
+        for key, value in os.environ.items()
+        if not key.startswith("CONDA_") and key not in {"CONDARC", "PYTHONPATH"}
+    }
+    environment.update(
+        HOME=str(home),
+        USERPROFILE=str(home),
+        XDG_CONFIG_HOME=str(home / ".config"),
+        CONDARC=str(condarc),
+        CONDA_NO_PLUGINS="false",
+        CONDA_JSON="false",
+        CONDA_AUTO_UPDATE_CONDA="false",
+    )
+    return environment
+
+
+def test_installed_discovery_keeps_command_unloaded(
+    tmp_path: Path, cli_environment: dict[str, str]
+) -> None:
     subprocess.run(
-        [sys.executable, "-c", script],
+        [sys.executable, str(Path(__file__).resolve())],
         cwd=tmp_path,
+        env=cli_environment,
         check=True,
         capture_output=True,
         text=True,
+        timeout=60,
     )
 
 
 @pytest.fixture
-def run_conda(tmp_path: Path) -> Callable[..., subprocess.CompletedProcess[str]]:
-    condarc = tmp_path / "condarc"
-    condarc.write_text("{}\n")
-    environment = {
-        **os.environ,
-        "CONDARC": str(condarc),
-        "CONDA_NO_PLUGINS": "false",
-        "CONDA_JSON": "false",
-    }
-
+def run_conda(
+    tmp_path: Path, cli_environment: dict[str, str]
+) -> Callable[..., subprocess.CompletedProcess[str]]:
     def run(*arguments: str) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
             [sys.executable, "-m", "conda", *arguments],
             cwd=tmp_path,
-            env=environment,
+            env=cli_environment,
             capture_output=True,
             text=True,
+            timeout=60,
         )
 
     return run
@@ -135,9 +155,15 @@ def test_cli_result(
     assert result.returncode == status
     output = result.stdout if status == 0 else result.stderr
     assert message in output
+
+
+if __name__ == "__main__":
+    check_installed_discovery()
 ```
 
 Adapt the distribution, hook, assertions, and configuration to the real plugin. The isolated manager deliberately loads only this distribution. Keep an installed CLI test too, because that exercises integration with conda's other hooks.
+
+The fresh-process probe executes this test file rather than a program embedded in a string, so normal linting and code navigation cover it. Keep execution imports out of its top level. Test collection may already load implementation modules in the parent process; it cannot establish lazy startup. Clearing inherited settings is fixture isolation, not a rule for real child processes that should preserve the user's environment. Add back only settings required by a particular test. An isolated home and condarc do not isolate every possible system configuration source.
 
 For a cheap-startup regression, test each relevant phase: package import, hook enumeration, parser setup, and an unrelated command. Assert that the specific expensive or optional implementation stays out of `sys.modules`. If the regression created a cache or contacted a service, use a temporary configured cache directory and fail-fast recording fakes at that operation's call site. Prove no files or calls occurred before execution. Do not infer that from elapsed time.
 
@@ -156,6 +182,7 @@ Use plain pytest functions and fixtures for new tests unless repository guidance
 | Solver targets | Target specifications, subdirectories and virtual packages, pins, channels, failure cleanup |
 | Process execution | Preserved argv including empty arguments, status, cancellation, activation changes, parent state unchanged |
 | State files | Previous file survives failed writes, temporary files cleaned, concurrent update policy |
+| Authoring and links | Serialized metadata round-trips, generated recipe builds, installed discovery, redirected roots and parents, home-scope authorization, dangling and cyclic links on minimum/current Python, Windows cross-drive behavior |
 | Optional maintenance | Failure preserves the original command's result without hiding diagnostics |
 
 Use deterministic local responses for network and credential tests. Live-service tests should be opt-in and separately reported. Keep credentials and colleague environments out of fixtures.
@@ -201,7 +228,9 @@ pixi run -e dev format-check
 pixi run -e dev type-check
 ```
 
-Other plugins have different commands. Confirm that a combined task includes tests. After dependency, feature, task, or workspace metadata changes, regenerate `pixi.lock` with `pixi lock` and include it with the metadata change.
+These commands describe the pinned Workspaces snapshot, not every current plugin. Confirm that a combined task includes tests. In a repository already using conda-workspaces, read `conda.toml` and use its declared environments: `conda workspace install --locked -e default` installs the lock, then `conda task run -e default check` runs a named task. Arbitrary commands use `conda workspace run -e default -- COMMAND`. Do not put `--locked` on task execution or add Pixi just to match this guide. Environment names remain project-specific.
+
+After dependency, feature, task, or workspace metadata changes, regenerate the owning lockfile: `pixi lock` for Pixi or `conda workspace lock` for conda-workspaces. Runtime dependencies belong in shared features, with tests, docs, and artifact tooling in the environments that use them. Editable installs also need their build backend provisioned. Measure subprocess and branch coverage where required, but do not copy another project's numeric coverage threshold as a universal rule.
 
 Exercise the minimum and current supported conda versions for API changes. Native-platform behavior needs a run on that platform. Test released conda when claiming released compatibility.
 

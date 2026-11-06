@@ -46,7 +46,7 @@ Do not install skills into the user's global client directories during verificat
 
 ## Releases
 
-Follow the manual release procedure in `CONTRIBUTING.md`. The canonical version is `recipe/recipe.yaml`'s `package.version`, initially `'26.11.0'`, with `build.number: 0`. That candidate is not released. Use UTC `YY.M.P` versions with an unpadded month, `P` starting at `0` each month, and `vYY.M.P` tags. Content changes require a new version. Packaging-only rebuilds increment the build number separately.
+Follow the manual release procedure in `CONTRIBUTING.md`. The canonical version is `recipe/recipe.yaml`'s `package.version`, currently `'26.11.1'`, with `build.number: 0`. That candidate is not released. Use UTC `YY.M.P` versions with an unpadded month, `P` starting at `0` each month, and `vYY.M.P` tags. Content changes require a new version. Packaging-only rebuilds increment the build number separately.
 
 Require a clean reviewed commit and passing CI before a release tag. Tagging and pushing are manual opt-in actions requiring authorization. The manually dispatched Prepare release workflow accepts an existing content-release tag, reruns cross-platform checks, and creates a draft with both distributions, a manifest, and SHA-256 checksums. Dispatch requires explicit draft authorization. Configure release-environment approval separately. Enable GitHub release immutability before manually publishing approved assets. The workflow never publishes, creates tags, or uploads to a conda channel. Packaging-only rebuilds remain outside its scope. Do not invent available package installation commands or treat a draft as permission to publish.
 

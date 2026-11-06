@@ -2,7 +2,7 @@ schema_version: 1
 
 package:
   name: agent-skill-conda-plugin-skill
-  version: "26.11.0"
+  version: "26.11.1"
 
 source:
   path: ..

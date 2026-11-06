@@ -4,6 +4,31 @@ This is optional provenance. The bundled guides contain the development guidance
 
 These public sources were checked on 23 October 2026. Each GitHub file link pins the audited commit. These snapshots establish the source of a practice, not the current availability of every API or dependency version.
 
+## Conda-skills follow-up
+
+The conda-skills implementation was reviewed on 6 November 2026 at `68665e9b71d0f287da71f5ec123ad76fcf8318de`. The checkout also contained uncommitted release work, which is not represented by these pinned links and is not the source of the practices below.
+
+| Bundled practice | Source of the synthesis |
+| --- | --- |
+| [testing.md](testing.md): file-based fresh-process discovery and isolated CLI subprocesses | [Plugin tests][skills-plugin-tests] run the test file outside the checkout and permit only lightweight parser imports. [CLI fixtures][skills-cli-fixtures] remove inherited conda settings and isolate home, condarc, and `PYTHONPATH`. The revised greet example adapts those patterns. |
+| [architecture.md](architecture.md): shared validation with distinct authoring and installed state | [Skill model][skills-model] owns loading, validation, and skeleton creation. [Quickstart][skills-quickstart] keeps pending authoring inputs separate from installed selection. |
+| [cli-and-processes.md](cli-and-processes.md): literal terminal text, link boundaries, explicit scope, and interactive confirmation | [Output helpers][skills-output], [link operations][skills-links], [dispatch][skills-main], and [quickstart][skills-quickstart] supply concrete implementations. These patterns do not establish resistance to concurrent filesystem replacement or correctness of every failure path. |
+| [testing.md](testing.md): use the repository's existing conda-workspaces toolchain and scope development dependencies | [Committed instructions][skills-rules] and [workspace manifest][skills-workspace] define locked installation, named tasks, feature scopes, and subprocess coverage. Hatchling, Rich, a 95% coverage threshold, and the environment names are local choices, not new defaults for other plugins. |
+
+The review also reproduced a cyclic-link failure in [filesystem status][skills-links] on Python 3.11.18 with conda 26.9.4: a self-referential link was classified as broken, but resolving its target raised `RuntimeError`. The same probe succeeded on Python 3.14.10. The recommendation to distinguish cycles from dangling links and test minimum/current Python follows from that failure, not from a claim that the pinned implementation already handles it. Both runs were on macOS ARM64.
+
+The archive-integrity distinction in [verification.md](verification.md#separate-archive-integrity-from-metadata-checks) was checked with a disposable source archive missing its final eight gzip bytes. Its strict Twine metadata check passed while a complete gzip read raised `EOFError`. This is a review-derived test case, not a claim about published artifacts or a pinned release workflow. Release helpers changed during the review, so results from removed implementations were not carried forward.
+
+[skills-plugin-tests]: https://github.com/jezdez/conda-skills/blob/68665e9b71d0f287da71f5ec123ad76fcf8318de/tests/test_plugin.py
+[skills-cli-fixtures]: https://github.com/jezdez/conda-skills/blob/68665e9b71d0f287da71f5ec123ad76fcf8318de/tests/cli/conftest.py
+[skills-model]: https://github.com/jezdez/conda-skills/blob/68665e9b71d0f287da71f5ec123ad76fcf8318de/src/conda_skill/skills.py
+[skills-quickstart]: https://github.com/jezdez/conda-skills/blob/68665e9b71d0f287da71f5ec123ad76fcf8318de/src/conda_skill/cli/quickstart.py
+[skills-output]: https://github.com/jezdez/conda-skills/blob/68665e9b71d0f287da71f5ec123ad76fcf8318de/src/conda_skill/cli/output.py
+[skills-links]: https://github.com/jezdez/conda-skills/blob/68665e9b71d0f287da71f5ec123ad76fcf8318de/src/conda_skill/links.py
+[skills-main]: https://github.com/jezdez/conda-skills/blob/68665e9b71d0f287da71f5ec123ad76fcf8318de/src/conda_skill/cli/main.py
+[skills-rules]: https://github.com/jezdez/conda-skills/blob/68665e9b71d0f287da71f5ec123ad76fcf8318de/AGENTS.md
+[skills-workspace]: https://github.com/jezdez/conda-skills/blob/68665e9b71d0f287da71f5ec123ad76fcf8318de/conda.toml
+
 ## Architecture, formats and solvers
 
 | Bundled guide and practice | Source of the synthesis |
