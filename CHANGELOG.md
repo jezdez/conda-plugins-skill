@@ -2,9 +2,10 @@
 
 ## Unreleased
 
-## 26.11.2 (unreleased candidate)
+## 26.11.2 (2026-11-11)
 
 - Clarify installation, contributor instructions, and plugin development guidance. Remove repeated explanations while preserving examples, technical requirements, and safety checks.
+- Document npx installation for the skill and its required companions. Keep release versions and dates in the recipe and changelog instead of repeating them in standing documentation.
 - Run validation once per CI platform through the conda build task, and remove the obsolete ZIP attribute rule.
 
 ## 26.11.1 (2026-11-11)

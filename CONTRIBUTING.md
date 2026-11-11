@@ -52,7 +52,7 @@ The changelog records client checks of an earlier `conda-plugins` revision and p
 
 The [Release workflow](.github/workflows/release.yml) starts when an authorized annotated `vYY.M.P` tag is pushed. It validates the tag, runs the complete reusable Checks workflow, attests the canonical Linux artifacts, creates a GitHub draft, uploads the conda package to Anaconda.org, and publishes the GitHub release after that upload succeeds. Branch checks remain separate. Tag publication depends on all jobs in the reusable workflow, including the native matrix and workflow audit.
 
-The canonical release version is `package.version` in `recipe/recipe.yaml`, currently the unreleased candidate `'26.11.2'`, with `build.number: 0`. Version 26.11.1 was released on 2026-11-11. Versions use UTC `YY.M.P`, with an unpadded month and `P` starting at `0` each month. For example, November 2026 starts at `26.11.0`, followed by `26.11.1`. If a candidate is released in a later month, update its version before tagging.
+The canonical release version is `package.version` in `recipe/recipe.yaml`. Versions use UTC `YY.M.P`, with an unpadded month and `P` starting at `0` each month. If a candidate is released in a later month, update its version before tagging.
 
 Changes to distributed skill content require a new version. Packaging-only rebuilds increment `build.number` separately and keep the content version unchanged. Reset the build number to `0` for new content. The release workflow currently accepts only content releases with a zero build number. Packaging-only rebuilds need a separately reviewed tag and publication procedure. Never move a published tag or replace a published artifact.
 
@@ -66,7 +66,7 @@ The repository must be public for the configured GitHub artifact attestations wi
 
 ### Prepare and release
 
-1. Review the recipe, changelog, and relevant evaluations. Run the local checks and package integration checks. Use a clean reviewed commit on `main`, with passing Checks CI at that exact SHA before tagging.
+1. Set the recipe version and build number, date the changelog section, and review the release notes and relevant evaluations. Run the local checks and package integration checks. Use a clean reviewed commit on `main`, with passing Checks CI at that exact SHA before tagging.
 2. With explicit release authorization, create and push the matching annotated `vYY.M.P` tag. The workflow requires a canonical calendar version in the current UTC month, an annotated tag pointing to the workflow commit on `main`, matching recipe metadata, zero build number, and a matching nonempty changelog section.
 3. The full reusable Checks workflow runs on Linux, macOS, and Windows. Only after every job succeeds does the draft job use the canonical Linux conda package from that run. Other platform builds validate compatibility. No build or package code runs in the attestation and draft job.
 4. The draft job signs the conda package and manifest with GitHub build provenance. It also creates CEP 27 publication evidence for `https://conda.anaconda.org/jezdez`. Verification binds that evidence to the exact bytes, repository, release workflow, commit, tag, and GitHub OIDC issuer. The draft retains both bundles and `SHA256SUMS` alongside the package and manifest.
@@ -75,9 +75,7 @@ The repository must be public for the configured GitHub artifact attestations wi
 
 The manifest records the repository, source commit, tag, version, build number, workflow commit, run URL, attempt, and canonical platform. Changelog notes come from the tagged commit. The uploaded files are reused throughout the pipeline.
 
-The published 26.11.0 release retains the `conda-plugin-skill` ZIP and skill-folder names and the `agent-skill-conda-plugin-skill` package name. Keep its assets and changelog history unchanged. Release 26.11.1 uses `conda-plugins` and `agent-skill-conda-plugins`.
-
-After publication, verify the immutable release with `gh release verify TAG` and downloaded files with `gh release verify-asset TAG FILE`, substituting the actual tag and filename. Confirm the channel package's version and digest, then exercise a disposable channel installation with conda-skills. Report hosted CI, Anaconda publication, GitHub publication, and native client discovery separately. Update the changelog's release status without moving the tag.
+After publication, verify the immutable release with `gh release verify TAG` and downloaded files with `gh release verify-asset TAG FILE`, substituting the actual tag and filename. Confirm the channel package's version and digest, then exercise a disposable channel installation with conda-skills. Report hosted CI, Anaconda publication, GitHub publication, and native client discovery separately.
 
 ### Recover a partial release
 

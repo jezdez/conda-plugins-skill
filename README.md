@@ -120,11 +120,7 @@ These commands use the active source environment and the project's `.agents/skil
 
 [pixi-skills](https://github.com/pavelzw/pixi-skills) also supports this package layout through its `agents` and `claude` backends. Native Codex, Kilo, and Claude Code discovery through these links has not been tested.
 
-Version [26.11.1](https://github.com/jezdez/conda-plugins-skill/releases/tag/v26.11.1), build number `0`, was released on 2026-11-11. The package is available from [jezdez on Anaconda.org](https://anaconda.org/jezdez/agent-skill-conda-plugins).
-
-Version [26.11.0](https://github.com/jezdez/conda-plugins-skill/releases/tag/v26.11.0) is released. Its ZIP and installed skill retain the `conda-plugin-skill` name, and its conda package is `agent-skill-conda-plugin-skill`. Those artifacts do not provide the current `conda-plugins` identifier.
-
-This checkout prepares unreleased `26.11.2`. The canonical version is `package.version` in `recipe/recipe.yaml`. Releases use UTC calendar versions and tags of the form `vYY.M.P`, with no leading zero on the month. An authorized release tag triggers cross-platform checks, artifact signing, a protected Anaconda.org upload, and GitHub publication after that upload succeeds. See the [release procedure](CONTRIBUTING.md#release-process) for setup and approval steps.
+Find published packages on [Anaconda.org](https://anaconda.org/jezdez/agent-skill-conda-plugins) and version history in [GitHub releases](https://github.com/jezdez/conda-plugins-skill/releases). See the [release procedure](CONTRIBUTING.md#release-process) for maintainer instructions.
 
 ## Required companion skills
 

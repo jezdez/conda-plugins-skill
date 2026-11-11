@@ -46,9 +46,7 @@ Do not install skills into the user's global client directories during verificat
 
 ## Releases
 
-Follow the release procedure in `CONTRIBUTING.md`. The canonical version is `recipe/recipe.yaml`'s `package.version`, currently the unreleased candidate `'26.11.2'`, with `build.number: 0`. Version 26.11.1 was released on 2026-11-11. Use UTC `YY.M.P` versions with an unpadded month, `P` starting at `0` each month, and `vYY.M.P` tags. Content changes require a new version. Packaging-only rebuilds increment the build number separately.
-
-The 26.11.0 release retains the `conda-plugin-skill` skill and ZIP names and the `agent-skill-conda-plugin-skill` package name. Preserve its assets and changelog history when documenting the current names and repository URL.
+Follow the release procedure in `CONTRIBUTING.md`. Read the version and build number from `recipe/recipe.yaml`. Keep release dates and notes in `CHANGELOG.md`.
 
 Require a clean reviewed commit and passing CI before a release tag. Creating and pushing an annotated `vYY.M.P` tag is a publication action requiring explicit authorization. The tag-driven Release workflow waits for every reusable Checks job, then attests the canonical Linux conda package and manifest, creates a draft, uploads the package through the protected `anaconda` environment, and publishes the GitHub draft only after upload succeeds. Keep build provenance and CEP 27 evidence bound to the exact artifacts, workflow, commit, tag, and channel. Verify unchanged draft assets before final publication. Packaging-only rebuilds remain outside this workflow's scope.
 
