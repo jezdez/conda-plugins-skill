@@ -46,7 +46,7 @@ Do not install skills into the user's global client directories during verificat
 
 ## Releases
 
-Follow the release procedure in `CONTRIBUTING.md`. The canonical version is `recipe/recipe.yaml`'s `package.version`, currently `'26.11.1'`, with `build.number: 0`. That candidate is not released. Use UTC `YY.M.P` versions with an unpadded month, `P` starting at `0` each month, and `vYY.M.P` tags. Content changes require a new version. Packaging-only rebuilds increment the build number separately.
+Follow the release procedure in `CONTRIBUTING.md`. The canonical version is `recipe/recipe.yaml`'s `package.version`, currently `'26.11.1'`, with `build.number: 0`, released on 2026-11-11. Use UTC `YY.M.P` versions with an unpadded month, `P` starting at `0` each month, and `vYY.M.P` tags. Content changes require a new version. Packaging-only rebuilds increment the build number separately.
 
 The 26.11.0 release retains the `conda-plugin-skill` skill and ZIP names and the `agent-skill-conda-plugin-skill` package name. Preserve its assets and changelog history when documenting the current names and repository URL.
 

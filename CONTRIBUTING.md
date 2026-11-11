@@ -52,7 +52,7 @@ The changelog records client checks of an earlier `conda-plugins` revision and p
 
 The [Release workflow](.github/workflows/release.yml) starts when an authorized annotated `vYY.M.P` tag is pushed. It validates the tag, runs the complete reusable Checks workflow, attests the canonical Linux artifacts, creates a GitHub draft, uploads the conda package to Anaconda.org, and publishes the GitHub release after that upload succeeds. Branch checks remain separate. Tag publication depends on all jobs in the reusable workflow, including the native matrix and workflow audit.
 
-The canonical release version is `package.version` in `recipe/recipe.yaml`, currently the quoted string `'26.11.1'`, with `build.number: 0`. This is an unreleased candidate. Versions use UTC `YY.M.P`, with an unpadded month and `P` starting at `0` each month. For example, November 2026 starts at `26.11.0`, followed by `26.11.1`. If the candidate is released in a later month, update its version before tagging.
+The canonical release version is `package.version` in `recipe/recipe.yaml`, currently the quoted string `'26.11.1'`, with `build.number: 0`, released on 2026-11-11. Versions use UTC `YY.M.P`, with an unpadded month and `P` starting at `0` each month. For example, November 2026 starts at `26.11.0`, followed by `26.11.1`. If a future candidate is released in a later month, update its version before tagging.
 
 Changes to distributed skill content require a new version. Packaging-only rebuilds increment `build.number` separately and keep the content version unchanged. Reset the build number to `0` for new content. The release workflow currently accepts only content releases with a zero build number. Packaging-only rebuilds need a separately reviewed tag and publication procedure. Never move a published tag or replace a published artifact.
 
@@ -75,7 +75,7 @@ The repository must be public for the configured GitHub artifact attestations wi
 
 The manifest records the repository, source commit, tag, version, build number, workflow commit, run URL, attempt, and canonical platform. Changelog notes come from the tagged commit. The uploaded files are reused throughout the pipeline.
 
-The published 26.11.0 release retains the `conda-plugin-skill` ZIP and skill-folder names and the `agent-skill-conda-plugin-skill` package name. Keep its assets and changelog history unchanged. The 26.11.1 candidate uses `conda-plugins` and `agent-skill-conda-plugins`.
+The published 26.11.0 release retains the `conda-plugin-skill` ZIP and skill-folder names and the `agent-skill-conda-plugin-skill` package name. Keep its assets and changelog history unchanged. Release 26.11.1 uses `conda-plugins` and `agent-skill-conda-plugins`.
 
 After publication, verify the immutable release with `gh release verify TAG` and downloaded files with `gh release verify-asset TAG FILE`, substituting the actual tag and filename. Confirm the channel package's version and digest, then exercise a disposable channel installation with conda-skills. Report hosted CI, Anaconda publication, GitHub publication, and native client discovery separately. Update the changelog's release status without moving the tag.
 
@@ -87,7 +87,7 @@ Keep the original artifacts and attestation bundles. If only GitHub finalization
 
 Workflow artifacts expire after seven days and their names include the run attempt. Rerunning only failed jobs cannot retrieve another attempt's artifacts. Inspect the existing draft before choosing a recovery action. The normal draft job refuses any existing release and never uses `--clobber`. Deleting an unpublished draft requires maintainer approval and another artifact review. Never delete a published release to reuse a version.
 
-Do not document a channel installation command as available before publication is verified. The selected destination is the public `jezdez` channel's `main` label on Anaconda.org. No Anaconda upload has been completed for this candidate.
+For each new release, verify publication before documenting channel availability. The publication destination is the public `jezdez` channel's `main` label on Anaconda.org.
 
 ## Evaluate skill behavior
 

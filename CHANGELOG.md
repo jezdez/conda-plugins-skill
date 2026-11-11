@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-## 26.11.1 (unreleased candidate)
+## 26.11.1 (2026-11-11)
 
 - Rename the repository to `jezdez/conda-plugins-skill`. Use `conda-plugins` for the skill and installed directory, and `agent-skill-conda-plugins` for the conda package. Install the new skill before removing an existing `conda-plugin-skill` installation.
 - Stop building and publishing custom skill ZIPs. Keep Skills CLI/Git installation and conda packages.

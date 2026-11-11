@@ -6,24 +6,27 @@ The [conda-plugins](skills/conda-plugins/SKILL.md) skill helps an agent work thr
 
 The agent reads the references needed for your task and follows your repository's own rules. The skill uses the portable [Agent Skills format](https://agentskills.io/specification), without depending on client-specific tool names, shell-injection features, or lifecycle hooks.
 
-Install it with the three [required companions](#required-companion-skills): Superpowers, Humanizer, and Ponytail.
+Choose either [npx](#install-with-npx) or [conda](#conda-package) to install `conda-plugins`. Both routes require the three [companion skills](#required-companion-skills): Superpowers, Humanizer, and Ponytail.
 
 ## Install with npx
 
 Install the skill and choose your client when prompted:
 
 ```sh
-npx skills add jezdez/conda-plugins-skill
+npx skills add jezdez/conda-plugins-skill --skill conda-plugins
 ```
 
-Install the required companions from the sources below. The [Skills CLI docs](https://github.com/vercel-labs/skills/blob/main/docs/commands.md#skills-add) cover client selection, project or global scope, and copy or symlink options.
+### Install the companions
 
-| Source | Skills to select |
-| --- | --- |
-| `jezdez/conda-plugins-skill` | `conda-plugins` |
-| `obra/superpowers/skills` | All skills |
-| `blader/humanizer` | `humanizer` |
-| `DietrichGebert/ponytail/skills` | All skills |
+Run these commands whether you installed `conda-plugins` through npx, Git, or conda. Choose the same client and installation scope as the main skill:
+
+```sh
+npx skills add https://github.com/obra/superpowers/tree/main/skills --skill '*'
+npx skills add blader/humanizer --skill humanizer
+npx skills add https://github.com/DietrichGebert/ponytail/tree/main/skills --skill '*'
+```
+
+The quoted `'*'` selects every skill in the Superpowers and Ponytail collections. Keep the quotes so your shell passes it literally. Client, project or global scope, and copy or symlink choices remain interactive. The [Skills CLI docs](https://github.com/vercel-labs/skills/blob/main/docs/commands.md#skills-add) describe these options.
 
 Review the CLI's [privacy settings](https://github.com/vercel-labs/skills/blob/main/docs/troubleshooting.md#telemetry) before installing.
 
@@ -90,15 +93,21 @@ cp -R skills/conda-plugins "$HOME/.claude/skills/"
 
 These are first-install commands. Compare or back up an existing skill before replacing it. The `.agents` copy serves Codex and current Kilo, and the `.claude` copy serves Claude Code. On Windows, copy the whole `skills/conda-plugins/` folder into those directories with Explorer or PowerShell. Keep its reference files together because their links are relative, and update each copy together.
 
-These manual commands copy only `conda-plugins`. Install the three required companions using their upstream instructions below before using the workflow.
+These manual commands copy only `conda-plugins`. Install the three required companions with the [commands above](#install-the-companions) before using the workflow.
 
 ## Conda package
 
 The packaging follows [skill-forge](https://github.com/pavelzw/skill-forge): a text-only `noarch: generic` conda package named `agent-skill-conda-plugins`. It installs the complete skill under `share/agent-skills/conda-plugins` in the environment prefix, with no runtime dependencies or activation hooks.
 
-Build it with `pixi run --locked build-conda`, with output under `dist/conda/noarch/`. The package includes the skill's references and license notices. Install the required Superpowers, Humanizer, and Ponytail companions separately.
+The package includes the skill's references and license notices. Install the required Superpowers, Humanizer, and Ponytail companions with the [npx commands above](#install-the-companions). The conda and npx routes are alternatives for `conda-plugins`.
 
-[conda-skills](https://github.com/jezdez/conda-skills) discovers the installed package and links it into client directories. Install that plugin in the environment running conda. Install the skill package in your chosen source environment, then run from your project directory:
+[conda-skills](https://github.com/jezdez/conda-skills) discovers the installed package and links it into client directories. Install that plugin in the environment running conda, following its installation instructions. Install the skill package from the public `jezdez` channel's `main` label into your active source environment:
+
+```sh
+conda install jezdez::agent-skill-conda-plugins
+```
+
+Then run from your project directory:
 
 ```sh
 conda skill list
@@ -107,19 +116,19 @@ conda skill link conda-plugins
 conda skill status
 ```
 
-These commands use the active source environment and the project's `.agents/skills/` destination. Use `-n NAME` or `-p PREFIX` on `list`, `inspect`, and `link` to select another source environment. Use `--backend claude` for `.claude/skills/`, or explicit `--global` for home destinations. `conda skill unlink conda-plugins` removes the project link without deleting the installed package. Required companions still need separate installation.
+These commands use the active source environment and the project's `.agents/skills/` destination. Use `-n NAME` or `-p PREFIX` on `conda install` and on `conda skill list`, `inspect`, and `link` to select another source environment. Use `--backend claude` for `.claude/skills/`, or explicit `--global` for home destinations. `conda skill unlink conda-plugins` removes the project link without deleting the installed package. Required companions still need separate installation.
 
 [pixi-skills](https://github.com/pavelzw/pixi-skills) also supports this package layout through its `agents` and `claude` backends. Native Codex, Kilo, and Claude Code discovery through these links has not been tested.
 
-The selected publication destination is the public `jezdez` channel's `main` label on Anaconda.org. The first `agent-skill-conda-plugins` channel upload is pending. Use a local build until publication is verified. See the [release procedure](CONTRIBUTING.md#release-process) for artifact verification and publication.
+Version [26.11.1](https://github.com/jezdez/conda-plugins-skill/releases/tag/v26.11.1), build number `0`, was released on 2026-11-11. The package is available from [jezdez on Anaconda.org](https://anaconda.org/jezdez/agent-skill-conda-plugins).
 
 Version [26.11.0](https://github.com/jezdez/conda-plugins-skill/releases/tag/v26.11.0) is released. Its ZIP and installed skill retain the `conda-plugin-skill` name, and its conda package is `agent-skill-conda-plugin-skill`. Those artifacts do not provide the current `conda-plugins` identifier.
 
-This checkout prepares `26.11.1`, build number `0`, with the new names. It is not released. The canonical version is `package.version` in `recipe/recipe.yaml`. Releases use UTC calendar versions and tags of the form `vYY.M.P`, with no leading zero on the month. An authorized release tag triggers cross-platform checks, artifact signing, a protected Anaconda.org upload, and GitHub publication after that upload succeeds. See the [release procedure](CONTRIBUTING.md#release-process) for setup and approval steps.
+The canonical version is `package.version` in `recipe/recipe.yaml`. Releases use UTC calendar versions and tags of the form `vYY.M.P`, with no leading zero on the month. An authorized release tag triggers cross-platform checks, artifact signing, a protected Anaconda.org upload, and GitHub publication after that upload succeeds. See the [release procedure](CONTRIBUTING.md#release-process) for setup and approval steps.
 
 ## Required companion skills
 
-Superpowers, Humanizer, and Ponytail are required in Codex, Kilo, and Claude Code. Install them through the [Skills CLI](#install-with-npx) or follow their own installation instructions below.
+Superpowers, Humanizer, and Ponytail are required in Codex, Kilo, and Claude Code. Install them with the [companion commands above](#install-the-companions) or follow their own installation instructions below.
 
 Before plugin work, the agent must confirm that all three companions are available. If one is missing or cannot be loaded, it must report the problem and stop unless you explicitly waive that prerequisite for the task. The agent performs this check because the [Agent Skills format](https://agentskills.io/specification) has no standard field for automatically installing dependencies.
 
