@@ -1,6 +1,6 @@
 # Verify evidence and release artifacts
 
-When a plugin verifies attestations, archives, or cached evidence, give each check a distinct result. A cryptographically valid signature alone does not establish artifact identity, accepted statement content, or publisher authorization.
+When a plugin verifies attestations, archives, or cached evidence, give each check a distinct result. A cryptographically valid signature alone does not prove artifact identity, accepted statement content, or publisher authorization.
 
 ## Apply checks in order
 
@@ -24,7 +24,7 @@ A content-addressed cache proves which bytes were stored, not that those bytes r
 
 Before publishing a built archive, check its complete compressed stream as well as package metadata. A metadata reader can succeed before reaching a truncated gzip trailer. Computing a checksum of that file binds the truncated bytes without proving the archive is usable. Use the archive format's integrity checker, then hash and upload those same files. For a downloaded artifact, an expected authenticated digest must still be checked before parsing or extracting it. Metadata validity, transport integrity, artifact binding, and authorization answer different questions.
 
-Use a truncated archive with readable package metadata to test this distinction. Confirm the stream-integrity stage rejects it, not merely that an unrelated metadata error causes failure. Retire results when a custom build helper is replaced by another tool; successful tests of removed code do not validate the replacement.
+Use a truncated archive with readable package metadata to test this distinction. Confirm the stream-integrity stage rejects it, not merely that an unrelated metadata error causes failure. Retire test results when a custom build helper is replaced by another tool. Successful tests of removed code do not validate the replacement.
 
 ## Test rejection stages
 

@@ -6,7 +6,7 @@ license: Apache-2.0
 
 # Develop conda plugins
 
-Use these synthesized development practices when building a plugin. The bundled guides contain the implementation decisions and examples. External repositories in [sources.md](references/sources.md) record where the practices came from and are optional reading.
+Use the bundled guides for plugin implementation decisions and examples. [sources.md](references/sources.md) links to the repositories these practices came from. Those repositories are optional reading.
 
 ## Check required companions
 
@@ -20,7 +20,7 @@ Apply the companions where their workflows fit:
 - Ponytail: use its development guidance to keep the implementation small and reuse existing APIs.
 - Humanizer: apply it to documentation, explanations, and review prose while preserving technical facts.
 
-Use native skill invocation when available, otherwise follow the installed `SKILL.md` instructions. Preserve the user's scope and applicable repository rules. Required availability does not mean every task needs every Superpowers workflow.
+Use native skill invocation when available. Otherwise, follow the installed `SKILL.md` instructions. Preserve the user's scope and applicable repository rules, and load only the Superpowers workflows the task needs.
 
 ## Establish the task
 
@@ -37,7 +37,7 @@ For a new plugin, start with one installed entry point and one working hook. Add
 1. Keep registration declarative. `plugin.py` yields conda hook objects and forwards to the selected operation. Discovery must not contact services, read credentials, initialize caches, or load expensive feature implementations.
 2. Give each operation a clear owner. Normalize format input once. Put behavior on the model or adapter that owns its inputs. Keep CLI parsing and rendering outside reusable operations.
 3. Reuse conda's environment, configuration, package, solver, activation, and plugin APIs. Use an existing schema's validator and serializer. Avoid a parallel configuration parser, dependency solver, or general framework.
-4. Keep data claims exact. Declared requirements, resolved records, requested roots, verified evidence, and authorization are different facts. Preserve that distinction in models and output.
+4. Distinguish declared requirements, resolved records, requested roots, verified evidence, and authorization in models and output.
 5. Follow standard argparse behavior for options and positionals. Give each command one output owner. JSON is one complete unstyled value on stdout. Composite commands collect child results and control their output. Process-launching commands preserve argument and exit-status semantics.
 6. Verify observable behavior in the intended runtime. Cover installed discovery, errors, relevant platform behavior, and the target repository's full checks. Regenerate the owning lockfile after dependency or workspace metadata changes.
 7. Write substantial documentation for people learning and using the plugin. Follow Diátaxis, develop useful explanations and worked examples, and apply Humanizer. Keep the skill's compact instructions separate from the depth readers need.
@@ -55,7 +55,7 @@ For a new plugin, start with one installed entry point and one working hook. Add
 | Regression tests, startup checks, or completion claims | [testing.md](references/testing.md) |
 | Installing the skill or companions | [Repository README](https://github.com/jezdez/conda-plugins-skill#readme) |
 
-Read the sections relevant to the current change, including guidance from multiple references when needed. The target code and bundled patterns should be sufficient for ordinary work. Consult current upstream documentation when a supported API or standard needs verification.
+Read the sections relevant to the current change, using multiple references when needed. Use the target code and bundled guides for ordinary changes. Consult current upstream documentation when a supported API or standard needs verification.
 
 ## Working defaults
 

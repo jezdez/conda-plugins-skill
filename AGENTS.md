@@ -1,12 +1,12 @@
 # Repository guidance
 
-This repository maintains the portable `conda-plugins` skill for people developing conda plugins. Its deliverable is the content under `skills/conda-plugins/`, installed from Git or packaged as a text-only conda package. It is not a conda plugin or an installable Python package. Pixi tasks invoke maintained tools to validate and package that content.
+This repository maintains the portable `conda-plugins` skill under `skills/conda-plugins/` for people developing conda plugins. Install it from Git or as a text-only conda package. It is not a conda plugin or an installable Python package. Pixi tasks use maintained tools to validate and package the skill.
 
 ## Structure and scope
 
 - Keep installation and client setup in the root `README.md`.
 - Keep each `skills/<name>/SKILL.md` short and route substantial guidance to its `references/` directory. Installed skill folders must work on their own.
-- Maintain original instructions, concrete examples, and optional pinned provenance. A source link must not substitute for the guidance a colleague needs.
+- Write original instructions and concrete examples, with optional pinned provenance. Source links must not replace usable guidance.
 - Keep tool commands in `pixi.toml` and hook rules in `.pre-commit-config.yaml`. Package checks belong in the conda recipe. Do not add a tests directory or custom check or packaging scripts when maintained tools suffice.
 - Maintain behavioral prompts in root `evals/evals.json` using upstream skill-creator's schema. Use its grading and human-review tools in disposable workspaces. Keep evals and generated results outside distributed skill folders.
 - Generated output belongs in ignored `dist/`. Keep it out of the repository root.
@@ -18,11 +18,11 @@ This repository maintains the portable `conda-plugins` skill for people developi
 
 Preserve compatibility with Codex, Claude Code, and Kilo. Use relative links within each skill folder and verify the complete folder is copied by installation tools. Do not assume a local checkout path, a client-specific tool name, or native plugin hooks.
 
-Superpowers, Humanizer, and Ponytail remain required companions for the conda plugin workflow. Codex Security remains optional and applies to an authorized security review. Changes to those requirements need an explicit task requirement.
+Superpowers, Humanizer, and Ponytail are required companions for the conda plugin workflow. Codex Security is optional and applies to an authorized security review. Change these requirements only when the task explicitly calls for it.
 
-Read the existing reference before adding another rule. Synthesize reusable decisions from actual plugin instructions and implementations. Distinguish shared defaults from a source project's local choices. Update pinned provenance when changing a sourced claim. Respect standard argparse behavior and reuse conda APIs in examples.
+Read the existing reference before adding another rule. Base shared guidance on actual plugin instructions and implementations, and distinguish it from a source project's local choices. Update pinned provenance when changing a sourced claim. Respect standard argparse behavior and reuse conda APIs in examples.
 
-Write user documentation for people. Develop explanations and complete worked examples, use Diátaxis, and apply Humanizer without removing useful depth. The compact skill entry point does not impose a length limit on human-facing documentation. Keep prose direct, avoid semicolons and vague labels, and preserve upstream license text verbatim.
+Write explanations and complete worked examples, organize them with Diátaxis, and apply Humanizer without removing useful detail. The skill entry point's recommended length does not limit human-facing documentation. Keep prose direct, avoid semicolons and vague labels, and preserve upstream license text verbatim.
 
 Original work uses Apache License 2.0. Keep the root and each distributed skill's `LICENSE` identical. Preserve applicable upstream attribution and license terms in the skill's `THIRD_PARTY_NOTICES.md`. Companion repositories are installed separately and are not bundled here.
 
@@ -40,13 +40,13 @@ pixi run --locked prek
 
 The conda build command is `pixi run --locked build-conda`, calling rattler-build directly with recipe-native copying and tests. Verify conda payloads and conda-skills discovery, inspection, linking, status, and unlinking through the generic `agents` and `claude` backends in disposable environments. Check pixi-skills separately when claiming its support. Package discovery does not prove native agent-client discovery. Historical client checks and earlier `agent-skill-conda-plugin-skill` package checks do not verify the current artifact.
 
-For changed code examples or behavior claims, execute the affected examples in a disposable environment. Check documentation markup and recordings when those examples change. Prose-only corrections do not require unrelated conda, Sphinx, or platform runs. For changes to instructions, use a realistic independent application scenario when it would reveal a gap that static validation cannot find.
+For changed code examples or behavior claims, execute the affected examples in a disposable environment. Check documentation markup and recordings when those examples change. Prose-only corrections do not require unrelated conda, Sphinx, or platform runs. When static checks cannot show whether changed instructions work, try a realistic independent application scenario.
 
 Do not install skills into the user's global client directories during verification. Keep temporary installation checks isolated. Report local checks, actual client invocation, hosted CI, and publication separately. After a push, take at most one CI snapshot unless asked to monitor it.
 
 ## Releases
 
-Follow the release procedure in `CONTRIBUTING.md`. The canonical version is `recipe/recipe.yaml`'s `package.version`, currently `'26.11.1'`, with `build.number: 0`, released on 2026-11-11. Use UTC `YY.M.P` versions with an unpadded month, `P` starting at `0` each month, and `vYY.M.P` tags. Content changes require a new version. Packaging-only rebuilds increment the build number separately.
+Follow the release procedure in `CONTRIBUTING.md`. The canonical version is `recipe/recipe.yaml`'s `package.version`, currently the unreleased candidate `'26.11.2'`, with `build.number: 0`. Version 26.11.1 was released on 2026-11-11. Use UTC `YY.M.P` versions with an unpadded month, `P` starting at `0` each month, and `vYY.M.P` tags. Content changes require a new version. Packaging-only rebuilds increment the build number separately.
 
 The 26.11.0 release retains the `conda-plugin-skill` skill and ZIP names and the `agent-skill-conda-plugin-skill` package name. Preserve its assets and changelog history when documenting the current names and repository URL.
 

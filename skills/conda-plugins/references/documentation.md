@@ -4,15 +4,15 @@ Use this guide when writing or reviewing a plugin's README, documentation site, 
 
 ## Write for people who want to learn and explore
 
-Write for the person installing, using, or maintaining the plugin. Establish what they want to accomplish, what they already know, and what they need explained. Keep agent procedures in `AGENTS.md` and skill instructions. User documentation should explain the product through the reader's tasks.
+Write for the person installing, using, or maintaining the plugin. Work out what they want to accomplish and what they already know, then explain the product through those tasks. Keep agent procedures in `AGENTS.md` and skill instructions.
 
-Give explanations enough room to teach, with complete worked examples and links to related topics. A short skill entry point or a small implementation can still need substantial user documentation. Let the reader's needs determine the depth.
+Give explanations enough room to teach, with complete worked examples and links to related topics. The reader may need substantial documentation even for a short skill or a small implementation.
 
 Introduce unfamiliar terms before using them in instructions. For example, explain the difference between a requested package specification and a resolved package record before asking someone to choose an export format. Explain what a command changes, where its result goes, and how the reader can recognize success. Show realistic configuration and output, with commentary on the parts that matter.
 
-For a substantial feature, help readers get through their first use and return for recurring tasks. Provide exact reference material and explain the design and its limits. Include troubleshooting for likely mistakes and useful variations such as another shell, manifest format, or platform. Put those variations where readers need them, without crowding the introductory tutorial.
+For a substantial feature, help readers get through their first use and return for recurring tasks. Provide exact reference material and explain the design and its limits. Cover likely mistakes and variations such as another shell, manifest format, or platform where readers need them, leaving the introductory tutorial focused on the first use.
 
-Apply the required Humanizer skill while drafting and before delivery. Keep useful detail, examples, caveats, and precise terminology. Remove repetitive framing and inflated claims. Read the result as a colleague trying to learn the plugin, and repair places where a list of commands needs an explanation. Avoid excessive emphasis, unexplained jargon, and prose that addresses an agent instead of the reader.
+Apply the required Humanizer skill while drafting and before delivery. Keep useful detail, examples, caveats, and precise terminology. Remove repetitive framing and inflated claims. Read the result as a colleague trying to learn the plugin, and explain command lists where needed. Avoid excessive emphasis, unexplained jargon, and prose addressed to an agent.
 
 ## Organize around Diátaxis
 
@@ -27,7 +27,7 @@ Choose the page's purpose before writing it. [Diátaxis](https://diataxis.fr/) d
 
 Keep each page's main purpose clear and link to the other forms where they help. A tutorial can briefly explain a step and link to a fuller discussion. Reference pages need accurate descriptions and examples, but should not require following a tutorial to find a default value.
 
-Give the homepage enough context to choose a route. Describe what the plugin does, its installation requirements and current status, then offer a clear starting tutorial and links for experienced users. Keep the README useful on GitHub with a short working example and links to the fuller site. Maintain one authoritative detailed explanation for each topic.
+Describe what the plugin does, its installation requirements and current status on the homepage. Link to a starting tutorial and pages for experienced users. Keep the README useful on GitHub with a short working example and links to the fuller site. Maintain one detailed explanation for each topic and link to it from other pages.
 
 Use the repository's navigation conventions. `tutorials/`, `how-to/`, `reference/`, and `explanation/` are useful directory names when the site has enough content. A smaller site can express the same purposes through pages such as `quickstart`, `howto`, `cli`, and `why`. Split large API references by subject and describe what readers will find on each linked page.
 
@@ -35,7 +35,7 @@ Use the repository's navigation conventions. `tutorials/`, `how-to/`, `reference
 
 For a new plugin in this collection, start with Sphinx, `conda-sphinx-theme`, MyST Markdown, and `sphinx-design`. Preserve an existing project's chosen stack. Inspect `docs/conf.py`, the docs dependency group, build tasks, and hosting configuration before changing them.
 
-The small shared configuration is:
+A minimal configuration is:
 
 ```python
 extensions = ["myst_parser", "sphinx_design"]
@@ -105,7 +105,7 @@ Keep claims precise. Format validation, inventory completeness, signature verifi
 
 ## Record demos in the established VHS style
 
-Use a short recording to help a person see a workflow before trying it. Pick a useful story with a visible starting state, a few ordinary commands, and a result worth inspecting. Put copyable commands and enough explanation beside the GIF for readers to complete the task without playing it.
+Use a short recording to show a workflow before the reader tries it. Show the starting state, the commands, and a result they can inspect. Put copyable commands and enough explanation beside the GIF for readers to complete the task without playing it.
 
 Workspaces, Exec, Global, and Completion share VHS source tapes and a `demos/_settings.tape` file. Preserve the target project's settings. For a new sibling plugin without a recording style, these settings reproduce their shared appearance in `demos/_settings.tape`:
 
@@ -132,9 +132,9 @@ Use an environment containing the installed plugin, VHS, its `ttyd` and `ffmpeg`
 
 Keep shared appearance in `_settings.tape` and source it from individual tapes. Inspect the repository's fixture layout and demo task before adding another recording. Shell demonstrations may need their own initialization, as in the Fish completion example. Adjust dimensions when a workflow needs more space, then check readability at the size where the docs embed it.
 
-Prepare fixtures and machine setup under VHS `Hide`, then `Show` the user-facing workflow. Use brief visible shell comments to introduce a step. Allow time to read results, typically one to three seconds in the existing recordings. Synchronize execution with expected output or the prompt. Sleeps provide reading time and do not establish that a command finished.
+Prepare fixtures and machine setup under VHS `Hide`, then `Show` the user-facing workflow. Use brief visible shell comments to introduce a step. Synchronize execution with expected output or the prompt, then allow time to read results, typically one to three seconds in the existing recordings. A sleep alone cannot confirm that a command finished.
 
-Use real plugin commands and their real output. Show genuine Tab completion when teaching completion. Keep first-run setup and later cache reuse distinguishable. Disclose omitted installation or image-build waits when they would change the viewer's expectations. A demo is not a timing benchmark.
+Use real plugin commands and their output. Show Tab completion when teaching completion. Distinguish first-run setup from later cache reuse, and disclose omitted installation or image-build waits that would affect the viewer's expectations. Do not use the demo to make timing claims.
 
 Allocate disposable demo state with `mktemp`, check allocation success, and clean up only the directory allocated for that recording. Put example source environments under that temporary prefix instead of reusing a fixed named environment. Use plugin-specific cache and state settings where available. Keep credentials and personal paths out of fixtures and frames. Record from the intended development environment without modifying the user's real environments or shell configuration.
 
@@ -178,10 +178,10 @@ Keep source tapes, required fixtures, and the GIF embedded by the documentation 
 
 Run the repository's declared documentation task in its declared environment. Use its strict build when available. For a new Sphinx setup, enable warnings as errors and unresolved-reference checking, for example with `sphinx-build -W --keep-going -n -b dirhtml docs docs/_build/dirhtml`. Fix the cause of new warnings instead of broadly suppressing them.
 
-For new or changed commands, examples, or behavior claims, execute representative tutorial and how-to commands from clean disposable state. Use an existing example-check task if the project provides one. Check affected shell and platform variants on the platforms claimed, and report variants that were not exercised. A successful Sphinx build proves neither the commands nor the explanatory claims correct.
+For new or changed commands, examples, or behavior claims, execute representative tutorial and how-to commands from clean disposable state. Use an existing example-check task if the project provides one. Check affected shell and platform variants on the platforms claimed, and report variants that were not exercised. Check commands and explanations independently of the Sphinx build.
 
 Inspect rendered pages for navigation, broken references, tab behavior, code overflow, and readable figures. Replay changed demo recordings and check the whole playback for clipping, missing glyphs, command failures, reading time, and stale output. Re-record when visible behavior changes. Keep GIFs small enough to load comfortably without making their text unreadable.
 
-Finish with a Humanizer pass and a reader review. Can a newcomer follow the tutorial from its prerequisites, recognize the result, recover from a likely mistake, and find the next useful page? Can an experienced reader find the exact setting or format detail quickly? Retain the explanation and examples needed to answer those questions.
+Finish with a Humanizer pass and a reader review. Check that a newcomer can follow the tutorial from its prerequisites, recognize the result, recover from a likely mistake, and find the next useful page. Check that an experienced reader can find the exact setting or format detail quickly, and retain the explanation and examples each reader needs.
 
 Report the docs build, example execution, visual review, and any untested platforms accurately. Report publication separately. External link checking may need a scheduled or manual task when remote services make it unreliable in ordinary pull-request checks.

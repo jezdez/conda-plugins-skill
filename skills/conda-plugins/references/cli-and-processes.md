@@ -6,7 +6,7 @@ Read this guide when a plugin parses commands, launches programs, manages local 
 
 Define options, positionals, and subcommands through the parser supplied by conda. Let argparse handle option placement, types, choices, required arguments, help, and errors. Do not impose an options-first rule or stop recognizing options at the first positional argument.
 
-For example, with these argument definitions, both `conda example numpy -e dev` and `conda example -e dev numpy` select the same package and environment:
+With these definitions, both `conda example numpy -e dev` and `conda example -e dev numpy` select the same package and environment:
 
 ```python
 parser.add_argument("package")
@@ -15,13 +15,13 @@ parser.add_argument("-e", "--environment")
 
 Preserve the [standard argparse meaning of `--`](https://docs.python.org/3/library/argparse.html#arguments-containing): following tokens are positional values, even if they begin with `-`. Unknown options should produce normal parser errors. Do not default to `argparse.REMAINDER` or partial parsing for ordinary plugin commands.
 
-A subcommand that launches another program needs documented forwarding syntax specific to that command. Test which arguments belong to the plugin and which belong to the child. Preserve an existing runner's documented behavior without making its parsing choices a rule for other plugins.
+For a subcommand that launches another program, document its forwarding syntax and test which arguments belong to the plugin and which reach the child. Preserve an existing runner's documented behavior without making its parsing choices a rule for other plugins.
 
 Keep a standalone console script and the conda subcommand on the same parser and handler. Preserve established command naming. For new workspace-style management commands, use `-e` or `--environment` for the target and reserve the positional argument for the package or executable. Distinguish removing a dependency from deleting its entire environment.
 
 ## Execute child programs
 
-Once parsing has identified the child's argument list, pass it unchanged to `subprocess.run` or `Popen`. Preserve spaces, empty arguments, literal quote characters, and any `--` belonging to the child. Shell syntax quotes have already been processed before Python receives the arguments. Do not join the list and parse it again with `shlex.split`. Do not enable `shell=True` to solve quoting problems.
+Once parsing has identified the child's argument list, pass it unchanged to `subprocess.run` or `Popen`. Preserve spaces, empty arguments, literal quote characters, and any `--` belonging to the child. The shell processes syntax quotes before Python receives the arguments. Do not join the list and parse it again with `shlex.split`. Do not enable `shell=True` to solve quoting problems.
 
 ```python
 result = subprocess.run(argv, env=child_env)
@@ -30,7 +30,7 @@ if os.name == "posix" and result.returncode < 0:
 return result.returncode
 ```
 
-Preserve ordinary child exit statuses. On POSIX, `subprocess` represents signal termination as a negative number. The example converts it to the conventional shell status `128 + signal` rather than passing a negative number to `sys.exit`. If the command promises conventional launcher errors, distinguish an executable that cannot be found from one that cannot be executed, commonly statuses 127 and 126.
+Preserve ordinary child exit statuses. On POSIX, `subprocess` represents signal termination as a negative number. The example converts it to the conventional shell status `128 + signal`. Do not pass the negative value to `sys.exit`. If the command promises conventional launcher errors, distinguish an executable that cannot be found from one that cannot be executed, commonly statuses 127 and 126.
 
 ## Choose an activation level
 
@@ -87,7 +87,7 @@ For a composite command that invokes existing handlers:
 4. Capture direct Python stdout from those handlers.
 5. Check nested results before emitting the outer success object.
 
-Do not forward `--json` blindly into every nested `Namespace`. That can produce several JSON documents whose concatenation is invalid for the caller. `contextlib.redirect_stdout` captures Python writes, not child-process output. Configure subprocess stdout explicitly or call the underlying Python operation instead.
+Do not forward `--json` blindly into every nested `Namespace`. This can emit multiple JSON documents, which cannot be parsed as one value. `contextlib.redirect_stdout` captures Python writes, not child-process output. Configure subprocess stdout explicitly or call the underlying Python operation instead.
 
 Commands that launch a child or open a shell should not advertise JSON unless they define a useful result envelope and account for the child's output. If repository conventions require accepting a global `--json` flag silently, follow those conventions without inventing a misleading payload.
 
@@ -103,7 +103,7 @@ from rich.markup import escape
 console.print(f"[bold red]Error:[/bold red] {escape(message)}")
 ```
 
-For an unformatted message, `console.print(message, markup=False)` is simpler. Rich escaping protects markup interpretation. It is not shell quoting or a terminal-control-character filter. Render control characters in externally supplied names, descriptions, paths, and errors visibly before human output, including ESC, carriage return, and C1 controls. Use literal Rich `Text` cells or disable markup as well. Keep JSON values in the structured serializer rather than applying human-display escaping to the data.
+For an unformatted message, `console.print(message, markup=False)` is simpler. Rich escaping prevents markup interpretation. Shell quoting and terminal control filtering require separate handling. Render control characters in externally supplied names, descriptions, paths, and errors visibly before human output, including ESC, carriage return, and C1 controls. Use literal Rich `Text` cells or disable markup as well. Keep JSON values in the structured serializer without human-display escaping.
 
 Accept an optional `console` argument in reusable CLI handlers so callers can capture output without patching globals. Use words such as "Installed" and "Removed" to distinguish status, with color as additional information.
 
@@ -139,13 +139,13 @@ def conda_settings() -> Iterable[CondaSetting]:
 
 Choose a type, default, and validator. A positive interval and a non-negative retention age need different validation rules.
 
-Do not separately parse `.condarc` or guess conda's configuration precedence. If compatibility requires a direct environment-variable alias, document its precedence and parse it deliberately. `bool("false")` is true in Python and is not a configuration parser.
+Do not separately parse `.condarc` or guess conda's configuration precedence. If compatibility requires a direct environment-variable alias, document its precedence and parse it deliberately. Using `bool("false")` yields true in Python, so parse boolean strings explicitly.
 
 Keep transient process markers separate from public configuration. Put secrets in an appropriate credential backend or explicitly supplied environment variables, rather than ordinary status files.
 
 ## Make writes recoverable
 
-For authoring commands, serialize user values through the existing YAML or TOML library rather than interpolating strings into a template. Test colons, quotes, newlines, and values that resemble booleans. Creating an authoring skeleton does not establish that its generated recipe builds or its installed payload is discoverable.
+For authoring commands, serialize user values through the existing YAML or TOML library rather than interpolating strings into a template. Test colons, quotes, newlines, and values that resemble booleans. Creating an authoring skeleton does not verify that its generated recipe builds or its installed payload is discoverable.
 
 When linking package-owned folders, validate the resolved source root before checking children, then validate destination parent components before writing. A header that resolves inside the prefix does not prove the directory being linked is contained there. Treat broken symlinks as existing entries. Reuse only links with the intended target, and unlink the link rather than its contents.
 
@@ -155,7 +155,7 @@ Keep filesystem status independent of valid source discovery so it can show unma
 
 Test cyclic links separately from dangling targets. Path resolution can fail differently across supported Python versions. Handle that failure at the filesystem operation: an inspection command should retain the broken entry and its unresolved target, while an operation requiring a valid source should fail with the plugin's normal validation error. Catching every exception at CLI dispatch would hide unrelated programming errors.
 
-Separate environment selection from destination authorization. If home-directory writes require an explicit global flag, running from home or selecting home in an interactive prompt must not bypass it. Read-only named-environment lookup must fail without creating an environment directory. Check the selected conda helper's behavior on a missing name, not just its signature. Relative symlink targets cannot span Windows drives; handle that case explicitly and test natively before claiming support.
+Separate environment selection from destination authorization. If home-directory writes require an explicit global flag, running from home or selecting home in an interactive prompt must not bypass it. Read-only named-environment lookup must fail without creating an environment directory. Check the selected conda helper's behavior on a missing name, not just its signature. Relative symlink targets cannot span Windows drives. Handle that case explicitly and test natively before claiming support.
 
 Interactive guides should reject unsupported JSON and non-interactive input before prompting, show the intended operation, and require confirmation before writes. Confirmation for creating local files does not authorize package installation, network access, or global changes.
 
@@ -206,7 +206,7 @@ A command that opens a file manager should revalidate and open only the package 
 
 A best-effort post-command hook may catch unexpected failures because its output is supplementary. Keep that catch local to the hook. Log permission and I/O problems clearly enough to diagnose. Do not swallow `KeyboardInterrupt` or `SystemExit` as routine refresh failures.
 
-Load optional dependencies only when their feature is selected. A successful `find_spec` check establishes that a module can be found, not that its version or runtime integration works. Test missing and supported optional dependencies.
+Load optional dependencies only when their feature is selected. Finding a module with `find_spec` does not verify its version or runtime integration. Test missing and supported optional dependencies.
 
 Keep plugin imports and registration lightweight. Do not solve, access the network, retrieve credentials, launch subprocesses, or write state merely because conda discovers the plugin. Measure startup in a fresh process instead of treating another project's timing target as proof.
 

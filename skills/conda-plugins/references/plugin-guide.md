@@ -2,7 +2,7 @@
 
 ## Check the installed API
 
-Use the hook choices and example below, then check the installed API in the repository's development environment. Match the implementation to every supported version. The [upstream plugin guide](https://docs.conda.io/projects/conda/en/stable/dev-guide/plugins/index.html) is a reference when an API needs clarification. Current online documentation can describe fields an older installation does not have.
+Use the hook choices and example below, then check the installed API in the repository's development environment. Match the implementation to every supported version. Consult the [upstream plugin guide](https://docs.conda.io/projects/conda/en/stable/dev-guide/plugins/index.html) when an API needs clarification. Current online documentation can describe fields an older installation does not have.
 
 Inspect `conda.plugins.hookspec` and `conda.plugins.types` when a callback signature or field is unclear. Check the actual dependency revision for development builds. Avoid guessed version cutoffs and broad exception handling that conceals an unavailable hook.
 
@@ -22,7 +22,7 @@ Choose the narrowest hook that owns the behavior. Verify availability instead of
 
 ## A complete small subcommand
 
-This example adds `conda greet`. It demonstrates registration, delayed implementation imports, conda's parser helper, and JSON output. It has no network or environment mutations. The example declares conda 26.5 as its supported floor, which is not a claim about when the plugin system was introduced.
+This example adds `conda greet`. It demonstrates registration, delayed implementation imports, conda's parser helper, and JSON output. It has no network or environment mutations. The example declares conda 26.5 as its minimum supported version, which is not a claim about when the plugin system was introduced.
 
 Use a fresh example directory. For an existing package, adapt its layout and build backend instead of replacing its metadata.
 
@@ -122,7 +122,7 @@ When the supported conda API provides `CondaSubcommand.aliases`, use it for alia
 
 ## Install and run the example
 
-Conda discovers entry points installed in its own Python environment. Merely placing source on disk, installing into the target environment being inspected, or activating another environment does not make base conda discover the plugin.
+Conda discovers entry points installed in its own Python environment. Placing source on disk, installing into the target environment being inspected, or activating another environment does not make base conda discover the plugin.
 
 For a standalone trial, provision conda through conda-forge, then use that same environment's interpreter:
 

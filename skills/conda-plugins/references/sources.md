@@ -1,8 +1,8 @@
 # Sources for the synthesized practices
 
-This is optional provenance. The bundled guides contain the development guidance and work without following these links. Another repository's instructions explain the examples used here but do not govern the target checkout.
+These optional references document the sources of the bundled practices. The guides work without following the links. Source repository instructions do not govern the target checkout.
 
-These public sources were checked on 23 October 2026. Each GitHub file link pins the audited commit. These snapshots establish the source of a practice, not the current availability of every API or dependency version.
+These public sources were checked on 23 October 2026. Each GitHub file link pins the audited commit. The snapshots document each practice's source. Check current API and dependency availability separately.
 
 ## Conda-skills follow-up
 
@@ -78,15 +78,15 @@ The archive-integrity distinction in [verification.md](verification.md#separate-
 | Authentication handlers and startup regression tests | [Auth registration][auth-plugin] and [plugin tests][auth-tests] show delayed implementation imports and a fresh-process check for eagerly loaded CLI, storage and keyring modules. The [handler][auth-handler] checks transport before cached credentials, and [credential models][auth-credentials] define safe status fields. |
 | Tool execution, activation and persistent state | [Exec instructions][exec-rules], [Global instructions][global-rules] and [Spawn registration][spawn-plugin] supply distinct examples of command execution, conda API reuse, state writes and compatible subcommand aliases. |
 | Shell completion, lifecycle hooks and startup cost | [Completion instructions][completion-rules] document lazy registration, shell coverage and failure-tolerant completion regeneration. The [manifest writer][completion-manifest] uses atomic file replacement and bounded reads. Its import-time target is a project measurement requirement, not a universal conda guarantee. |
-| [verification.md](verification.md) and [testing.md](testing.md): attestations, bounded input, hermetic tests and publication rules | [Sigstore instructions][sigstore-rules]. Its package-verifier integration used a pinned development conda revision at this audit. Accepted standards did not establish released hook availability. |
+| [verification.md](verification.md) and [testing.md](testing.md): attestations, bounded input, hermetic tests and publication rules | [Sigstore instructions][sigstore-rules]. Its package-verifier integration used a pinned development conda revision at this audit. Accepted standards did not guarantee that released conda versions included the hook. |
 
-The inspected public trees for conda-lockfiles, conda-pycosat-solver, conda-auth and conda-spawn did not contain `AGENTS.md`. Their implementation, metadata and tests supplied the examples instead. Recommended test cases in the bundled guides are synthesis, not a claim that every source repository already implements every check.
+The inspected public trees for conda-lockfiles, conda-pycosat-solver, conda-auth and conda-spawn did not contain `AGENTS.md`. Their implementation, metadata and tests supplied the examples instead. The bundled guides synthesize recommended test cases from these examples. Do not assume every source repository implements every check.
 
 ## Documentation and demos
 
 | Practice in [documentation.md](documentation.md) | Source of the synthesis |
 | --- | --- |
-| Substantial tutorials with prerequisites, concepts, commands, result inspection, cleanup, and onward navigation | The [SBOM getting-started tutorial][sbom-tutorial] and [first-workspace tutorial][ws-tutorial] develop complete reader journeys. Their depth informs the examples without imposing their product-specific commands on other plugins. |
+| Substantial tutorials with prerequisites, concepts, commands, result inspection, cleanup, and onward navigation | The [SBOM getting-started tutorial][sbom-tutorial] and [first-workspace tutorial][ws-tutorial] walk through complete examples. Their depth informs this guide without imposing their product-specific commands on other plugins. |
 | Diátaxis navigation, Sphinx, conda-sphinx-theme, MyST, and sphinx-design | [SBOM's homepage][sbom-docs-index] and [small Sphinx configuration][sbom-docs-conf] combine the four documentation purposes with cards and toctrees. [Workspaces instructions][ws-rules] require short tab labels and restrained emphasis. Its [API index][ws-api-index] splits reference material by subject. |
 | Exact page references and generated help | [Spawn's quickstart][spawn-quickstart] uses Sphinx document and section references. Its [CLI reference][spawn-cli] generates help from the installed command. Static command examples elsewhere still need separate execution checks. |
 | Strict documentation builds | [SBOM project metadata][sbom-project] declares a warnings-as-errors Sphinx build with unresolved-reference checking. Other repositories use different tasks, so the guide asks agents to inspect the target's configuration. |

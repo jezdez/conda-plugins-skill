@@ -47,7 +47,7 @@ For a format derived from a supported schema:
 5. Use the dependency's public validation and conversion.
 6. Restore names or metadata changed temporarily for conversion.
 
-For example, a named-environment lockfile can reuse an upstream model that expects a `default` environment by adapting the selected environment in memory and restoring its name afterward. It still has to validate package references, channel membership, and digests. Changing the version number alone does not validate the document.
+For example, a named-environment lockfile can reuse an upstream model that expects a `default` environment by adapting the selected environment in memory and restoring its name afterward. The adapter must still validate package references, channel membership, and digests. Changing the version number alone does not validate the document.
 
 Preserve the source file. Do not rewrite it to satisfy another loader. Keep logical environment or platform names separate from the concrete subdirectory used to install packages.
 
@@ -77,7 +77,7 @@ Use the format's official serializer. If one field needs post-processing, keep t
 
 For reproducible output, sort components and edges, avoid random identifiers, and define timestamps. If `SOURCE_DATE_EPOCH` is supported, reject an invalid value rather than substituting the current time.
 
-Observable tests should prove that reordered input yields identical reproducible output, missing targets remain visible, invalid hashes fail, sanitized values appear everywhere, and the installed export command produces schema-valid output. Schema validity alone does not prove accurate or complete inventory.
+Test that reordered input yields identical reproducible output, missing targets remain visible, invalid hashes fail, sanitized values appear everywhere, and the installed export command produces schema-valid output. Schema validity alone does not prove accurate or complete inventory.
 
 ## Coordinate target subdirectories and virtual packages
 

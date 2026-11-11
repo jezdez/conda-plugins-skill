@@ -55,9 +55,7 @@ jobs:
       - uses: prefix-dev/setup-pixi@ad1da6449d9e506fd127fd67ab2d054a769f6a94 # v0.11.2
         with:
           locked: true
-      - name: Check
-        run: pixi run --locked check
-      - name: Build and test conda package
+      - name: Check, build and test conda package
         env:
           RATTLER_CACHE_DIR: ${{ runner.temp }}/release-rattler-cache
         run: pixi run --locked build-conda

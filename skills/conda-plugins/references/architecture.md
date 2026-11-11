@@ -12,7 +12,7 @@ installed entry point
   -> result returned to the caller
 ```
 
-Package `__init__.py` is part of that path. A lazy import in `plugin.py` achieves nothing if the initializer already imports the CLI, HTTP client, or serializer.
+Package `__init__.py` is part of that path. A lazy import in `plugin.py` cannot defer loading the CLI, HTTP client, or serializer if the initializer already imports them.
 
 Put expensive and optional imports inside the selected callback. Keep ordinary imports at module scope elsewhere. Use `TYPE_CHECKING` for annotation-only imports that would load a heavy dependency at runtime. Fix circular ownership instead of scattering local imports through unrelated functions.
 
@@ -20,7 +20,7 @@ Registration may import lightweight conda hook types and a lightweight parser mo
 
 For an optional dependency, allow unrelated commands and help to work without it. At the operation that needs it, report the missing feature and how to enable it. Catch a missing optional package narrowly. Do not reinterpret an `ImportError` inside a broken dependency as proof that the dependency is simply absent.
 
-For a new API, inspect the installed hook and type and test every supported version. A development dependency or accepted CEP does not establish released availability. Declare an honest minimum version. Use a focused capability check when development builds make version comparison insufficient. Do not silently replace an unavailable verification hook with a different lifecycle hook.
+For a new API, inspect the installed hook and type and test every supported version. A development dependency or accepted CEP is not evidence that an API has been released. Declare the minimum version the plugin supports. Use a focused capability check when development builds make version comparison insufficient. Do not silently replace an unavailable verification hook with a different lifecycle hook.
 
 ## Assign ownership before adding files
 
@@ -39,7 +39,7 @@ Use these roles as the implementation grows. A small plugin may need only `plugi
 
 A parser converts its format into models once. Downstream operations consume those models instead of repeatedly checking which manifest syntax produced them. Use conda's `Environment`, `PackageRecord`, `MatchSpec`, and `Channel` where those types already express the data.
 
-Keep authoring inputs separate from installed state. A skeleton writer can validate input and return a path without constructing a model that promises package ownership or an installed environment. Reuse field validation when both flows need it, but check installation-specific invariants only when loading the installed object. Interactive guides should call the same domain operations as explicit commands, not reimplement discovery, writing, or linking.
+Keep authoring inputs separate from installed state. A skeleton writer can validate input and return a path without constructing a model that represents package ownership or an installed environment. Reuse field validation when both flows need it, but check installation-specific invariants only when loading the installed object. Interactive guides should call the same domain operations as explicit commands, not reimplement discovery, writing, or linking.
 
 Keep reusable operations independent of `argparse.Namespace`, terminal colors, output paths selected by the CLI, and a particular caller's workspace discovery. Return data or raise a meaningful domain error. Let the command choose presentation and process status. Call `sys.exit` only at a real entry point when required by that entry point.
 
@@ -72,7 +72,7 @@ Use public APIs where available. If an internal conda API is necessary, isolate 
 
 For a project using Hatchling and hatch-vcs, resolve the version with `python -m hatchling version` in the checkout that has Git metadata. Pass that value to the conda recipe through a required project-specific environment variable. Avoid a separately maintained recipe version or a custom script that duplicates the backend's version command. Preserve a different project's chosen version scheme.
 
-A local conda build that copies source without `.git` can set `SETUPTOOLS_SCM_PRETEND_VERSION` inside that build to the already resolved value. A release build from a published sdist uses the archive's stored version and must not apply that override. Keep generated version files out of manual edits. A fallback version supports development without Git metadata and is not evidence of a release.
+A local conda build that copies source without `.git` can set `SETUPTOOLS_SCM_PRETEND_VERSION` inside that build to the already resolved value. A release build from a published sdist uses the archive's stored version and must not apply that override. Do not edit generated version files manually. A fallback version supports development without Git metadata and is not evidence of a release.
 
 On an authorized release tag, compare the backend's resolved version with the version encoded by the tag, using the repository's tag convention. Keep dated changelog notes in the manual preparation checklist. Follow the [release ordering guidance](verification.md#order-release-jobs-and-preserve-artifacts) for building and publishing the resulting artifacts.
 

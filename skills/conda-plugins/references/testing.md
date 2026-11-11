@@ -27,7 +27,7 @@ Do not repair a packaging or interpreter mismatch by changing a working handler.
 
 These tests go with the complete `conda-greet` example in [plugin-guide.md](plugin-guide.md). Install that example and pytest into the intended conda runtime first. Save this as `tests/test_plugin.py` and run it with that interpreter.
 
-The first test starts outside the source directory, reads installed metadata, and uses a real plugin manager. It also proves that discovery and parser setup do not load the command implementation.
+The first test starts outside the source directory, reads installed metadata, and uses a real plugin manager. It checks that discovery and parser setup do not load the command implementation.
 
 ```python
 from __future__ import annotations
@@ -163,9 +163,9 @@ if __name__ == "__main__":
 
 Adapt the distribution, hook, assertions, and configuration to the real plugin. The isolated manager deliberately loads only this distribution. Keep an installed CLI test too, because that exercises integration with conda's other hooks.
 
-The fresh-process probe executes this test file rather than a program embedded in a string, so normal linting and code navigation cover it. Keep execution imports out of its top level. Test collection may already load implementation modules in the parent process; it cannot establish lazy startup. Clearing inherited settings is fixture isolation, not a rule for real child processes that should preserve the user's environment. Add back only settings required by a particular test. An isolated home and condarc do not isolate every possible system configuration source.
+The fresh-process probe executes this test file rather than a program embedded in a string, so normal linting and code navigation cover it. Keep execution imports out of its top level. Test collection may already load implementation modules in the parent process, so it cannot verify lazy startup. Clear inherited settings in fixtures, then add back only settings required by a particular test. Real child processes should preserve the user's environment. An isolated home and condarc do not isolate every possible system configuration source.
 
-For a cheap-startup regression, test each relevant phase: package import, hook enumeration, parser setup, and an unrelated command. Assert that the specific expensive or optional implementation stays out of `sys.modules`. If the regression created a cache or contacted a service, use a temporary configured cache directory and fail-fast recording fakes at that operation's call site. Prove no files or calls occurred before execution. Do not infer that from elapsed time.
+For a regression in startup behavior, test each relevant phase: package import, hook enumeration, parser setup, and an unrelated command. Assert that the specific expensive or optional implementation stays out of `sys.modules`. If the regression created a cache or contacted a service, use a temporary configured cache directory and fail-fast recording fakes at that operation's call site. Assert that startup created no files and made no service calls. Elapsed time cannot prove this.
 
 ## Test the behavior being changed
 
@@ -190,11 +190,11 @@ Use plain pytest functions and fixtures for new tests unless repository guidance
 
 Use deterministic local responses for network and credential tests. Live-service tests should be opt-in and separately reported. Keep credentials and colleague environments out of fixtures.
 
-Direct operation tests and installed CLI tests serve different purposes. Use both when registration or dispatch changes. A schema-valid SBOM can still invent provenance. A successful cross-platform solve does not prove a native installation.
+Use direct operation tests and installed CLI tests when registration or dispatch changes. A schema-valid SBOM can still contain invented provenance. A successful cross-platform solve does not prove a native installation.
 
 Keep representative installed discovery and command round trips, including aliases and global output flags. Exercise detailed option combinations through direct parser and handler fixtures when another subprocess adds no coverage. For deterministic file listings, sort by the serialized name explicitly when native path comparison differs across platforms.
 
-For artifact checks, install the built wheel into disposable state and run an existing smoke-test file outside the checkout. Assert that the imported package comes from that installation, especially if the test environment shares dependencies with an editable development environment. Check installed entry points and harmless commands as well as metadata. Include shared test fixtures and required smoke scripts in explicit sdist inventories, while excluding build output. Exercise generated recipes through a real build, package installation, and discovery. Checking template filenames does not cover that workflow.
+For artifact checks, install the built wheel in a disposable environment and run an existing smoke-test file outside the checkout. Assert that the imported package comes from that installation, especially if the test environment shares dependencies with an editable development environment. Check installed entry points and harmless commands as well as metadata. Include shared test fixtures and required smoke scripts in explicit sdist inventories, while excluding build output. Exercise generated recipes through a real build, package installation, and discovery. Checking template filenames cannot verify those steps.
 
 For signed evidence, artifact binding, authorization, and offline or cache failures, use the [verification test cases](verification.md#test-rejection-stages).
 
@@ -218,15 +218,15 @@ When a security review is requested or otherwise in the authorized scope, Codex 
 
 Follow the installed workflow's setup, permission, and reporting requirements. Do not install or enable a service, upload source, or widen the review merely because this skill mentions it. See the [Codex Security plugin guide](https://learn.chatgpt.com/docs/security/plugin).
 
-Treat findings as claims to investigate. Record the affected code, reproducer or other evidence, validation result, and unresolved coverage. Passing functional tests does not disprove a vulnerability, and a scan with no findings does not establish that the code is secure. Keep scan results separate from tests actually run.
+Treat findings as claims to investigate. Record the affected code, reproducer or other evidence, validation result, and unresolved coverage. A passing functional test suite or a scan with no findings can still miss a vulnerability. Keep scan results separate from tests actually run.
 
-Codex Security is optional. If it is unavailable during an authorized security review, carry out the requested local tests and code review and state that limitation in the review report. Its absence does not block ordinary plugin work or waive a required security check specified by the target repository.
+If Codex Security is unavailable during an authorized security review, carry out the requested local tests and code review and state that limitation in the review report. Its absence does not block ordinary plugin work or waive a required security check specified by the target repository.
 
 ## Complete the required checks
 
 Run the full test suite, lint, formatting check, and type check required by the target repository. For documentation changes, follow the [docs and demo checks](documentation.md#validate-the-readers-experience), including the declared build and representative example execution. Report failed or blocked checks clearly.
 
-For conda-workspaces, the supplied project instructions require:
+The pinned conda-workspaces snapshot uses these checks:
 
 ```sh
 pixi run -e test pytest
@@ -235,7 +235,7 @@ pixi run -e dev format-check
 pixi run -e dev type-check
 ```
 
-These commands describe the pinned Workspaces snapshot, not every current plugin. Confirm that a combined task includes tests. In a repository already using conda-workspaces, read `conda.toml` and use its declared environments: `conda workspace install --locked -e default` installs the lock, then `conda task run -e default check` runs a named task. Arbitrary commands use `conda workspace run -e default -- COMMAND`. Do not put `--locked` on task execution or add Pixi just to match this guide. Environment names remain project-specific.
+Confirm that the target repository's combined task includes tests. In a repository already using conda-workspaces, read `conda.toml` and use its declared environments: `conda workspace install --locked -e default` installs the lock, then `conda task run -e default check` runs a named task. Arbitrary commands use `conda workspace run -e default -- COMMAND`. Do not put `--locked` on task execution or add Pixi just to match this guide. Environment names remain project-specific.
 
 After dependency, feature, task, or workspace metadata changes, regenerate the owning lockfile: `pixi lock` for Pixi or `conda workspace lock` for conda-workspaces. Runtime dependencies belong in shared features, with tests, docs, and artifact tooling in the environments that use them. Editable installs also need their build backend provisioned. Measure subprocess and branch coverage where required, but do not copy another project's numeric coverage threshold as a universal rule.
 
