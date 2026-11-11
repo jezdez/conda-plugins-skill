@@ -41,6 +41,36 @@
         "The plan distinguishes dangling targets from symlink cycles and checks resolution failures on minimum and current supported Python versions.",
         "The plan does not claim that planned checks, locked platforms, or coverage percentages prove execution or native client support."
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "I maintain a conda subcommand plugin. It now uses conda.toml and conda.lock for development, Hatchling with hatch-vcs for Python artifacts, and a rattler-build recipe. Conda itself is only available through conda channels. Write a concise contributor and release plan covering the exact commands to run a locked environment's named check task and arbitrary smoke script, how to obtain a single version for the wheel and a local conda build copied without .git, and how native tests, PyPI publication, and a conda build from the published sdist should depend on each other. Avoid creating custom scripts when existing tools suffice. Include how to handle an upload whose result is ambiguous. Treat this as a plan only, not authorization to publish.",
+      "expected_output": "A plan retaining conda-workspaces, resolving and propagating the backend version, ordering all release jobs after required tests, and recovering ambiguous uploads from original artifacts.",
+      "files": [],
+      "expectations": [
+        "The plan separates locked workspace installation, named task execution, and arbitrary commands without inventing confirmed environment names.",
+        "Conda is provisioned from channels and declared in the conda recipe, without adding a PyPI-resolved wheel dependency on conda.",
+        "The plan uses python -m hatchling version and passes its result to the local conda recipe without a separately maintained version default or custom version script.",
+        "SETUPTOOLS_SCM_PRETEND_VERSION is limited to a local copied-source build without Git metadata, while the published sdist preserves its stored version.",
+        "Release builds and publication depend on completion of all required jobs in the reusable test workflow, without an independent tag test race.",
+        "The conda release build uses the published sdist and verifies the digest recorded by the Python build, then signs and uploads the same conda artifact.",
+        "Ambiguous uploads are inspected before retrying, preserving original artifacts and tags and avoiding force or unverified skip-existing behavior.",
+        "The response stays a plan and does not claim execution, native-platform validation, or publication."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Review a proposed conda plugin feature, findings and corrections only. The plugin links package-owned reference directories into a project. Its inspect command calls read_text() on any requested path below a discovered package directory and renders Markdown, while open sends the selected file to its default application. Unlink searches the active environment for ownership even when the destination is absent, and --force recursively removes a conflicting destination. A multi-select guide previews and links each item before checking the next one. Explain what must change and propose focused behavioral checks. Do not edit or execute anything. All companions are explicitly waived for this synthetic evaluation only.",
+      "expected_output": "A read-only review addressing bounded source inspection, directory-only opening, destination-derived safe unlinking, and complete batch preflight with meaningful tests.",
+      "files": [],
+      "expectations": [
+        "Inspection rejects traversal, escaping links, special files, and oversized input, with nonblocking open and opened-file checks rather than only a size limit.",
+        "The response preserves source syntax and link destinations in previews, separates human terminal escaping from JSON, and opens only a revalidated directory.",
+        "Unlink derives source verification from the destination link and returns unchanged for an absent destination without source lookup.",
+        "Force is limited to removing a symlink and cannot bypass safe-parent checks or delete regular files, directories, or package contents.",
+        "The complete batch is checked and previewed before confirmation or writes, preserves unselected entries, and is not described as atomic.",
+        "The review proposes observable failure cases and does not edit files, run commands under review, or claim the tests passed."
+      ]
     }
   ]
 }

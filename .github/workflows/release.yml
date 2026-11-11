@@ -1,18 +1,14 @@
-name: Prepare release
+name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: Existing reviewed release tag (vYY.M.P)
-        required: true
-        type: string
+  push:
+    tags: ["v*.*.*"]
 
 permissions:
   contents: read
 
 concurrency:
-  group: release-${{ inputs.tag }}
+  group: release-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -24,13 +20,11 @@ jobs:
       tag-object: ${{ steps.candidate.outputs.tag-object }}
       version: ${{ steps.candidate.outputs.version }}
     steps:
-      - name: Require dispatch from main
+      - name: Require a canonical release tag
         env:
-          REF: ${{ github.ref }}
-          TAG: ${{ inputs.tag }}
+          TAG: ${{ github.ref_name }}
         run: |
           set -euo pipefail
-          test "$REF" = refs/heads/main
           [[ "$TAG" =~ ^v[0-9]{2}\.([1-9]|1[0-2])\.(0|[1-9][0-9]*)$ ]]
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -39,10 +33,13 @@ jobs:
       - name: Resolve and validate release candidate
         id: candidate
         env:
-          TAG: ${{ inputs.tag }}
+          TAG: ${{ github.ref_name }}
         run: |
           set -euo pipefail
+          test "$(git cat-file -t "refs/tags/$TAG")" = tag
           commit=$(git rev-parse --verify "refs/tags/$TAG^{commit}")
+          test "$commit" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD)" = "$commit"
           tag_object=$(git rev-parse --verify "refs/tags/$TAG")
           git merge-base --is-ancestor "$commit" origin/main
           git checkout --detach "$commit"
@@ -51,7 +48,10 @@ jobs:
           grep -Fx "  version: \"$version\"" recipe/recipe.yaml
           grep -Fx '  name: agent-skill-conda-plugin-skill' recipe/recipe.yaml
           grep -Fx '  number: 0' recipe/recipe.yaml
-          grep -F "## $version" CHANGELOG.md
+          awk -v version="$version" '
+            $1 == "##" && $2 == version { found = 1 }
+            END { exit !found }
+          ' CHANGELOG.md
           test "${version%.*}" = "$(date -u +%y.%-m)"
           printf 'commit=%s\ntag-object=%s\nversion=%s\n' \
             "$commit" "$tag_object" "$version" >> "$GITHUB_OUTPUT"
@@ -69,14 +69,16 @@ jobs:
     name: Prepare reviewed release draft
     needs: [prepare, checks]
     runs-on: ubuntu-latest
-    environment: release
     permissions:
       actions: read # Download artifacts from this workflow run.
-      contents: write # Create a draft and upload its assets, never publish.
+      contents: write # Create a draft and upload its assets.
+      artifact-metadata: write # Associate provenance with the exact release files.
+      attestations: write # Retain build and publication attestations on GitHub.
+      id-token: write # Obtain the GitHub identity used to sign those attestations.
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
-      TAG: ${{ inputs.tag }}
+      TAG: ${{ github.ref_name }}
       COMMIT: ${{ needs.prepare.outputs.commit }}
       TAG_OBJECT: ${{ needs.prepare.outputs.tag-object }}
       VERSION: ${{ needs.prepare.outputs.version }}
@@ -95,7 +97,7 @@ jobs:
           # Fail closed on API errors and on any existing draft or published release.
           gh api --paginate "repos/$GH_REPO/releases" --jq '.[].tag_name' > "$RUNNER_TEMP/release-tags"
           if grep -Fxq "$TAG" "$RUNNER_TEMP/release-tags"; then
-            printf 'Release already exists; inspect it rather than replacing assets.\n' >&2
+            printf 'Release already exists. Inspect it before retrying.\n' >&2
             exit 1
           fi
           shopt -s nullglob
@@ -116,12 +118,58 @@ jobs:
               build_number: 0, workflow_commit: $workflow_commit, workflow_run: $run,
               run_attempt: $attempt, canonical_platform: "linux-64"}' \
             > "$RUNNER_TEMP/release-assets/release-manifest.json"
-      - name: Checksum and create draft only
+      - name: Attest release artifacts
+        id: provenance
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: ${{ runner.temp }}/release-assets/*
+      - name: Attest conda publication
+        id: publication
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: ${{ runner.temp }}/release-assets/*.conda
+          predicate-type: https://schemas.conda.org/attestations-publish-1.schema.json
+          predicate: '{"targetChannel":"https://conda.anaconda.org/jezdez"}'
+      - name: Verify and retain attestations
+        working-directory: ${{ runner.temp }}/release-assets
+        env:
+          BUILD_BUNDLE: ${{ steps.provenance.outputs.bundle-path }}
+          PUBLICATION_BUNDLE: ${{ steps.publication.outputs.bundle-path }}
+        run: |
+          set -euo pipefail
+          identity=(--repo "$GH_REPO"
+            --signer-workflow "$GH_REPO/.github/workflows/release.yml"
+            --signer-digest "$GITHUB_SHA" --source-digest "$COMMIT"
+            --source-ref "$GITHUB_REF"
+            --cert-oidc-issuer https://token.actions.githubusercontent.com
+            --deny-self-hosted-runners)
+          for artifact in "conda-plugin-skill-$VERSION.zip" ./*.conda release-manifest.json; do
+            gh attestation verify "$artifact" --bundle "$BUILD_BUNDLE" "${identity[@]}"
+          done
+          packages=(./*.conda)
+          gh attestation verify "${packages[0]}" --bundle "$PUBLICATION_BUNDLE" \
+            "${identity[@]}" \
+            --predicate-type https://schemas.conda.org/attestations-publish-1.schema.json \
+            --format json > "$RUNNER_TEMP/verified-publication.json"
+          jq -e 'length == 1 and all(.[];
+            .verificationResult.statement.predicate.targetChannel ==
+              "https://conda.anaconda.org/jezdez")' \
+            "$RUNNER_TEMP/verified-publication.json" >/dev/null
+          cp "$BUILD_BUNDLE" build-provenance.sigstore.json
+          cp "$PUBLICATION_BUNDLE" "${packages[0]}.sigstore.json"
+          sha256sum "conda-plugin-skill-$VERSION.zip" ./*.conda \
+            release-manifest.json ./*.sigstore.json > SHA256SUMS
+          sha256sum --check SHA256SUMS
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-assets-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/release-assets/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Create GitHub draft
         working-directory: ${{ runner.temp }}/release-assets
         run: |
           set -euo pipefail
-          sha256sum "conda-plugin-skill-$VERSION.zip" ./*.conda release-manifest.json > SHA256SUMS
-          sha256sum --check SHA256SUMS
           gh api "repos/$GH_REPO/contents/CHANGELOG.md?ref=$COMMIT" \
             -H 'Accept: application/vnd.github.raw+json' > "$RUNNER_TEMP/CHANGELOG.md"
           awk -v version="$VERSION" '
@@ -133,8 +181,102 @@ jobs:
             selected { print; if ($0 ~ /[^[:space:]]/) nonempty = 1 }
             END { if (!nonempty) exit 1 }
           ' "$RUNNER_TEMP/CHANGELOG.md" > "$RUNNER_TEMP/release-notes.md"
-          # Never use --clobber, implicit tags, or automatic publication.
+          # Publication waits for the protected Anaconda upload.
           gh release create "$TAG" --verify-tag --draft --latest=false \
             --title "$VERSION" --notes-file "$RUNNER_TEMP/release-notes.md" \
-            "conda-plugin-skill-$VERSION.zip" ./*.conda release-manifest.json SHA256SUMS
+            "conda-plugin-skill-$VERSION.zip" ./*.conda release-manifest.json \
+            ./*.sigstore.json SHA256SUMS
+          gh release view "$TAG" --json url --jq .url >> "$GITHUB_STEP_SUMMARY"
+
+  publish-conda:
+    name: Publish to Anaconda.org
+    needs: [prepare, draft]
+    runs-on: ubuntu-latest
+    environment:
+      name: anaconda
+      url: https://anaconda.org/jezdez/agent-skill-conda-plugin-skill
+    permissions:
+      contents: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ github.ref_name }}
+      TAG_OBJECT: ${{ needs.prepare.outputs.tag-object }}
+      VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.prepare.outputs.commit }}
+          persist-credentials: false
+          sparse-checkout: |
+            pixi.toml
+            pixi.lock
+          sparse-checkout-cone-mode: false
+      - uses: prefix-dev/setup-pixi@ad1da6449d9e506fd127fd67ab2d054a769f6a94 # v0.11.2
+        with:
+          locked: true
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-assets-${{ github.run_id }}-${{ github.run_attempt }}
+          path: release-assets
+      - name: Verify package and refuse existing channel release
+        working-directory: release-assets
+        run: |
+          set -euo pipefail
+          sha256sum --check SHA256SUMS
+          test "$(gh api "repos/$GH_REPO/git/ref/tags/$TAG" --jq .object.sha)" = "$TAG_OBJECT"
+          shopt -s nullglob
+          packages=(*.conda)
+          test "${#packages[@]}" -eq 1
+          "$GITHUB_WORKSPACE/.pixi/envs/default/bin/rattler-build" package inspect \
+            --json --no-config "${packages[0]}" > "$RUNNER_TEMP/package.json"
+          jq -e --arg version "$VERSION" --arg filename "${packages[0]}" '
+            .index | .name == "agent-skill-conda-plugin-skill" and
+            .version == $version and .build_number == 0 and
+            .noarch == "generic" and .subdir == "noarch" and
+            $filename == (.name + "-" + .version + "-" + .build + ".conda")
+          ' "$RUNNER_TEMP/package.json" >/dev/null
+          status=$(curl -sS --connect-timeout 10 --max-time 30 \
+            -o /dev/null -w '%{http_code}' \
+            "https://api.anaconda.org/release/jezdez/agent-skill-conda-plugin-skill/$VERSION")
+          if [ "$status" != 404 ]; then
+            echo "Anaconda.org release exists or could not be checked." >&2
+            exit 1
+          fi
+          printf 'PACKAGE=%s\n' "${packages[0]}" >> "$GITHUB_ENV"
+      - name: Upload verified package
+        working-directory: release-assets
+        env:
+          ANACONDA_API_KEY: ${{ secrets.ANACONDA_API_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$ANACONDA_API_KEY"
+          unset ANACONDA_FORCE ANACONDA_SERVER_URL
+          "$GITHUB_WORKSPACE/.pixi/envs/default/bin/rattler-build" upload \
+            --no-config anaconda --owner jezdez --channel main "$PACKAGE"
+
+  publish-github:
+    name: Publish GitHub release
+    needs: [prepare, draft, publish-conda]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Publish the verified draft after the Anaconda upload.
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ github.ref_name }}
+      TAG_OBJECT: ${{ needs.prepare.outputs.tag-object }}
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-assets-${{ github.run_id }}-${{ github.run_attempt }}
+          path: expected-assets
+      - name: Verify draft assets and finalize
+        run: |
+          set -euo pipefail
+          test "$(gh api "repos/$GH_REPO/git/ref/tags/$TAG" --jq .object.sha)" = "$TAG_OBJECT"
+          gh release view "$TAG" --json isDraft --jq .isDraft | grep -Fx true
+          gh release download "$TAG" --dir draft-assets
+          diff --recursive --brief expected-assets draft-assets
+          gh release edit "$TAG" --draft=false --latest
           gh release view "$TAG" --json url --jq .url >> "$GITHUB_STEP_SUMMARY"

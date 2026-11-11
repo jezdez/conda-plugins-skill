@@ -43,7 +43,7 @@ html_theme = "conda_sphinx_theme"
 myst_enable_extensions = ["colon_fence"]
 ```
 
-Declare the corresponding packages in the repository's documentation environment. Extend its existing configuration instead of replacing it. Enable additional MyST extensions such as `deflist`, `fieldlist`, or `tasklist` only when the content uses them. Autodoc, Napoleon, intersphinx, Mermaid, and generated CLI help should each serve an actual documentation need. Regenerate `pixi.lock` after changing Pixi dependencies or tasks.
+Declare the corresponding packages in the repository's documentation environment. Extend its existing configuration instead of replacing it. Enable additional MyST extensions such as `deflist`, `fieldlist`, or `tasklist` only when the content uses them. Autodoc, Napoleon, intersphinx, Mermaid, and generated CLI help should each serve an actual documentation need. Regenerate the owning lockfile after changing dependencies or tasks.
 
 MyST supplies Markdown authoring with Sphinx directives and roles. `sphinx-design` supplies presentation components. Enable MyST's [`colon_fence`](https://myst-parser.readthedocs.io/en/latest/syntax/optional.html#colon-fences) extension for nested colon-fenced directives. Use longer fences around containers than around their children.
 
@@ -97,6 +97,8 @@ A tutorial should run from its stated starting conditions. Include the complete 
 
 Install the plugin into the environment that runs conda, and make that relationship clear to the reader. Generated CLI-help directives also need the installed plugin in the documentation environment. Do not assume that building HTML executes shell blocks or validates sample output.
 
+User installation instructions should use conda or the project's supported conda-pypi workflow in that environment. Keep conda-workspaces setup in contributor or package-build instructions unless workspaces are themselves the feature being taught. In a first-use tutorial, introduce source environment selection separately from destination scope. Explain package ownership separately from trust in the package's contents.
+
 Use current published installation commands when describing a release. Label development-only installation or unreleased behavior explicitly. Show actual output or clearly identify an excerpt. Explain values that can vary by platform, solver result, or version instead of presenting a transient package count as guaranteed.
 
 Keep claims precise. Format validation, inventory completeness, signature verification, and publisher authorization prove different things. Explain compatibility with adjacent tools in practical terms. For example, workspace documentation should explain which manifests it reads and which operations conda performs.
@@ -134,7 +136,7 @@ Prepare fixtures and machine setup under VHS `Hide`, then `Show` the user-facing
 
 Use real plugin commands and their real output. Show genuine Tab completion when teaching completion. Keep first-run setup and later cache reuse distinguishable. Disclose omitted installation or image-build waits when they would change the viewer's expectations. A demo is not a timing benchmark.
 
-Allocate disposable demo state with `mktemp`, check allocation success, and clean up only the directory allocated for that recording. Use plugin-specific cache and state settings where available. Keep credentials and personal paths out of fixtures and frames. Record from the intended development environment without modifying the user's real environments or shell configuration.
+Allocate disposable demo state with `mktemp`, check allocation success, and clean up only the directory allocated for that recording. Put example source environments under that temporary prefix instead of reusing a fixed named environment. Use plugin-specific cache and state settings where available. Keep credentials and personal paths out of fixtures and frames. Record from the intended development environment without modifying the user's real environments or shell configuration.
 
 After installing the [bundled greet example](plugin-guide.md#install-and-run-the-example), this `demos/greet.tape` demonstrates the shared setup and a real result:
 

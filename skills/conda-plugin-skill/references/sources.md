@@ -6,28 +6,55 @@ These public sources were checked on 23 October 2026. Each GitHub file link pins
 
 ## Conda-skills follow-up
 
-The conda-skills implementation was reviewed on 6 November 2026 at `68665e9b71d0f287da71f5ec123ad76fcf8318de`. The checkout also contained uncommitted release work, which is not represented by these pinned links and is not the source of the practices below.
+The committed conda-skills implementation was reviewed on 11 November 2026 at `40f1076d4efdde66beb1bd690f20ee6b706ca1b3`, through the 0.2.2 preparation commit. These links describe committed source and workflow behavior. They do not verify hosted CI, package publication, or native-platform execution during this review.
 
 | Bundled practice | Source of the synthesis |
 | --- | --- |
-| [testing.md](testing.md): file-based fresh-process discovery and isolated CLI subprocesses | [Plugin tests][skills-plugin-tests] run the test file outside the checkout and permit only lightweight parser imports. [CLI fixtures][skills-cli-fixtures] remove inherited conda settings and isolate home, condarc, and `PYTHONPATH`. The revised greet example adapts those patterns. |
-| [architecture.md](architecture.md): shared validation with distinct authoring and installed state | [Skill model][skills-model] owns loading, validation, and skeleton creation. [Quickstart][skills-quickstart] keeps pending authoring inputs separate from installed selection. |
-| [cli-and-processes.md](cli-and-processes.md): literal terminal text, link boundaries, explicit scope, and interactive confirmation | [Output helpers][skills-output], [link operations][skills-links], [dispatch][skills-main], and [quickstart][skills-quickstart] supply concrete implementations. These patterns do not establish resistance to concurrent filesystem replacement or correctness of every failure path. |
-| [testing.md](testing.md): use the repository's existing conda-workspaces toolchain and scope development dependencies | [Committed instructions][skills-rules] and [workspace manifest][skills-workspace] define locked installation, named tasks, feature scopes, and subprocess coverage. Hatchling, Rich, a 95% coverage threshold, and the environment names are local choices, not new defaults for other plugins. |
+| [architecture.md](architecture.md): lightweight parser setup and helper extraction | [Registration][skills-plugin] and [parser configuration][skills-parser] keep execution imports deferred. [Instructions][skills-rules] allow one-caller extraction when it clarifies inputs, ordering, or testing, following commit `2b5105d`. |
+| [architecture.md](architecture.md): distinct authoring and installed state | [Skill model][skills-model] owns loading, validation, skeleton creation, file enumeration, and bounded reads. [Quickstart][skills-quickstart] keeps authoring inputs separate from frozen installed selections. |
+| [cli-and-processes.md](cli-and-processes.md): safe source previews and directory opening | [File reads][skills-model], [inspection][skills-inspect], and [directory opening][skills-open] implement commit `a5ef37d`. The 1 MiB read limit is this project's choice. Descriptor and containment checks do not prove resistance to every concurrent filesystem replacement. |
+| [cli-and-processes.md](cli-and-processes.md): destination-derived removal and filesystem status | [Link operations][skills-links], [dispatch][skills-main], and [unlink tests][skills-unlink-tests] cover commit `0f4b4e4`. The destination identifies the source to verify, while forced recovery still protects files, directories, and redirected parents. |
+| [cli-and-processes.md](cli-and-processes.md): literal terminal text, explicit scope, and batch preflight | [Output helpers][skills-output] and [quickstart][skills-quickstart] preserve literal data and explicit home authorization. [Batch tests][skills-quickstart-tests] cover preview, conflict detection before confirmation, and preservation of unselected links from commit `628715e`. |
+| [plugin-guide.md](plugin-guide.md) and [testing.md](testing.md): native aliases and installed discovery | [Registration][skills-plugin], [plugin tests][skills-plugin-tests], and [installed round trips][skills-dispatch-tests] cover `CondaSubcommand.aliases` and commit `b436b2d`. [CLI fixtures][skills-cli-fixtures] isolate home, condarc, and inherited conda settings. The greet tests adapt the earlier file-based discovery pattern. |
+| [testing.md](testing.md): artifact imports, source inventories, and generated packages | [Wheel test][skills-wheel-test] and [smoke script][skills-smoke] run outside the checkout and verify the imported location. [Build metadata][skills-project] includes shared fixtures in the sdist. [Tutorial checks][skills-tutorial-test] build, install, and discover generated packages. |
+| [architecture.md](architecture.md) and [testing.md](testing.md): workspace tooling and one resolved version | [Workspace manifest][skills-workspace], [Python metadata][skills-project], and [recipe][skills-recipe] provision conda through channels, separate locked installs from named tasks, and resolve the conda version through Hatchling. Commits `23e67f1` and `8e33518` replace the duplicated recipe version and custom release script. Hatchling, Rich, environment names, and the 95% coverage threshold remain local choices. |
+| [verification.md](verification.md): release dependencies and exact artifacts | [Release workflow][skills-release] depends on the complete [reusable tests][skills-tests] after commit `a333d8c`. [Conda publication][skills-publish] builds from the digest-verified published sdist, attests the stored package, and uploads through a protected environment. [Release guidance][skills-releasing] records partial-publication recovery and separate external publisher setup. |
+| [documentation.md](documentation.md): user installation and isolated examples | [Installation guide][skills-installation] separates user setup from contributor tooling. [Installed-skill tutorial][skills-use] distinguishes source selection, destination scope, and trust. [Demo setup][skills-demo-setup] and [skill-forge tape][skills-demo-forge] use disposable state and an explicit temporary source prefix. |
 
-The review also reproduced a cyclic-link failure in [filesystem status][skills-links] on Python 3.11.18 with conda 26.9.4: a self-referential link was classified as broken, but resolving its target raised `RuntimeError`. The same probe succeeded on Python 3.14.10. The recommendation to distinguish cycles from dangling links and test minimum/current Python follows from that failure, not from a claim that the pinned implementation already handles it. Both runs were on macOS ARM64.
+The earlier review at `68665e9b71d0f287da71f5ec123ad76fcf8318de` reproduced a cyclic-link failure on Python 3.11.18 with conda 26.9.4, while the same probe succeeded on Python 3.14.10. Both runs were on macOS ARM64. Commit `fee7aa8` subsequently added cycle handling and regression coverage in [link operations][skills-links] and [link tests][skills-link-tests]. The recommendation to test minimum and current Python remains applicable. The old reproduction is historical evidence, not a current failure claim.
 
-The archive-integrity distinction in [verification.md](verification.md#separate-archive-integrity-from-metadata-checks) was checked with a disposable source archive missing its final eight gzip bytes. Its strict Twine metadata check passed while a complete gzip read raised `EOFError`. This is a review-derived test case, not a claim about published artifacts or a pinned release workflow. Release helpers changed during the review, so results from removed implementations were not carried forward.
+The archive-integrity distinction in [verification.md](verification.md#separate-archive-integrity-from-metadata-checks) originally came from a disposable source archive missing its final eight gzip bytes. Strict Twine metadata validation passed while a complete gzip read raised `EOFError`. The current [release workflow][skills-release] uses `gzip -t` before recording the source digest. Tests of removed custom release helpers are not evidence for their replacement.
 
-[skills-plugin-tests]: https://github.com/jezdez/conda-skills/blob/68665e9b71d0f287da71f5ec123ad76fcf8318de/tests/test_plugin.py
-[skills-cli-fixtures]: https://github.com/jezdez/conda-skills/blob/68665e9b71d0f287da71f5ec123ad76fcf8318de/tests/cli/conftest.py
-[skills-model]: https://github.com/jezdez/conda-skills/blob/68665e9b71d0f287da71f5ec123ad76fcf8318de/src/conda_skill/skills.py
-[skills-quickstart]: https://github.com/jezdez/conda-skills/blob/68665e9b71d0f287da71f5ec123ad76fcf8318de/src/conda_skill/cli/quickstart.py
-[skills-output]: https://github.com/jezdez/conda-skills/blob/68665e9b71d0f287da71f5ec123ad76fcf8318de/src/conda_skill/cli/output.py
-[skills-links]: https://github.com/jezdez/conda-skills/blob/68665e9b71d0f287da71f5ec123ad76fcf8318de/src/conda_skill/links.py
-[skills-main]: https://github.com/jezdez/conda-skills/blob/68665e9b71d0f287da71f5ec123ad76fcf8318de/src/conda_skill/cli/main.py
-[skills-rules]: https://github.com/jezdez/conda-skills/blob/68665e9b71d0f287da71f5ec123ad76fcf8318de/AGENTS.md
-[skills-workspace]: https://github.com/jezdez/conda-skills/blob/68665e9b71d0f287da71f5ec123ad76fcf8318de/conda.toml
+[skills-plugin]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/src/conda_skill/plugin.py
+[skills-parser]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/src/conda_skill/cli/parser.py
+[skills-rules]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/AGENTS.md
+[skills-model]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/src/conda_skill/skills.py
+[skills-quickstart]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/src/conda_skill/cli/quickstart.py
+[skills-inspect]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/src/conda_skill/cli/inspect.py
+[skills-open]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/src/conda_skill/cli/open.py
+[skills-links]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/src/conda_skill/links.py
+[skills-main]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/src/conda_skill/cli/main.py
+[skills-unlink-tests]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/tests/cli/test_unlink.py
+[skills-output]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/src/conda_skill/cli/output.py
+[skills-quickstart-tests]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/tests/cli/test_quickstart.py
+[skills-plugin-tests]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/tests/test_plugin.py
+[skills-dispatch-tests]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/tests/cli/test_dispatch.py
+[skills-cli-fixtures]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/tests/cli/conftest.py
+[skills-wheel-test]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/scripts/test_wheel.py
+[skills-smoke]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/scripts/smoke_plugin.py
+[skills-project]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/pyproject.toml
+[skills-workspace]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/conda.toml
+[skills-recipe]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/recipe/recipe.yaml
+[skills-release]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/.github/workflows/release.yml
+[skills-tests]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/.github/workflows/tests.yml
+[skills-publish]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/.github/workflows/publish-conda.yml
+[skills-releasing]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/RELEASING.md
+[skills-link-tests]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/tests/test_links.py
+[skills-tutorial-test]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/scripts/test_tutorial.py
+[skills-installation]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/docs/how-to/installation.md
+[skills-use]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/docs/how-to/use-an-installed-skill.md
+[skills-demo-setup]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/demos/setup.sh
+[skills-demo-forge]: https://github.com/jezdez/conda-skills/blob/40f1076d4efdde66beb1bd690f20ee6b706ca1b3/demos/skill-forge.tape
 
 ## Architecture, formats and solvers
 

@@ -37,7 +37,6 @@ build-backend = "setuptools.build_meta"
 name = "conda-greet"
 version = "0.1.0"
 requires-python = ">=3.10"
-dependencies = ["conda>=26.5"]
 
 [project.entry-points.conda]
 conda-greet = "conda_greet.plugin"
@@ -119,6 +118,8 @@ The `add_output_and_prompt_options` helper already adds output and prompt flags,
 
 The registration module and package initializer must stay cheap to import. An unrelated `conda info` should not import `conda_greet.cli`. For a larger plugin, also avoid importing solver engines, HTTP clients, serializers, or optional packages while setting up help.
 
+When the supported conda API provides `CondaSubcommand.aliases`, use it for aliases that share a command's parser and action. Check the declared minimum version and exercise an alias through installed CLI discovery.
+
 ## Install and run the example
 
 Conda discovers entry points installed in its own Python environment. Merely placing source on disk, installing into the target environment being inspected, or activating another environment does not make base conda discover the plugin.
@@ -133,9 +134,9 @@ conda run -n conda-plugin-dev python -m conda greet --name Ada --json
 conda run -n conda-plugin-dev python -m conda --json greet --name Ada
 ```
 
-Run these from the example directory. The JSON commands should each emit `{"greeting": "Hello, Ada!"}` as the complete stdout document. Provisioning the dependencies first is why this editable install uses `--no-deps --no-build-isolation`. Do not use `pip install conda` as the environment bootstrap.
+Run these from the example directory. The JSON commands should each emit `{"greeting": "Hello, Ada!"}` as the complete stdout document. Provisioning the dependencies first is why this editable install uses `--no-deps --no-build-isolation`. Conda's requirement belongs in the workspace environment and, when packaging for conda, the recipe's runtime dependencies. It is omitted from this example's wheel dependencies because conda is supplied through conda channels. Do not use `pip install conda` as the environment bootstrap.
 
-In an existing Pixi project, use its declared conda dependency and editable installation instead of introducing a second environment workflow. Read the task definitions before choosing an environment name.
+In an existing conda-workspaces or Pixi project, use its declared conda dependency and editable installation. Read the task definitions before choosing an environment name. See [testing.md](testing.md#complete-the-required-checks) for locked workspace installation and named task execution.
 
 If discovery fails, check the interpreter, installed distribution metadata, entry-point group, import target, disabled-plugin settings, and name conflicts. Reproduce through `python -m conda` in a fresh process before changing the implementation.
 

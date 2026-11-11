@@ -1,6 +1,6 @@
 # Conda plugin skill
 
-Agent instructions and worked examples for developing conda plugins with Codex, Kilo, or Claude Code. This repository is private and shared with colleagues.
+Agent instructions and worked examples for developing conda plugins with Codex, Kilo, or Claude Code.
 
 The [conda-plugin-skill](skills/conda-plugin-skill/SKILL.md) helps an agent work through decisions such as which hook to use, how to keep plugin discovery cheap, and how to test the installed plugin. It also covers documentation and terminal demos. The guidance comes from Jannis Leidel's recent conda plugins and their `AGENTS.md` files. Instructions and examples are included in the skill, with [source links](skills/conda-plugin-skill/references/sources.md) for readers who want to trace a recommendation.
 
@@ -25,9 +25,9 @@ Install the required companions from the sources below. The [Skills CLI docs](ht
 | `blader/humanizer` | `humanizer` |
 | `DietrichGebert/ponytail/skills` | All skills |
 
-You need read access to this repository. Follow the CLI's [private-repository instructions](https://github.com/vercel-labs/skills/blob/main/docs/commands.md#private-repositories) for Git credentials, GitHub CLI, or SSH authentication. Review its [privacy settings](https://github.com/vercel-labs/skills/blob/main/docs/troubleshooting.md#telemetry) before installing.
+Review the CLI's [privacy settings](https://github.com/vercel-labs/skills/blob/main/docs/troubleshooting.md#telemetry) before installing.
 
-Keep complete skill folders, including references and helper scripts. Superpowers and Ponytail refer to files in sibling skills, so install their full collections. On Windows, preserve LF line endings in companion Bash scripts. Review existing installations before replacing them, and only commit private skills and installation lockfiles where their intended audience has access.
+Keep complete skill folders, including references and helper scripts. Superpowers and Ponytail refer to files in sibling skills, so install their full collections. On Windows, preserve LF line endings in companion Bash scripts. Review existing installations before replacing them.
 
 ## Use it
 
@@ -96,11 +96,22 @@ The packaging follows [skill-forge](https://github.com/pavelzw/skill-forge): a t
 
 Build it with `pixi run --locked build-conda`, with output under `dist/conda/noarch/`. The ZIP build remains `pixi run --locked build`. Both distributions include the skill's references and license notices. Neither bundles Superpowers, Humanizer, or Ponytail. Install those required companions separately.
 
-[pixi-skills](https://github.com/pavelzw/pixi-skills) links packaged skills into client directories. Use its generic `agents` backend for `.agents/skills/` and its `claude` backend for `.claude/skills/`. With pixi-skills 0.1.7 and Pixi 0.83.0 on macOS arm64, a disposable installation discovered the renamed skill and both backend APIs created relative links exposing all 11 files byte for byte. CLI list/status and link removal also passed. Native Codex, Kilo, and Claude Code discovery through these links has not been tested.
+[conda-skills](https://github.com/jezdez/conda-skills) discovers the installed package and links it into client directories. Install that plugin in the environment running conda. Install the skill package in your chosen source environment, then run from your project directory:
 
-No conda channel has been selected or received an upload. The conda package is available as a GitHub Release asset. The skill-forge channel is an upstream example, not a publication destination for this repository. Channel installation commands will be documented once an authorized channel exists.
+```sh
+conda skill list
+conda skill inspect conda-plugin-skill
+conda skill link conda-plugin-skill
+conda skill status
+```
 
-Version [26.11.0](https://github.com/jezdez/conda-plugin-skill/releases/tag/v26.11.0) is released. This checkout prepares `26.11.1`, build number `0`, which is not released. The canonical version is `package.version` in `recipe/recipe.yaml`. Releases use UTC calendar versions and tags of the form `vYY.M.P`, with no leading zero on the month. A manually triggered workflow prepares a draft and checksums; maintainers review the files before immutable publication. See the [release procedure](CONTRIBUTING.md#release-process) for setup and approval steps.
+These commands use the active source environment and the project's `.agents/skills/` destination. Use `-n NAME` or `-p PREFIX` on `list`, `inspect`, and `link` to select another source environment. Use `--backend claude` for `.claude/skills/`, or explicit `--global` for home destinations. `conda skill unlink conda-plugin-skill` removes the project link without deleting the installed package. Required companions still need separate installation.
+
+[pixi-skills](https://github.com/pavelzw/pixi-skills) also supports this package layout through its `agents` and `claude` backends. Native Codex, Kilo, and Claude Code discovery through these links has not been tested.
+
+The selected publication destination is the public `jezdez` channel's `main` label on Anaconda.org. The first channel upload is pending. Until it is verified, use the `.conda` asset from a GitHub Release or a local build. See the [release procedure](CONTRIBUTING.md#release-process) for artifact verification and publication.
+
+Version [26.11.0](https://github.com/jezdez/conda-plugin-skill/releases/tag/v26.11.0) is released. This checkout prepares `26.11.1`, build number `0`, which is not released. The canonical version is `package.version` in `recipe/recipe.yaml`. Releases use UTC calendar versions and tags of the form `vYY.M.P`, with no leading zero on the month. An authorized release tag triggers cross-platform checks, artifact signing, a protected Anaconda.org upload, and GitHub publication after that upload succeeds. See the [release procedure](CONTRIBUTING.md#release-process) for setup and approval steps.
 
 ## Required companion skills
 

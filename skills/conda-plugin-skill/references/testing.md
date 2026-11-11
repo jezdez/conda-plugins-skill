@@ -183,11 +183,18 @@ Use plain pytest functions and fixtures for new tests unless repository guidance
 | Process execution | Preserved argv including empty arguments, status, cancellation, activation changes, parent state unchanged |
 | State files | Previous file survives failed writes, temporary files cleaned, concurrent update policy |
 | Authoring and links | Serialized metadata round-trips, generated recipe builds, installed discovery, redirected roots and parents, home-scope authorization, dangling and cyclic links on minimum/current Python, Windows cross-drive behavior |
+| Destination-based unlinking | Active environment differs from the linked source, absent destination avoids source lookup, malformed package records, relative targets containing symlinks and `..`, force removes only a symlink with safe parents |
+| File inspection and opening | Escaping paths, special files without blocking, binary and oversized content, changed file identity, literal source previews, plain piped output, complete JSON, directory-only launcher calls and failures |
+| Batch selection | Every destination previewed and checked before confirmation, cancellation writes nothing, home still requires explicit authorization, unselected links survive |
 | Optional maintenance | Failure preserves the original command's result without hiding diagnostics |
 
 Use deterministic local responses for network and credential tests. Live-service tests should be opt-in and separately reported. Keep credentials and colleague environments out of fixtures.
 
 Direct operation tests and installed CLI tests serve different purposes. Use both when registration or dispatch changes. A schema-valid SBOM can still invent provenance. A successful cross-platform solve does not prove a native installation.
+
+Keep representative installed discovery and command round trips, including aliases and global output flags. Exercise detailed option combinations through direct parser and handler fixtures when another subprocess adds no coverage. For deterministic file listings, sort by the serialized name explicitly when native path comparison differs across platforms.
+
+For artifact checks, install the built wheel into disposable state and run an existing smoke-test file outside the checkout. Assert that the imported package comes from that installation, especially if the test environment shares dependencies with an editable development environment. Check installed entry points and harmless commands as well as metadata. Include shared test fixtures and required smoke scripts in explicit sdist inventories, while excluding build output. Exercise generated recipes through a real build, package installation, and discovery. Checking template filenames does not cover that workflow.
 
 For signed evidence, artifact binding, authorization, and offline or cache failures, use the [verification test cases](verification.md#test-rejection-stages).
 

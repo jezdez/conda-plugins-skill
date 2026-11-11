@@ -1,4 +1,4 @@
-# Verify signed evidence
+# Verify evidence and release artifacts
 
 When a plugin verifies attestations, archives, or cached evidence, give each check a distinct result. A cryptographically valid signature alone does not establish artifact identity, accepted statement content, or publisher authorization.
 
@@ -44,3 +44,28 @@ Build failure tests around the stage that must reject the input:
 Use local fixtures and the repository's existing verifier fakes to reach each stage. A test that fails at parsing does not prove the authorization check works.
 
 Use [testing.md](testing.md) for runtime setup, regression-test conventions, and the repository checks required before completion.
+
+## Order release jobs and preserve artifacts
+
+For a plugin publishing Python distributions and a conda package, express the required order through CI job dependencies:
+
+1. Run the complete reusable test workflow on the release commit, including the required native matrix, artifact, documentation, and workflow checks.
+2. After all required jobs succeed, validate tag identity and the [resolved package version](architecture.md#share-the-resolved-package-version), then build and test the release wheel and sdist once.
+3. Record provenance for those exact artifacts, retain their digests, and prepare the GitHub draft if the project's release process uses one.
+4. Publish those Python artifacts through the configured protected publisher.
+5. Build and test the conda package from the published sdist, verifying the digest recorded by the Python build. Preserve the version stored in that archive.
+6. Attest and verify the exact conda artifact before its protected upload. Finalize the GitHub draft only after both package publications succeed.
+
+An independent tag-triggered test workflow can still be running when a publisher starts. Make the release depend on the reusable test workflow's completion, rather than launching tests beside publication or polling historical runs. Preserve the target repository's release trigger and approval rules. Passing preparation checks does not authorize tagging, pushing, credentials changes, or publication.
+
+Use the package index's actual normalized source URL. Retry transient download failures with bounded attempts and timeouts, then check the expected digest. A digest mismatch is a verification failure. Use existing download, archive, backend, and checksum tools instead of a custom release framework when they cover the required checks.
+
+Verify publication evidence against the exact package digest, expected repository and signer workflow, source commit and ref, OIDC issuer, predicate type, and claimed target channel. Keep bundles with their artifacts. Public attestations disclose signer identities and artifact metadata. They provide evidence about those bytes and identities, without certifying package safety or enabling automatic verification in users' conda installations.
+
+Configure publisher credentials and environment protection separately from workflow definitions. Reusable workflows must declare and receive required secrets explicitly. Pin actions to full commit SHAs, scope permissions to the jobs that need them, and preserve checks that refuse an existing or unverifiable channel release. Disable upload force overrides and user configuration that could change the destination. Follow the project's declared success criteria for normal uploads. Add post-upload polling or fresh channel installations only when they serve a required check.
+
+## Recover a partial publication
+
+Publication across indexes is not atomic. Inspect the failing stage and each destination before retrying an ambiguous upload. A failed final verification step can follow a successful upload.
+
+Preserve the original artifacts and signing evidence. Compare existing filenames, versions, and digests before deciding what remains to publish. An existing filename alone is not a safe reason to skip an upload, and an uncertain result is not a reason to force it. If only GitHub finalization failed, confirm both package publications and finalize the existing draft without rebuilding or uploading again. Keep released tags and published bytes unchanged. Recovery that publishes or changes a release requires authorization for those actions.

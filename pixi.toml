@@ -17,6 +17,6 @@ links = "lychee --offline --include-fragments '*.md' 'skills/**/*.md'"
 workflows = "actionlint -ignore '^reusable workflow call \"\\$/\\.github/workflows/checks\\.yml\" at \"uses\" is not following the format'"
 check = { depends-on = ["prek"] }
 build = { cmd = "mkdir -p ../dist && python -m zipfile --create ../dist/conda-plugin-skill.zip conda-plugin-skill && python -m zipfile --test ../dist/conda-plugin-skill.zip", cwd = "skills", depends-on = ["check"] }
-build-conda = { cmd = "rattler-build build --recipe recipe/recipe.yaml --output-dir dist/conda --no-config", depends-on = ["check"] }
+build-conda = { cmd = "rattler-build build --recipe recipe/recipe.yaml --output-dir dist/conda --no-config --no-include-recipe", depends-on = ["check"] }
 prek = "prek run --all-files"
 install-hooks = "prek install"

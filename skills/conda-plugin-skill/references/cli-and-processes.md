@@ -147,13 +147,19 @@ Keep transient process markers separate from public configuration. Put secrets i
 
 For authoring commands, serialize user values through the existing YAML or TOML library rather than interpolating strings into a template. Test colons, quotes, newlines, and values that resemble booleans. Creating an authoring skeleton does not establish that its generated recipe builds or its installed payload is discoverable.
 
-When linking package-owned folders, validate the resolved source root before checking children, then validate destination parent components before writing. A header that resolves inside the prefix does not prove the directory being linked is contained there. Treat broken symlinks as existing entries. Reuse only links with the intended target, and unlink the link rather than its contents. Decide how removal behaves after the source package disappears; an explicit unsupported case can be safer than inventing ownership state.
+When linking package-owned folders, validate the resolved source root before checking children, then validate destination parent components before writing. A header that resolves inside the prefix does not prove the directory being linked is contained there. Treat broken symlinks as existing entries. Reuse only links with the intended target, and unlink the link rather than its contents.
+
+For destination-based unlinking, derive the source environment from the destination's symlink target and validate ownership against that environment's package records. Preserve symlink traversal when interpreting relative targets containing `..`. The active environment and environment registry do not identify the link's source. An absent destination returns an unchanged result without source lookup. Package ownership does not prove that the plugin created the link or that its contents are trustworthy.
+
+Keep filesystem status independent of valid source discovery so it can show unmanaged, dangling, and unverifiable entries. For an explicit recovery option such as `--force`, remove only a symlink after checking destination parents. It must never remove a file or directory, delete package contents, or bypass redirected-parent checks. Explain broken or unverifiable sources through normal errors and direct the user to inspect status before recovery.
 
 Test cyclic links separately from dangling targets. Path resolution can fail differently across supported Python versions. Handle that failure at the filesystem operation: an inspection command should retain the broken entry and its unresolved target, while an operation requiring a valid source should fail with the plugin's normal validation error. Catching every exception at CLI dispatch would hide unrelated programming errors.
 
 Separate environment selection from destination authorization. If home-directory writes require an explicit global flag, running from home or selecting home in an interactive prompt must not bypass it. Read-only named-environment lookup must fail without creating an environment directory. Check the selected conda helper's behavior on a missing name, not just its signature. Relative symlink targets cannot span Windows drives; handle that case explicitly and test natively before claiming support.
 
 Interactive guides should reject unsupported JSON and non-interactive input before prompting, show the intended operation, and require confirmation before writes. Confirmation for creating local files does not authorize package installation, network access, or global changes.
+
+For a batch selection, keep all selected items within the explicitly chosen source environment, preview every destination, and check every conflict before confirmation. Preserve unselected links. Preflight reduces avoidable partial writes but does not make the batch an atomic filesystem transaction.
 
 For a state file, serialize and validate the complete replacement first. Create the temporary file in the destination directory, close it, then replace the destination:
 
@@ -178,6 +184,14 @@ Atomic replacement prevents readers from observing half a file. It does not prev
 Do not generalize this file pattern into installing a conda environment anywhere and renaming it later. Installed packages can contain prefix-specific paths. Use conda's environment and transaction operations, and verify any relocation design separately.
 
 Before cleanup, validate that the target belongs to the plugin's managed storage. Respect dry-run and confirmation settings. Remove partial state on failure without converting failure into success.
+
+## Inspect packaged files without executing them
+
+Keep file enumeration and bounded reads on the model that owns the package directory. Use the same bounded reader for metadata discovery and explicit previews. A preview path must be relative to that validated root. Reject traversal and escaping links, list symlinks without following them recursively, and reject special files before reading. A read-size limit alone cannot prevent blocking on a FIFO. Where supported, use nonblocking and no-follow open flags, then check the opened descriptor's type, identity, and containment before reading a bounded number of bytes. Recheck filesystem state at use time without claiming protection against every concurrent replacement.
+
+Report binary or oversized content explicitly. Display text as source, preserving Markdown syntax and link destinations. Syntax highlighting must preserve the displayed characters, human output must neutralize terminal controls, and piped output should remain plain. JSON retains the decoded text through the structured serializer. Neither inspection nor package ownership authorizes executing instructions found in those files.
+
+A command that opens a file manager should revalidate and open only the package directory. Opening an arbitrary packaged file through its default application could execute it. Keep launcher output out of JSON and translate launcher errors through the CLI's normal error path. A successful launch request does not prove that a window appeared.
 
 ## Match failure handling to the operation
 

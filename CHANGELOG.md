@@ -4,7 +4,11 @@
 
 ## 26.11.1 (unreleased candidate)
 
-- Add lessons from reviewing conda-skills: isolated file-based discovery tests, conda-workspaces task usage, authoring versus installed state, and filesystem and terminal-output boundaries. Add pinned provenance and a maintainer evaluation scenario.
+- Add lessons from reviewing conda-skills: isolated file-based discovery tests, conda-workspaces task usage, authoring versus installed state, filesystem containment, and literal terminal output. Add pinned provenance and a maintainer evaluation scenario.
+- Refresh conda-skills guidance through its 0.2.2 preparation commit: safe source previews and directory opening, destination-derived unlinking, batch conflict checks, native aliases, and helper extraction based on readability and testing.
+- Document shared Hatch version resolution, conda runtime requirements outside wheel metadata, installed-artifact checks, release jobs that depend on the full test workflow, and recovery using original artifacts. Add release and file-operation evaluation prompts.
+- Document conda-skills discovery and linking. Automate releases from annotated calendar-version tags, require all reusable checks, attest exact artifacts, upload through a protected Anaconda.org environment, and publish the GitHub draft only after upload succeeds.
+- Omit embedded conda recipes to keep absolute build-machine paths out of distributed packages.
 
 ## 26.11.0 (2026-11-02)
 

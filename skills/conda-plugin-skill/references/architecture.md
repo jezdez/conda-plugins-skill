@@ -16,7 +16,7 @@ Package `__init__.py` is part of that path. A lazy import in `plugin.py` achieve
 
 Put expensive and optional imports inside the selected callback. Keep ordinary imports at module scope elsewhere. Use `TYPE_CHECKING` for annotation-only imports that would load a heavy dependency at runtime. Fix circular ownership instead of scattering local imports through unrelated functions.
 
-Registration may import lightweight conda hook types. Parser setup should only describe arguments. Trust-root loading, credential lookup, network calls, solver construction, cache creation, and archive inspection belong to the invoked operation.
+Registration may import lightweight conda hook types and a lightweight parser module. Parser setup should only describe arguments. Keep command dispatch and rendering imports out of that module. Trust-root loading, credential lookup, network calls, solver construction, cache creation, and archive inspection belong to the invoked operation. Required rendering dependencies belong at module scope in the selected CLI implementation, without optional-import fallbacks.
 
 For an optional dependency, allow unrelated commands and help to work without it. At the operation that needs it, report the missing feature and how to enable it. Catch a missing optional package narrowly. Do not reinterpret an `ImportError` inside a broken dependency as proof that the dependency is simply absent.
 
@@ -47,10 +47,12 @@ Keep reusable operations independent of `argparse.Namespace`, terminal colors, o
 
 Check in this order:
 
-1. Does conda, stdlib, or an existing dependency provide the operation? Use it.
+1. Does existing code, a test fixture, conda, stdlib, or a dependency provide the operation? Use it.
 2. Does an existing model or adapter own the input and derived state? Add a cohesive method.
-3. Is the operation independent of an owner and used across modules? A named public function with a useful docstring can fit.
-4. Is it short glue used once? Inline it.
+3. Would a named function clarify its caller, reduce confusing nesting, or make substantial logic easier to test? Extract it, even with one caller.
+4. Would extraction obscure the order of related steps or their shared state? Keep them together. Inline trivial forwarding unless an API requires it.
+
+Review callers and helpers together, preserving state changes and error handling. Explain the specific readability or testing benefit. Function length, complexity scores, or a leading underscore alone do not justify extraction or inlining.
 
 For example, if a resolved environment already holds specifications, channels, and system requirements, expose `environment.solve_for_platform(platform)`. Avoid a private helper that takes all those fields separately and forces every caller to keep them in sync.
 
@@ -62,9 +64,17 @@ Share a package graph or format-neutral model only after actual callers need the
 
 Use a single existing library for overlapping work when it fits, such as reading and writing the same manifest. Do not add a second HTTP, configuration, locking, cryptography, or serialization stack without a concrete missing capability.
 
-Declare minimum supported versions. Use an upper bound for a demonstrated incompatibility, and explain why it exists. Provision conda through the project's conda/Pixi environment because conda is not a normal PyPI bootstrap dependency. Follow the repository's packaging policy for recording that runtime requirement.
+Declare minimum supported versions. Use an upper bound for a demonstrated incompatibility, and explain why it exists. Provision conda through a conda channel in the workspace environment and record its runtime requirement in the conda recipe. Keep it out of wheel dependencies that a PyPI resolver would try to install. Declare the remaining Python runtime dependencies in `pyproject.toml` and provision them in the project's environment tool.
 
 Use public APIs where available. If an internal conda API is necessary, isolate the dependency in the owning adapter, state the supported versions, and test the affected behavior. Do not wrap every upstream call in a private forwarding function.
+
+## Share the resolved package version
+
+For a project using Hatchling and hatch-vcs, resolve the version with `python -m hatchling version` in the checkout that has Git metadata. Pass that value to the conda recipe through a required project-specific environment variable. Avoid a separately maintained recipe version or a custom script that duplicates the backend's version command. Preserve a different project's chosen version scheme.
+
+A local conda build that copies source without `.git` can set `SETUPTOOLS_SCM_PRETEND_VERSION` inside that build to the already resolved value. A release build from a published sdist uses the archive's stored version and must not apply that override. Keep generated version files out of manual edits. A fallback version supports development without Git metadata and is not evidence of a release.
+
+On an authorized release tag, compare the backend's resolved version with the version encoded by the tag, using the repository's tag convention. Keep dated changelog notes in the manual preparation checklist. Follow the [release ordering guidance](verification.md#order-release-jobs-and-preserve-artifacts) for building and publishing the resulting artifacts.
 
 ## Keep code and prose readable
 
