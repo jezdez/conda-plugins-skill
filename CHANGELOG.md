@@ -4,8 +4,8 @@
 
 ## 26.11.1 (unreleased candidate)
 
-- Rename the repository to `jezdez/conda-plugins-skill`. Use `conda-plugins` for the skill, installed directory, and ZIP, and `agent-skill-conda-plugins` for the conda package. Install the new skill before removing an existing `conda-plugin-skill` installation.
-
+- Rename the repository to `jezdez/conda-plugins-skill`. Use `conda-plugins` for the skill and installed directory, and `agent-skill-conda-plugins` for the conda package. Install the new skill before removing an existing `conda-plugin-skill` installation.
+- Stop building and publishing custom skill ZIPs. Keep Skills CLI/Git installation and conda packages.
 - Add lessons from reviewing conda-skills: isolated file-based discovery tests, conda-workspaces task usage, authoring versus installed state, filesystem containment, and literal terminal output. Add pinned provenance and a maintainer evaluation scenario.
 - Refresh conda-skills guidance through its 0.2.2 preparation commit: safe source previews and directory opening, destination-derived unlinking, batch conflict checks, native aliases, and helper extraction based on readability and testing.
 - Document shared Hatch version resolution, conda runtime requirements outside wheel metadata, installed-artifact checks, release jobs that depend on the full test workflow, and recovery using original artifacts. Add release and file-operation evaluation prompts.

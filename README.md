@@ -77,7 +77,7 @@ If you installed `conda-plugin-skill`, install and verify `conda-plugins` in the
 
 ## Manual installation
 
-If you prefer to copy files yourself, clone the repository or download its ZIP from GitHub:
+If you prefer to copy files yourself, clone the repository:
 
 ```sh
 gh repo clone jezdez/conda-plugins-skill
@@ -96,7 +96,7 @@ These manual commands copy only `conda-plugins`. Install the three required comp
 
 The packaging follows [skill-forge](https://github.com/pavelzw/skill-forge): a text-only `noarch: generic` conda package named `agent-skill-conda-plugins`. It installs the complete skill under `share/agent-skills/conda-plugins` in the environment prefix, with no runtime dependencies or activation hooks.
 
-Build it with `pixi run --locked build-conda`, with output under `dist/conda/noarch/`. The ZIP build remains `pixi run --locked build`. Both distributions include the skill's references and license notices. Neither bundles Superpowers, Humanizer, or Ponytail. Install those required companions separately.
+Build it with `pixi run --locked build-conda`, with output under `dist/conda/noarch/`. The package includes the skill's references and license notices. Install the required Superpowers, Humanizer, and Ponytail companions separately.
 
 [conda-skills](https://github.com/jezdez/conda-skills) discovers the installed package and links it into client directories. Install that plugin in the environment running conda. Install the skill package in your chosen source environment, then run from your project directory:
 
@@ -154,17 +154,17 @@ Start with [SKILL.md](skills/conda-plugins/SKILL.md), or open a guide for the to
 - [Testing](skills/conda-plugins/references/testing.md) for runnable discovery tests, regression cases, and startup checks.
 - [Sources](skills/conda-plugins/references/sources.md) for optional provenance and pinned source examples.
 
-## Contributing and building an archive
+## Contributing and building a conda package
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) for the editing workflow and [AGENTS.md](AGENTS.md) for repository guidance. The repository uses Pixi for its locked development tools:
 
 ```sh
 pixi install --locked
 pixi run --locked check
-pixi run --locked build
+pixi run --locked build-conda
 ```
 
-The build validates the skill and writes `dist/conda-plugins.zip`, including references and license notices. Future release downloads use `conda-plugins-<version>.zip`, with `conda-plugins/` as the folder inside. Keep generated archives under `dist/`, where Git ignores them. The archive contains only `conda-plugins`. Install its companions separately using the setup above.
+The build validates the skill, creates the conda package under `dist/conda/noarch/`, and tests its installed payload. Keep generated files under `dist/`, where Git ignores them.
 
 See [CHANGELOG.md](CHANGELOG.md) for changes, [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for participation expectations, and [SECURITY.md](SECURITY.md) for private reporting.
 

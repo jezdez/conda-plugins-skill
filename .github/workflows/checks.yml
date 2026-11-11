@@ -57,8 +57,6 @@ jobs:
           locked: true
       - name: Check
         run: pixi run --locked check
-      - name: Package
-        run: pixi run --locked build
       - name: Build and test conda package
         env:
           RATTLER_CACHE_DIR: ${{ runner.temp }}/release-rattler-cache
@@ -68,8 +66,6 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            dist/conda-plugins.zip
-            dist/conda/noarch/*.conda
+          path: dist/conda/noarch/*.conda
           if-no-files-found: error
           retention-days: 7

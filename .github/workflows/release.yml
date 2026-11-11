@@ -101,13 +101,11 @@ jobs:
             exit 1
           fi
           shopt -s nullglob
-          packages=(conda/noarch/*.conda)
+          packages=(*.conda)
           test "${#packages[@]}" -eq 1
-          [[ "${packages[0]}" == conda/noarch/agent-skill-conda-plugins-"$VERSION"-*_0.conda ]]
-          test -f conda-plugins.zip
-          test "$(find . -type f | wc -l)" -eq 2
+          [[ "${packages[0]}" == agent-skill-conda-plugins-"$VERSION"-*_0.conda ]]
+          test "$(find . -type f | wc -l)" -eq 1
           mkdir "$RUNNER_TEMP/release-assets"
-          cp conda-plugins.zip "$RUNNER_TEMP/release-assets/conda-plugins-$VERSION.zip"
           cp "${packages[0]}" "$RUNNER_TEMP/release-assets/"
           jq -n --arg repository "$GH_REPO" --arg tag "$TAG" \
             --arg commit "$COMMIT" --arg version "$VERSION" \
@@ -143,7 +141,7 @@ jobs:
             --source-ref "$GITHUB_REF"
             --cert-oidc-issuer https://token.actions.githubusercontent.com
             --deny-self-hosted-runners)
-          for artifact in "conda-plugins-$VERSION.zip" ./*.conda release-manifest.json; do
+          for artifact in ./*.conda release-manifest.json; do
             gh attestation verify "$artifact" --bundle "$BUILD_BUNDLE" "${identity[@]}"
           done
           packages=(./*.conda)
@@ -157,7 +155,7 @@ jobs:
             "$RUNNER_TEMP/verified-publication.json" >/dev/null
           cp "$BUILD_BUNDLE" build-provenance.sigstore.json
           cp "$PUBLICATION_BUNDLE" "${packages[0]}.sigstore.json"
-          sha256sum "conda-plugins-$VERSION.zip" ./*.conda \
+          sha256sum ./*.conda \
             release-manifest.json ./*.sigstore.json > SHA256SUMS
           sha256sum --check SHA256SUMS
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -184,7 +182,7 @@ jobs:
           # Publication waits for the protected Anaconda upload.
           gh release create "$TAG" --verify-tag --draft --latest=false \
             --title "$VERSION" --notes-file "$RUNNER_TEMP/release-notes.md" \
-            "conda-plugins-$VERSION.zip" ./*.conda release-manifest.json \
+            ./*.conda release-manifest.json \
             ./*.sigstore.json SHA256SUMS
           gh release view "$TAG" --json url --jq .url >> "$GITHUB_STEP_SUMMARY"
 

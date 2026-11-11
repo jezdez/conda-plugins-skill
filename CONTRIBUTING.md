@@ -31,15 +31,14 @@ Run the checks and rebuild the distribution:
 
 ```sh
 pixi run --locked check
-pixi run --locked build
 pixi run --locked build-conda
 ```
 
-Prek checks the skill header and recipe metadata. Lychee checks local Markdown links and anchors without fetching external URLs. Conda payload checks belong in the recipe, including license identity. The ZIP build checks archive integrity with `python -m zipfile --test`. There is no repository Python test suite. Inspect ZIP inventory, source-file hygiene, and standalone reference access manually before release. These checks do not execute examples or prove that an agent follows the instructions.
+Prek checks the skill header and recipe metadata. Lychee checks local Markdown links and anchors without fetching external URLs. Conda payload checks belong in the recipe, including license identity. There is no repository Python test suite. Inspect package inventory, source-file hygiene, and standalone reference access manually before release. These checks do not execute examples or prove that an agent follows the instructions.
 
 The skill uses a deliberately small frontmatter format: `name`, `description`, and `license`, in that order, each on one unquoted line. The prek rule requires the exact `conda-plugins` name, Apache-2.0, and a description of at most 1,024 characters starting with a letter and containing no colons or hash characters. This is a targeted text rule, not general YAML schema validation or scalar-type checking. Optional fields and other YAML spellings need an explicit tooling change. Prek also checks YAML file syntax and the recipe's package name, calendar version, and build fields. The recommended entry-point budget of 500 lines and 5,000 tokens remains an editorial guideline, not a format error.
 
-When changing `pixi.toml`, run `pixi lock` and include the updated lockfile. `pixi run --locked build` uses `python -m zipfile` to write `dist/conda-plugins.zip`. It includes the complete skill folder and preserves source file timestamps, so byte-reproducible ZIP output is no longer guaranteed. Generate checksums from the actual release artifacts. Generated files stay untracked and out of the repository root. Inspect the ZIP before sharing it with the intended audience.
+When changing `pixi.toml`, run `pixi lock` and include the updated lockfile. `pixi run --locked build-conda` builds the complete skill folder into a package under `dist/conda/noarch/`. Generate checksums from the actual release artifacts. Generated files stay untracked and out of the repository root. Inspect the package before sharing it with the intended audience.
 
 ## Test installation on Linux, macOS, and Windows
 
@@ -69,12 +68,12 @@ The repository must be public for the configured GitHub artifact attestations wi
 
 1. Review the recipe, changelog, and relevant evaluations. Run the local checks and package integration checks. Use a clean reviewed commit on `main`, with passing Checks CI at that exact SHA before tagging.
 2. With explicit release authorization, create and push the matching annotated `vYY.M.P` tag. The workflow requires a canonical calendar version in the current UTC month, an annotated tag pointing to the workflow commit on `main`, matching recipe metadata, zero build number, and a matching nonempty changelog section.
-3. The full reusable Checks workflow runs on Linux, macOS, and Windows. Only after every job succeeds does the draft job use the canonical Linux ZIP and conda package from that run. Other platform builds validate compatibility. No build or package code runs in the attestation and draft job.
-4. The draft job signs the ZIP, conda package, and manifest with GitHub build provenance. It also creates CEP 27 publication evidence for `https://conda.anaconda.org/jezdez`. Verification binds that evidence to the exact bytes, repository, release workflow, commit, tag, and GitHub OIDC issuer. The draft retains both bundles and `SHA256SUMS` alongside the distributions and manifest.
-5. Review the draft's six assets and approve the protected `anaconda` job. The publisher checks their stored checksums and the unchanged tag, inspects the package's internal name, version, build, and noarch fields, and refuses an existing or unverifiable channel release. It uploads the exact checked package without rebuilding, force overrides, or user uploader configuration.
+3. The full reusable Checks workflow runs on Linux, macOS, and Windows. Only after every job succeeds does the draft job use the canonical Linux conda package from that run. Other platform builds validate compatibility. No build or package code runs in the attestation and draft job.
+4. The draft job signs the conda package and manifest with GitHub build provenance. It also creates CEP 27 publication evidence for `https://conda.anaconda.org/jezdez`. Verification binds that evidence to the exact bytes, repository, release workflow, commit, tag, and GitHub OIDC issuer. The draft retains both bundles and `SHA256SUMS` alongside the package and manifest.
+5. Review the draft's five assets: the conda package, `release-manifest.json`, `build-provenance.sigstore.json`, the package's CEP 27 bundle, and `SHA256SUMS`. Approve the protected `anaconda` job. The publisher checks their stored checksums and the unchanged tag, inspects the package's internal name, version, build, and noarch fields, and refuses an existing or unverifiable channel release. It uploads the exact checked package without rebuilding, force overrides, or user uploader configuration.
 6. After the upload succeeds, the final job checks that the tag and every draft asset still match this run's stored artifacts, then publishes the GitHub draft. Release immutability locks the tag and assets. Titles and notes remain editable, so they are not a substitute for the signed manifest.
 
-The ZIP is named `conda-plugins-<version>.zip` on the release and contains the same `conda-plugins/` directory as the local ZIP. The manifest records the repository, source commit, tag, version, build number, workflow commit, run URL, attempt, and canonical platform. Changelog notes come from the tagged commit. The uploaded files are reused throughout the pipeline.
+The manifest records the repository, source commit, tag, version, build number, workflow commit, run URL, attempt, and canonical platform. Changelog notes come from the tagged commit. The uploaded files are reused throughout the pipeline.
 
 The published 26.11.0 release retains the `conda-plugin-skill` ZIP and skill-folder names and the `agent-skill-conda-plugin-skill` package name. Keep its assets and changelog history unchanged. The 26.11.1 candidate uses `conda-plugins` and `agent-skill-conda-plugins`.
 
