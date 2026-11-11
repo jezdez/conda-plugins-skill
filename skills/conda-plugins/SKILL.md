@@ -1,5 +1,5 @@
 ---
-name: conda-plugin-skill
+name: conda-plugins
 description: Use when creating, extending, debugging, reviewing, or documenting Python plugins for conda, including subcommands, settings, authentication, environment formats, solvers, and lifecycle hooks. Not for ordinary package installation or environment management unless the task concerns a plugin's implementation.
 license: Apache-2.0
 ---
@@ -12,7 +12,7 @@ Use these synthesized development practices when building a plugin. The bundled 
 
 Before starting plugin implementation, debugging, review, or documentation work, confirm that Superpowers, Humanizer, and Ponytail are available to the current agent. Use the client's skill discovery and read each companion's entry point. Check once per session and reuse that confirmation unless availability changes. Namespaced skill names are valid.
 
-If any companion is missing or cannot be loaded, identify it, link the [setup instructions](https://github.com/jezdez/conda-plugin-skill#required-companion-skills), and stop before starting the plugin work. Do not silently substitute general advice or install companions without authorization. The user may explicitly waive a prerequisite for the current task.
+If any companion is missing or cannot be loaded, identify it, link the [setup instructions](https://github.com/jezdez/conda-plugins-skill#required-companion-skills), and stop before starting the plugin work. Do not silently substitute general advice or install companions without authorization. The user may explicitly waive a prerequisite for the current task.
 
 Apply the companions where their workflows fit:
 
@@ -53,7 +53,7 @@ For a new plugin, start with one installed entry point and one working hook. Add
 | Signed evidence, artifact binding, release ordering, publication recovery, or verification caches | [verification.md](references/verification.md) |
 | Human-facing docs, Diátaxis, Sphinx, MyST, sphinx-design, examples, or GIF demos | [documentation.md](references/documentation.md) |
 | Regression tests, startup checks, or completion claims | [testing.md](references/testing.md) |
-| Installing the skill or companions | [Repository README](https://github.com/jezdez/conda-plugin-skill#readme) |
+| Installing the skill or companions | [Repository README](https://github.com/jezdez/conda-plugins-skill#readme) |
 
 Read the sections relevant to the current change, including guidance from multiple references when needed. The target code and bundled patterns should be sufficient for ordinary work. Consult current upstream documentation when a supported API or standard needs verification.
 

@@ -69,7 +69,7 @@ jobs:
         with:
           name: release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            dist/conda-plugin-skill.zip
+            dist/conda-plugins.zip
             dist/conda/noarch/*.conda
           if-no-files-found: error
           retention-days: 7

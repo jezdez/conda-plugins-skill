@@ -46,7 +46,7 @@ jobs:
           version=${TAG#v}
           # Match the repository's deliberately fixed recipe fields.
           grep -Fx "  version: \"$version\"" recipe/recipe.yaml
-          grep -Fx '  name: agent-skill-conda-plugin-skill' recipe/recipe.yaml
+          grep -Fx '  name: agent-skill-conda-plugins' recipe/recipe.yaml
           grep -Fx '  number: 0' recipe/recipe.yaml
           awk -v version="$version" '
             $1 == "##" && $2 == version { found = 1 }
@@ -103,11 +103,11 @@ jobs:
           shopt -s nullglob
           packages=(conda/noarch/*.conda)
           test "${#packages[@]}" -eq 1
-          [[ "${packages[0]}" == conda/noarch/agent-skill-conda-plugin-skill-"$VERSION"-*_0.conda ]]
-          test -f conda-plugin-skill.zip
+          [[ "${packages[0]}" == conda/noarch/agent-skill-conda-plugins-"$VERSION"-*_0.conda ]]
+          test -f conda-plugins.zip
           test "$(find . -type f | wc -l)" -eq 2
           mkdir "$RUNNER_TEMP/release-assets"
-          cp conda-plugin-skill.zip "$RUNNER_TEMP/release-assets/conda-plugin-skill-$VERSION.zip"
+          cp conda-plugins.zip "$RUNNER_TEMP/release-assets/conda-plugins-$VERSION.zip"
           cp "${packages[0]}" "$RUNNER_TEMP/release-assets/"
           jq -n --arg repository "$GH_REPO" --arg tag "$TAG" \
             --arg commit "$COMMIT" --arg version "$VERSION" \
@@ -143,7 +143,7 @@ jobs:
             --source-ref "$GITHUB_REF"
             --cert-oidc-issuer https://token.actions.githubusercontent.com
             --deny-self-hosted-runners)
-          for artifact in "conda-plugin-skill-$VERSION.zip" ./*.conda release-manifest.json; do
+          for artifact in "conda-plugins-$VERSION.zip" ./*.conda release-manifest.json; do
             gh attestation verify "$artifact" --bundle "$BUILD_BUNDLE" "${identity[@]}"
           done
           packages=(./*.conda)
@@ -157,7 +157,7 @@ jobs:
             "$RUNNER_TEMP/verified-publication.json" >/dev/null
           cp "$BUILD_BUNDLE" build-provenance.sigstore.json
           cp "$PUBLICATION_BUNDLE" "${packages[0]}.sigstore.json"
-          sha256sum "conda-plugin-skill-$VERSION.zip" ./*.conda \
+          sha256sum "conda-plugins-$VERSION.zip" ./*.conda \
             release-manifest.json ./*.sigstore.json > SHA256SUMS
           sha256sum --check SHA256SUMS
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -184,7 +184,7 @@ jobs:
           # Publication waits for the protected Anaconda upload.
           gh release create "$TAG" --verify-tag --draft --latest=false \
             --title "$VERSION" --notes-file "$RUNNER_TEMP/release-notes.md" \
-            "conda-plugin-skill-$VERSION.zip" ./*.conda release-manifest.json \
+            "conda-plugins-$VERSION.zip" ./*.conda release-manifest.json \
             ./*.sigstore.json SHA256SUMS
           gh release view "$TAG" --json url --jq .url >> "$GITHUB_STEP_SUMMARY"
 
@@ -194,7 +194,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: anaconda
-      url: https://anaconda.org/jezdez/agent-skill-conda-plugin-skill
+      url: https://anaconda.org/jezdez/agent-skill-conda-plugins
     permissions:
       contents: read
     env:
@@ -231,14 +231,14 @@ jobs:
           "$GITHUB_WORKSPACE/.pixi/envs/default/bin/rattler-build" package inspect \
             --json --no-config "${packages[0]}" > "$RUNNER_TEMP/package.json"
           jq -e --arg version "$VERSION" --arg filename "${packages[0]}" '
-            .index | .name == "agent-skill-conda-plugin-skill" and
+            .index | .name == "agent-skill-conda-plugins" and
             .version == $version and .build_number == 0 and
             .noarch == "generic" and .subdir == "noarch" and
             $filename == (.name + "-" + .version + "-" + .build + ".conda")
           ' "$RUNNER_TEMP/package.json" >/dev/null
           status=$(curl -sS --connect-timeout 10 --max-time 30 \
             -o /dev/null -w '%{http_code}' \
-            "https://api.anaconda.org/release/jezdez/agent-skill-conda-plugin-skill/$VERSION")
+            "https://api.anaconda.org/release/jezdez/agent-skill-conda-plugins/$VERSION")
           if [ "$status" != 404 ]; then
             echo "Anaconda.org release exists or could not be checked." >&2
             exit 1

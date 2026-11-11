@@ -1,5 +1,5 @@
 [workspace]
-name = "conda-plugin-skill"
+name = "conda-plugins-skill"
 description = "Portable agent skills for conda plugin development"
 channels = ["conda-forge"]
 platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
@@ -16,7 +16,7 @@ links = "lychee --offline --include-fragments '*.md' 'skills/**/*.md'"
 # actionlint 1.7.12 does not yet recognize GitHub's self-repository syntax.
 workflows = "actionlint -ignore '^reusable workflow call \"\\$/\\.github/workflows/checks\\.yml\" at \"uses\" is not following the format'"
 check = { depends-on = ["prek"] }
-build = { cmd = "mkdir -p ../dist && python -m zipfile --create ../dist/conda-plugin-skill.zip conda-plugin-skill && python -m zipfile --test ../dist/conda-plugin-skill.zip", cwd = "skills", depends-on = ["check"] }
+build = { cmd = "mkdir -p ../dist && python -m zipfile --create ../dist/conda-plugins.zip conda-plugins && python -m zipfile --test ../dist/conda-plugins.zip", cwd = "skills", depends-on = ["check"] }
 build-conda = { cmd = "rattler-build build --recipe recipe/recipe.yaml --output-dir dist/conda --no-config --no-include-recipe", depends-on = ["check"] }
 prek = "prek run --all-files"
 install-hooks = "prek install"

@@ -1,13 +1,13 @@
 schema_version: 1
 
 package:
-  name: agent-skill-conda-plugin-skill
+  name: agent-skill-conda-plugins
   version: "26.11.1"
 
 source:
   path: ..
   filter:
-    - skills/conda-plugin-skill/**
+    - skills/conda-plugins/**
     - LICENSE
 
 build:
@@ -20,9 +20,9 @@ build:
       import shutil
       from pathlib import Path
 
-      source = Path("skills/conda-plugin-skill")
+      source = Path("skills/conda-plugins")
       assert (source / "LICENSE").read_bytes() == Path("LICENSE").read_bytes()
-      target = Path(os.environ["PREFIX"]) / "share/agent-skills/conda-plugin-skill"
+      target = Path(os.environ["PREFIX"]) / "share/agent-skills/conda-plugins"
       shutil.copytree(source, target)
       files = [path for path in source.rglob("*") if path.is_file()]
       assert {path.relative_to(source) for path in files} == {
@@ -39,17 +39,17 @@ tests:
   - package_contents:
       strict: true
       files:
-        - share/agent-skills/conda-plugin-skill/SKILL.md
-        - share/agent-skills/conda-plugin-skill/LICENSE
-        - share/agent-skills/conda-plugin-skill/THIRD_PARTY_NOTICES.md
-        - share/agent-skills/conda-plugin-skill/references/*.md
+        - share/agent-skills/conda-plugins/SKILL.md
+        - share/agent-skills/conda-plugins/LICENSE
+        - share/agent-skills/conda-plugins/THIRD_PARTY_NOTICES.md
+        - share/agent-skills/conda-plugins/references/*.md
   - script:
       interpreter: python
       content: |
         import os
         from pathlib import Path
 
-        skill = Path(os.environ["CONDA_PREFIX"]) / "share/agent-skills/conda-plugin-skill"
+        skill = Path(os.environ["CONDA_PREFIX"]) / "share/agent-skills/conda-plugins"
         assert not skill.is_symlink()
         for path in skill.rglob("*"):
             assert not path.is_symlink()
@@ -67,6 +67,6 @@ about:
   license: Apache-2.0
   license_file:
     - LICENSE
-    - skills/conda-plugin-skill/THIRD_PARTY_NOTICES.md
-  homepage: https://github.com/jezdez/conda-plugin-skill
-  repository: https://github.com/jezdez/conda-plugin-skill
+    - skills/conda-plugins/THIRD_PARTY_NOTICES.md
+  homepage: https://github.com/jezdez/conda-plugins-skill
+  repository: https://github.com/jezdez/conda-plugins-skill
